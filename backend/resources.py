@@ -4,27 +4,35 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify
 from .instance import cache
+from .models import User, GitUser
 import requests
 
 
 
 api = Api()
+
+def key(owner):
+    try:
+        git_user = GitUser.query.filter_by(owner = owner).first()
+        if git_user:
+            return git_user.token
+        return "Git Error"
+    except Exception as e:
+        return jsonify({"message":f"Error: {e}"})
+
+
 class GitHubRepo(Resource):
-    def check_owner_exists(self, owner, token=None):
+    def check_owner_exists(self, owner):
         """Checks if a user exists on GitHub using the GitHub API."""
         url = f"https://api.github.com/users/{owner}"
-        headers = {}
-        if token:
-            headers['Authorization'] = f'token {token}'
-        response = requests.get(url, headers=headers)
+        response = requests.get(url)
         return response.status_code == 200
 
     def get(self, owner, repo=None):
-        token="" # from database
+        token=key("rough@g.com")
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
-            # print(f"{owner} is not valid.")
             return jsonify({"message": f"Owner '{owner}' not found on GitHub."})
 
         if not repo:
@@ -34,13 +42,14 @@ class GitHubRepo(Resource):
             token
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
+            # token = "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"
+            token = key(owner)
             headers = {}
             if token:
                 headers['Authorization'] = f'token {token}'
                 headers['Accept'] = "application/vnd.github.v3+json"
             
             response = requests.get(url,headers=headers)
-            print(response.status_code)
             if response.status_code == 200:
                 commits = response.json()
                 
@@ -59,7 +68,6 @@ class GitHubRepo(Resource):
             else:
                 return jsonify({"message":f"Error: {response.status_code}"})
         except Exception as e:
-            print(e)
             return jsonify({"message":f"Error: {e}"})
 
         else:

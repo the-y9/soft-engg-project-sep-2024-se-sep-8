@@ -1,6 +1,6 @@
 import subprocess
 import sys
-from backend.models import db, User, Role
+from backend.models import db, User, Role, GitUser
 from backend.config import DevelopmentConfig
 from backend.security import datastore
 from backend.resources import api

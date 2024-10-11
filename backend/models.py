@@ -50,3 +50,8 @@ class Role(db.Model, RoleMixin):
     def __repr__(self):
         return f"<Role {self.name}>"
 
+class GitUser(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    userId = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    owner = db.Column(db.String(255))
+    token = db.Column(db.String(255))
