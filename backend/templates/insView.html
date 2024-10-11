@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instructor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        .graph-container {
+            padding: 20px; /* Padding inside the box */
+            border: 1px solid #e1e4e8; /* Border color */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #ffffff; /* Background color for the box */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+        }
+        .contribution-graph {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-auto-rows: 20px; /* Height of each square */
+            gap: 2px; /* Space between squares */
+        }
+        .square {
+            width: 20px; /* Width of each square */
+            height: 20px; /* Height of each square */
+            border-radius: 3px;
+            background-color: #ebedf0; /* Default color (no contributions) */
+        }
+        .square[data-count="1"] { background-color: #c6e48b; } /* Light green */
+        .square[data-count="2"] { background-color: #7ee48e; } /* Medium green */
+        .square[data-count="3"] { background-color: #40c463; } /* Darker green */
+        .square[data-count="4"] { background-color: #30a14e; } /* Even darker green */
+        .square[data-count="5"] { background-color: #216e39; } /* Darkest green */
+
+    </style>
+  </head>
+  <body style="background-color: #f6f8fa;">
+    <nav class="navbar" style="background-color: #b9e1fd;">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Navbar</a>
+        </div>
+    </nav>
+    <br>
+    <div class="container container-lg text-center">
+        <div class = "row">
+            <div class="col d-flex align-items-center"><h1 class="">Hello, Instructor!</h1></div>
+            <div class="col"></div>
+            <div class="col">
+                <h4>Milestones</h4>
+                <table class="table table-bordered text-start">
+                    <tr><td><strike>1. Task Task Task ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></strike></td></tr>
+                    <tr><td>2. Task ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></td></tr>
+                    <tr><td>3. Task ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></td></tr>
+                </table>
+            </div>
+            <div class="col">
+                <h4>2. Task ... <sup><span class="badge rounded-pill text-bg-info">12/01/24</span></sup> </h4>
+                <p>Focus: User Interfaces
+                    ➔ Create a storyboard for the application - it can be a ppt or even a video.
+                    Embed the ppt/video in the PDF submission of this week.
+                    ➔ Take each user story and create low-fidelity wireframes
+                    ➔ Apply usability design guidelines and heuristics discussed in lectures to come
+                    up with the wireframes.
+                </p>
+                <button class="btn btn-primary">Details</button> <button class="btn btn-primary">Edit</button>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div class="container container-lg text-center">
+        <div class = "row">
+            <div class="col">
+                <h4>Milestones</h4>
+                <div>
+                    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+                  </div>
+                  
+                  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                  
+                  <script>
+                    const ctx = document.getElementById('myChart');
+                    new Chart(ctx, {
+                      type: 'bar',
+                      data: {
+                        labels: [1,2,3,4,5,6],
+                        datasets: [{
+                          label: 'No. of Students Completed',
+                          data: Array.from({length:6}, () => Math.floor(Math.random()* (100-3+1))+3),
+                          borderWidth: 1
+                        }]
+                      },
+                      options: {scales: {y: {beginAtZero: true} }}
+                    });
+                  </script>
+            </div>
+            <div class="col">
+                <h4>Last Commits </h4>
+                <div>
+                    <canvas id="lastCommits" style="width:100%;max-width:700px"></canvas>
+                  </div>
+                  
+                  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                  
+                  <script>
+                    const ctxi = document.getElementById('lastCommits');
+                    new Chart(ctxi, {
+                      type: 'line',
+                      data: {
+                        labels: Array.from({length: 15}, (_, i) => i + 1),
+                        datasets: [{
+                          label: 'Last Commits',
+                          data: Array.from({ length: 15 }, () => Math.floor(Math.random() * (100 - 3 + 1)) + 3),
+                          borderWidth: 1
+                        }]
+                      },
+                      options: {scales: 
+                        {
+                            x: {
+                            title: {display: true, 
+                                    text: 'Last 15 days' }
+                            },
+                            y: {beginAtZero: true} 
+                            }}
+                    });
+                  </script>
+                <button class="btn btn-primary">Details</button> <button class="btn btn-primary">Edit</button>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div class="container container-lg text-center">
+        <div class = "row">
+            <div class="col">
+                <h4>Activity</h4>
+                <p>Last 30 days</p>
+                <div class="graph-container">
+                    <div class="contribution-graph" id="contributionGraph"></div>
+                </div>
+            
+                <script>
+                    // Generate random contribution data for 30 days
+                    function generateRandomContributions(days) {
+                        return Array.from({ length: days }, () => Math.floor(Math.random() * 6)); // Random counts from 0 to 5
+                    }
+                    // Create the contribution graph
+                    const contributionGraph = document.getElementById('contributionGraph');
+                    const contributions = generateRandomContributions(30); // Generate contributions for 30 days
+            
+                    // Create squares for each day's contributions
+                    contributions.forEach((count, index) => {
+                        const square = document.createElement('div');
+                        square.className = 'square';
+                        square.setAttribute('data-count', count); // Store the count in a data attribute
+                        
+                        contributionGraph.appendChild(square);
+                    });
+                </script>
+            </div>
+            <div class="col">
+                <h4>Recent Commits</h4>
+                <table class="table table-bordered text-start">
+                    <tr><td> Commit Message ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></td></tr>
+                    <tr><td> Commit Message ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></td></tr>
+                    <tr><td> Commit Message ... <br><span class="badge rounded-pill text-bg-info">12/01/24</span></td></tr>
+                </table>
+            </div>
+            <div class="col">
+                <form class="">
+                    <input class="form-control me-2" type="search" placeholder="Search Student" aria-label="Search">
+                    <br>
+                    <button class="btn btn-outline-success" type="submit"><i class="bi bi-search"></i></button>
+                  </form>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </body>
+</html>
