@@ -30,11 +30,11 @@ def signup():
         datastore.create_user(
             email=data['email'],
             password=generate_password_hash(data['password']),
-            roles=['user'],  
+            roles=['student'],  
             active=False
         )
         db.session.commit()
-        return jsonify({'message': 'User successfully registered'}), 201
+        return jsonify({'message': 'Successfully registered as student.'}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': str(e)}), 500
