@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Documentation Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .user-message {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .bot-message {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .message-input {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Milestone Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Submit Work</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Chatbot</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Project Documentation Chatbot</h1>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="bot-message">
+                <strong>Bot:</strong> Hello! How can I assist you with project documentation today?
+            </div>
+        </div>
+
+        <div class="message-input">
+            <input type="text" class="form-control" id="userInput" placeholder="Type your message here..." autofocus>
+            <button class="btn btn-primary mt-2" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            © 2024 Milestone Tracker:
+            <a class="text-dark" href="#">milestonetracker.com</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const messageContainer = document.getElementById('chatContainer');
+            const userMessage = userInput.value;
+
+            if (userMessage.trim() === '') return; // Ignore empty messages
+
+            // Append user message to the chat
+            messageContainer.innerHTML += `
+                <div class="user-message">
+                    <strong>You:</strong> ${userMessage}
+                </div>
+            `;
+
+            // Simulate bot response (in a real application, this could be an API call)
+            const botResponse = getBotResponse(userMessage);
+            messageContainer.innerHTML += `
+                <div class="bot-message">
+                    <strong>Bot:</strong> ${botResponse}
+                </div>
+            `;
+
+            // Clear the input field and scroll to the bottom
+            userInput.value = '';
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        function getBotResponse(message) {
+            // Basic keyword-based responses (could be replaced with more complex logic or API calls)
+            const lowerMessage = message.toLowerCase();
+            if (lowerMessage.includes('guidelines')) {
+                return "You can find the project guidelines in the 'Resources' section of the portal.";
+            } else if (lowerMessage.includes('format')) {
+                return "The recommended format for project documentation is PDF or DOCX.";
+            } else if (lowerMessage.includes('deadline')) {
+                return "The submission deadline for this project is next Friday at 5 PM.";
+            } else if (lowerMessage.includes('feedback')) {
+                return "You can expect feedback within 3 business days after submission.";
+            } else {
+                return "I'm sorry, I didn't understand that. Can you please rephrase your question?";
+            }
+        }
+    </script>
+</body>
+</html>

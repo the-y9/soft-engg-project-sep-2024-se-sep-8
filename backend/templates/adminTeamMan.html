@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Team Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-boxplot@2.0.0/dist/chartjs-chart-boxplot.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            width: 100%;
+        }
+
+        canvas {
+            max-height: 400px;
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Team Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Team Management</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Support</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Multiple Team Management</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Team Milestones Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="milestonesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Task Completion Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="tasksChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">Milestones Achieved by Teams</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="teamsMilestoneChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">Task Completion Trend (Line Chart)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+
+        
+
+    </div>
+
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            © 2024 Multiple Team Tracker:
+            <a class="text-dark" href="#">Team 8</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to generate random integers between min (inclusive) and max (inclusive)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Generate random data for testing
+        const labels = Array.from({ length: 78 }, () => getRandomInt(1, 79)); 
+        const milestonesData = labels.map(() => getRandomInt(1, 6)); // Random milestones achieved (1 to 6)
+        const taskCompletionData = labels.map(() => getRandomInt(5, 100)); // Random task completion percentages (50% to 100%)
+        const teamsAchievedData = Array.from({ length: 78 }, () => getRandomInt(1, 79)); // Random number of teams for milestones (1 to 10)
+
+        // Generate random data for line chart (Task Completion Over Time)
+        const lineChartLabels = Array.from({ length: 12 }, (_, i) => `Week ${i + 1}`);
+        const lineChartData = lineChartLabels.map(() => getRandomInt(50, 100)); // Random task completion percentages (50% to 100%)
+
+        // Generate random data for box plot
+        const boxPlotData = [
+            { label: 'Team A', data: [getRandomInt(50, 60), getRandomInt(60, 70), getRandomInt(70, 80), getRandomInt(80, 90), getRandomInt(90, 100)] },
+            { label: 'Team B', data: [getRandomInt(40, 60), getRandomInt(60, 80), getRandomInt(70, 90), getRandomInt(80, 95), getRandomInt(90, 100)] },
+            { label: 'Team C', data: [getRandomInt(30, 50), getRandomInt(60, 70), getRandomInt(70, 80), getRandomInt(80, 90), getRandomInt(90, 100)] },
+            { label: 'Team D', data: [getRandomInt(40, 60), getRandomInt(70, 80), getRandomInt(70, 90), getRandomInt(80, 95), getRandomInt(90, 100)] },
+            { label: 'Team E', data: [getRandomInt(40, 60), getRandomInt(50, 70), getRandomInt(60, 80), getRandomInt(70, 90), getRandomInt(90, 100)] }
+        ];
+
+        // Initialize charts
+        function createMilestonesChart() {
+            const ctx = document.getElementById('milestonesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Milestones Achieved',
+                        data: milestonesData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Milestones Achieved'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTasksChart() {
+            const ctx = document.getElementById('tasksChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Task Completion (%)',
+                        data: taskCompletionData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Completion Percentage (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTeamsMilestoneChart() {
+            const ctx = document.getElementById('teamsMilestoneChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Milestone 1', 'Milestone 2', 'Milestone 3', 'Milestone 4', 'Milestone 5', 'Milestone 6'],
+                    datasets: [{
+                        label: 'Number of Teams Achieved',
+                        data: teamsAchievedData,
+                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Teams'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createLineChart() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: lineChartLabels,
+                    datasets: [{
+                        label: 'Task Completion Trend (%)',
+                        data: lineChartData,
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Completion Percentage (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createBoxPlot() {
+            const ctx = document.getElementById('boxPlotChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'boxplot',
+                data: {
+                    labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+                    datasets: boxPlotData.map(team => ({
+                        label: team.label,
+                        data: team.data,
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Performance'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createViolinChart() {
+            const trace = {
+                type: 'violin',
+                y: [...Array(100)].map(() => getRandomInt(40, 100)), // Random values for demonstration
+                box: {
+                    visible: true,
+                },
+                line: {
+                    color: 'purple',
+                },
+                meanline: {
+                    visible: true,
+                },
+                name: 'Team Performance',
+                opacity: 0.6,
+                marker: {
+                    color: 'orange',
+                }
+            };
+
+            const layout = {
+                title: 'Team Performance Distribution (Violin Plot)',
+                yaxis: {
+                    title: 'Performance Score',
+                }
+            };
+
+            Plotly.newPlot('violinChart', [trace], layout);
+        }
+
+        // Initialize charts on page load with random data
+        createMilestonesChart();
+        createTasksChart();
+        createTeamsMilestoneChart();
+        createLineChart();
+        createBoxPlot();
+        createViolinChart();
+    </script>
+</body>
+
+</html>

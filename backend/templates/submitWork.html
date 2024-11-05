@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitting Work with AI Validation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .upload-card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Milestone Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Milestones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Submit Work</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Submit Your Work for AI Validation</h1>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card upload-card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Upload Your Document</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="submission-form">
+                            <div class="mb-3">
+                                <label for="workTitle" class="form-label">Title of Your Work</label>
+                                <input type="text" class="form-control" id="workTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fileUpload" class="form-label">Choose File</label>
+                                <input type="file" class="form-control" id="fileUpload" accept=".pdf,.docx,.txt" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit for Validation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Validation Results <span class="badge rounded-pill text-bg-info">AI-Generated</span></h5>
+                    </div>
+                    <div class="card-body" id="validationResults">
+                        <p class="text-center">No results yet. Submit your work to see validation results here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            © 2024 AI Validation:
+            <a class="text-dark" href="#">Team 8</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simulate the validation process
+        document.getElementById('submission-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+            const title = document.getElementById('workTitle').value;
+            const resultsDiv = document.getElementById('validationResults');
+
+            // Simulated validation results
+            const validationResults = `
+                <h6>Your Submission: <strong>${title}</strong></h6>
+                <p>Validation Status: <strong>Pass</strong></p>
+                <p>Comments: Your work aligns well with the milestone requirements!</p>
+            `;
+
+            resultsDiv.innerHTML = validationResults; // Display results
+        });
+
+        function clearResults() {
+            document.getElementById('validationResults').innerHTML = `
+                <p class="text-center">No results yet. Submit your work to see validation results here.</p>
+            `;
+            document.getElementById('workTitle').value = '';
+            document.getElementById('fileUpload').value = '';
+        }
+    </script>
+</body>
+</html>

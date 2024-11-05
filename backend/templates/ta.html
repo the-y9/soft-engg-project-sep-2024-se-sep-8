@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .prediction-card {
+            margin-bottom: 20px;
+        }
+        .result-table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Performance Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Performance Prediction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Support</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Student Performance Prediction</h1>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card prediction-card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">Select Student Roll Number</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="student-selection-form">
+                            <div class="mb-3">
+                                <label for="rollNo" class="form-label">Choose Roll Number</label>
+                                <select class="form-select" id="rollNo" required>
+                                    <option value="">Select a roll number</option>
+                                    <option value="21f3002898">21fx</option>
+                                    <option value="21fx">21fx</option>
+                                    <option value="21f3002900">21fx</option>
+                                    <option value="21f3002901">21fx</option>
+                                    <option value="21f3002902">21fx</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Predict Performance</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row result-table">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Prediction Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Task Completion (%)</th>
+                                    <th>Coding Activity (Hours)</th>
+                                    <th>Predicted Performance</th>
+                                    <th>Support Recommendation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="predictionResults">
+                                <tr>
+                                    <td colspan="5" class="text-center">No results yet. Select a roll number to see predictions.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            © 2024 Performance Tracker:
+            <a class="text-dark" href="#">Team 8</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const dummyData = {
+            "21f3002898": { completion: 85, activity: 10, performance: 'High', recommendation: 'No support needed' },
+            "21fx": { completion: 60, activity: 5, performance: 'Medium', recommendation: 'Consider additional support' },
+            "21f3002900": { completion: 40, activity: 3, performance: 'Low', recommendation: 'Urgent support needed' },
+            "21f3002901": { completion: 75, activity: 8, performance: 'High', recommendation: 'No support needed' },
+            "21f3002902": { completion: 50, activity: 4, performance: 'Medium', recommendation: 'Consider additional support' }
+        };
+
+        document.getElementById('student-selection-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default form submission
+            const rollNo = document.getElementById('rollNo').value;
+            const resultsTable = document.getElementById('predictionResults');
+
+            // Clear previous results
+            resultsTable.innerHTML = '';
+
+            // Get prediction results from dummy data
+            const result = dummyData[rollNo];
+            if (result) {
+                resultsTable.innerHTML += `
+                    <tr>
+                        <td>${rollNo}</td>
+                        <td>${result.completion}%</td>
+                        <td>${result.activity} hours</td>
+                        <td>${result.performance}</td>
+                        <td>${result.recommendation}</td>
+                    </tr>
+                `;
+            } else {
+                resultsTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">No results available for this student.</td>
+                    </tr>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
