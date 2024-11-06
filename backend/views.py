@@ -10,7 +10,7 @@ import smtplib
 
 @app.get('/')
 def home():
-    return "Hello"
+    return render_template('index.html')
 
 @app.get('/admin')
 @auth_required("token")
