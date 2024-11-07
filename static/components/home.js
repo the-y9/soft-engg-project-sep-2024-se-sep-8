@@ -43,6 +43,12 @@ export default  {
         }
     },
 
+    methods: {
+        goToRegister(){
+            this.$router.push('/register')
+        }
+    },
+
     components:{
         // librarian_dashboard,
         // user_dashboard,
