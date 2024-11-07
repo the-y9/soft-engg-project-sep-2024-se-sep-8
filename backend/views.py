@@ -21,7 +21,7 @@ def admin():
 @app.post('/user-signup')
 def signup():
     data = request.get_json()
-    if datastore.find_user(email=data.get('email')):
+    if datastore.find_user(email=data.get('email')): # or datastore.find_user(username=data.get('email')):
         return jsonify({'message': 'Email already registered'}), 400 
     if not data.get("password"):
         return jsonify({"message":"Password not provided"}),400
@@ -29,6 +29,7 @@ def signup():
     try:
         datastore.create_user(
             email=data['email'],
+            username=data['uname'],
             password=generate_password_hash(data['password']),
             roles=['student'],  
             active=False
@@ -45,15 +46,21 @@ def signup():
 def user_login():
     data = request.get_json()
     email = data.get('email')
+    print(email)
     if not email:
-        return jsonify({"message":"Email not provided"}),400
+        return jsonify({"message":"Email or Username not provided"}),400
     if not data.get("password"):
         return jsonify({"message":"Password not provided"}),400
     
-    user = datastore.find_user(email=email)
+    if '@' in email:
+        user = datastore.find_user(email=email)
+        print(1)
+    else:
+        print(2)
+        user = datastore.find_user(username=email)
     
     if not user:
-        return jsonify({"message":"Email not found."}),404
+        return jsonify({"message":"Email or Username not found."}),404
     
     if check_password_hash(user.password, data.get("password")):
         if user.active:

@@ -30,7 +30,7 @@ with app.app_context():
     # Define user data
     users_data = [
         {"email": "admin@g.com", "password": "admin", "roles": ["admin"]},
-        {"email": "ins@g.com", "password": "ins", "roles": ["instructor"]},
+        {"email": "ins@g.com","username":"ins", "password": "ins", "roles": ["instructor"]},
         {"email": "stud@g.com", "password": "stud", "roles": ["student"]},
         {"email": "ta@g.com", "password": "ta", "roles": ["ta"]},
         {"email": "ee@g.com", "password": "ee", "roles": ["extEval"]},
@@ -38,16 +38,21 @@ with app.app_context():
     ]
 
     # Create users
-    for user in users_data:
-        if not datastore.find_user(email=user["email"]):
-            datastore.create_user(
-                email=user["email"],
-                password=generate_password_hash(user["password"]),
-                roles=user["roles"]
-            )
-    print(f"{len(users_data)} roles created.")
+    try:
+        for user in users_data:
+            if not datastore.find_user(email=user["email"]):
+                datastore.create_user(
+                    email=user["email"],
+                    username = user.get("username", user["email"]),
+                    password=generate_password_hash(user["password"]),
+                    roles=user["roles"]
+                )
+        print(f"{len(users_data)} roles created.")
+        db.session.commit()
+    
+    except Exception as e:
+        print(f"ERROR: {e}")
 
-    db.session.commit()
 
     # GitUser data
     gitUser = [
