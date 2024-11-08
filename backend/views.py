@@ -29,7 +29,7 @@ def signup():
     try:
         datastore.create_user(
             email=data['email'],
-            username=data['uname'],
+            username=data['username'],
             password=generate_password_hash(data['password']),
             roles=['student'],  
             active=False
