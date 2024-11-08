@@ -1,5 +1,5 @@
 import router from './router.js'
-// import navbar from './components/navbar.js'
+import navbar from './components/navbar.js'
 
 
 
@@ -33,7 +33,7 @@ new Vue({
     <router-view /> </div>`,
     router,
     components:{
-        // navbar,
+        navbar,
     },
     data:{
         has_changed: true,

@@ -341,3 +341,58 @@
 .login-link a:hover {
   text-decoration: underline;
 }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #000);
+  color: #fff;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid #ffffff44;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #f0f0f0;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-link {
+  color: #d0d0d0;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: #0052cc;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .navbar-brand {
+      font-size: 1.2rem;
+  }
+  .nav-link {
+      font-size: 0.9rem;
+      padding: 6px 12px;
+  }
+}
