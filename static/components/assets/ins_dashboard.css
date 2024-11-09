@@ -1,0 +1,70 @@
+.instructor-dashboard {
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  
+  .dashboard-header {
+    background: linear-gradient(135deg, #1e3c72, #2a5298, #000);
+    padding: 60px 20px;
+    text-align: center;
+    color: #fff;
+  }
+  
+  .dashboard-title .hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .dashboard-title .hero-subtitle {
+    font-size: 1.2rem;
+    color: #d0d0d0;
+  }
+  
+  .dashboard-options {
+    padding: 40px 20px;
+    background-color: #f0f0f0;
+  }
+  
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  .dashboard-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  
+  .dashboard-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .dashboard-image {
+    width: 80%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    object-fit: cover;
+  }
+  
+  .dashboard-card-title {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .dashboard-card-description {
+    color: #666;
+    font-size: 1rem;
+  }
+  
