@@ -46,7 +46,7 @@ export default {
             this.$router.push('/create_milestone')
         },
         goToMilestoneTracker() {
-            this.$router.push('/milestone-tracker')
+            this.$router.push('/milestone_tracker')
         },
         goToDocumentAnalyzer() {
             this.$router.push('/document-analyzer')
