@@ -5,6 +5,8 @@ import Not_found_page from './components/Not_found_page.js'
 import instructor_dashboard from './components/instructor_dashboard.js'
 import create_milestone from './components/create_milestone.js'
 import milestone_tracker from './components/milestone_tracker.js'   
+import student_perfomance_prediction from './components/student_perfomance_prediction.js'
+
 const routes = [
     { path:'/' , component : home , name:'home'},
     { path:'/login', component: login , name:'login'},
@@ -13,6 +15,7 @@ const routes = [
     { path:'/instructor_dashboard', component: instructor_dashboard, name:'instructor_dashboard'},
     { path:'/create_milestone', component: create_milestone, name:'create_milestone'},
     { path:'/milestone_tracker', component: milestone_tracker, name:'milestone_tracker'},
+    { path: '/student_performance', component: student_perfomance_prediction, name: 'student_performance'}
 ] 
 
 export default new VueRouter({
