@@ -15,7 +15,7 @@
 
 ## Introduction
 
-by Scrum Master ...
+This web application is designed to help instructors manage and track student project progress throughout the semester, especially in larger classes. The system allows projects to be broken down into clear milestones and integrates with GitHub to visualize commit histories for real-time coding insights. Leveraging Generative AI, the application also analyzes documents like proposals and reports to assist in evaluation. A centralized dashboard provides an overview of all teams, customizable milestones, and AI-powered progress predictions, making it a comprehensive tool for academic project management.
 
 ## Setup Instructions
 
