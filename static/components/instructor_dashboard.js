@@ -24,8 +24,8 @@ export default {
           </div>
           <div class="dashboard-card" @click="goToDocumentAnalyzer">
             <img src="static/images/doc_analyzer.webp" alt="Document Analyzer" class="dashboard-image" />
-            <h3 class="dashboard-card-title">Document Analyzer</h3>
-            <p class="dashboard-card-description">Analyze documents and extract key insights quickly.</p>
+            <h3 class="dashboard-card-title">Create Notification</h3>
+            <p class="dashboard-card-description">You can create Notifications From Here.</p>
           </div>
         </div>
         </center>
@@ -37,7 +37,7 @@ export default {
             options: [
                 { id: 1, title: "Create Milestone", description: "Plan and define your project milestones with ease.", image: "static/images/milestone.webp" },
                 { id: 2, title: "Milestone Tracker", description: "Track and monitor the progress of your milestones in real-time.", image: "static/images/track_milestone.webp" },
-                { id: 3, title: "Document Analyzer", description: "Analyze documents and extract key insights quickly.", image: "static/images/doc_analyzer.webp" },
+                { id: 3, title: "Notification", description: "You can create Notifications From Here.", image: "static/images/doc_analyzer.webp" },
             ]
         }
     },
@@ -49,7 +49,7 @@ export default {
             this.$router.push('/milestone_tracker')
         },
         goToDocumentAnalyzer() {
-            this.$router.push('/document-analyzer')
+            this.$router.push('/notification')
         }
     }
 }

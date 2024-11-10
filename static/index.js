@@ -2,7 +2,6 @@ import router from './router.js'
 import navbar from './components/navbar.js'
 
 
-
 router.beforeEach((to, from, next) => {
     const authToken = localStorage.getItem('auth-token');
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
