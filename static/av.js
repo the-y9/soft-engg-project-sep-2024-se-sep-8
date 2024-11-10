@@ -6,6 +6,7 @@ import instructor_dashboard from './components/instructor_dashboard.js'
 import create_milestone from './components/create_milestone.js'
 import milestone_tracker from './components/milestone_tracker.js'  
 import notification from './components/notification.js'
+import student_dashboard from './components/student_dashboard.js'
 
 export default [
     { path:'/' , component : home , name:'home'},
@@ -16,4 +17,5 @@ export default [
     { path:'/create_milestone', component: create_milestone, name:'create_milestone'},
     { path:'/milestone_tracker', component: milestone_tracker, name:'milestone_tracker'},
     { path:'/notification', component: notification, name:'notification'},
+    { path:'/student_dashboard', component: student_dashboard, name:'student_dashboard'},
 ]
