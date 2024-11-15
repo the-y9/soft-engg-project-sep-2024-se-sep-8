@@ -13,6 +13,8 @@ def install(package):
 try:
     from flask_sqlalchemy import SQLAlchemy
     from flask_security import UserMixin, RoleMixin
+    from sqlalchemy import func
+    from datetime import datetime, timezone
     # from sqlalchemy import func
 except ImportError as e:
     missing_module = str(e).split("'")[1]
@@ -53,6 +55,16 @@ class Role(db.Model, RoleMixin):
     def __repr__(self):
         return f"<Role {self.name}>"
 
+class Notifications(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime, default=func.now(), server_default=func.now(), nullable=False)
+
+    def __repr__(self):
+        return f'<Notification(title={self.title}, created_at={self.created_at})>'
+
 
 class GitUser(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -83,3 +95,14 @@ class Milestones(db.Model):
     description = db.Column(db.String(255))
     deadline = db.Column(db.TIMESTAMP)  # deadline=datetime(2024, 11, 15, 14, 30, 0) -> YYYY, MM, DD, HH, MM, SS
     
+
+# class Teams(db.Model):
+#     id = db.Column(db.Integer(), primary_key=True)
+#     project_id = db.Column(db.Integer, db.ForeignKey('projects.id') ,nullable = False)
+#     name = db.Column(db.String(20), nullable=False, unique=True)
+
+# class MilestoneTracker(db.Model):
+#     id = db.Column(db.Integer(), primary_key=True)
+#     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
+#     project_id = db.Column(db.Integer, db.ForeignKey('projects.id') ,nullable = False)
+#     name = db.Column(db.String(20), nullable=False, unique=True) 
