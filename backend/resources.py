@@ -2,11 +2,11 @@ from flask_restful import Resource, Api, reqparse, marshal_with, fields
 from flask_security import auth_required, roles_required, current_user
 from backend.models import db
 from sqlalchemy import func
-from flask import jsonify
+from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser
+from .models import User, GitUser, Projects, Milestones
 import requests
-
+from datetime import datetime
 
 
 api = Api()
@@ -75,3 +75,85 @@ class GitHubRepo(Resource):
 
 # Add the resource with different routes for owner and repo
 api.add_resource(GitHubRepo, '/owner/<string:owner>', '/owner/<string:owner>/repo/<string:repo>/commits')
+
+class Project_Manager(Resource):
+    
+    # Get a specific milestone by ID
+    def get(self, id=None,project_id=None):
+        if id:
+            try:
+                milestone = Milestones.query.get(id)
+                if milestone:
+                    return jsonify({
+                        'id': milestone.id,
+                        'project_id': milestone.project_id,
+                        'task_no': milestone.task_no,
+                        'task': milestone.task,
+                        'description': milestone.description,
+                        'deadline': milestone.deadline
+                    })
+                return jsonify({'message': 'Milestone not found'})
+            except Exception as e:
+                return jsonify({'ERROR': f'{e}'}), 400
+
+    # Get all milestones for a specific project
+    
+        elif project_id:
+            milestones = Milestones.query.filter_by(project_id=project_id).all()
+
+            if milestones:
+                return jsonify([{
+                    'id': milestone.id,
+                    'task_no': milestone.task_no,
+                    'task': milestone.task,
+                    'description': milestone.description,
+                    'deadline': milestone.deadline
+                } for milestone in milestones])
+            print(2,False)
+            return jsonify({'message': 'Milestones not found for the project'})
+        
+        return {'message': 'Project ID is required to retrieve milestones'}, 400
+
+    # Create a new milestone
+    def post(self):
+        data = request.get_json()
+        if 'project_id' not in data or 'task_no' not in data or 'task' not in data:
+            return jsonify({'message': 'Missing required fields'}), 400
+
+        project = Projects.query.get(data['project_id'])
+        if not project:
+            return jsonify({'message': 'Project not found'}), 404
+
+        new_milestone = Milestones(
+            project_id=data['project_id'],
+            task_no=data['task_no'],
+            task=data['task'],
+            description=data.get('description', ''),
+            deadline=datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S') if 'deadline' in data else None
+        )
+        db.session.add(new_milestone)
+        db.session.commit()
+
+        return jsonify({
+            'id': new_milestone.id,
+            'task_no': new_milestone.task_no,
+            'task': new_milestone.task,
+            'description': new_milestone.description,
+            'deadline': new_milestone.deadline
+        }), 201
+
+    # Delete a milestone
+    def delete(self, id=None):
+        if id:
+            milestone = Milestones.query.get(id)
+            if not milestone:
+                return jsonify({'message': 'Milestone not found'}), 404
+
+            db.session.delete(milestone)
+            db.session.commit()
+            return jsonify({'message': 'Milestone deleted successfully'}), 200
+        return {'message': 'ID is required to delete a milestone'}, 400
+
+# Add resources to the API with different routes
+api.add_resource(Project_Manager, '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+

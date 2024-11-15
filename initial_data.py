@@ -1,7 +1,8 @@
 from main import app
 from backend.security import datastore 
-from backend.models import db, Role, GitUser
+from backend.models import db, Role, GitUser, Projects, Milestones
 from werkzeug.security import generate_password_hash
+from datetime import datetime
 
 with app.app_context():
     db.create_all()
@@ -14,16 +15,15 @@ with app.app_context():
         {"category": "Secondary", "name": "ta", "description": "User who assists instructors"},
         {"category": "Tertiary", "name": "extEval", "description": "User who evaluates"}
     ]
-
+    
     # Create roles
     for role in roles_data:
-        existing_role = datastore.find_or_create_role(
+        datastore.find_or_create_role(
             category=role["category"],
             name=role["name"],
             description=role["description"]
-        )
-        if existing_role:
-            print(f"Role '{existing_role.name}' created with category '{existing_role.category}'.")
+        )   
+    print(f"{len(roles_data)} roles created.")
 
     db.session.commit()
 
@@ -47,7 +47,7 @@ with app.app_context():
                     password=generate_password_hash(user["password"]),
                     roles=user["roles"]
                 )
-        print(f"{len(users_data)} roles created.")
+        print(f"{len(users_data)} users created.")
         db.session.commit()
     
     except Exception as e:
@@ -65,3 +65,41 @@ with app.app_context():
                 token=user['token']
             ) )
     db.session.commit()
+
+    # Projects and Milsestone data
+    projects_data = [
+    {"title": "Project Alpha", "description": "Description for Project Alpha."},
+    {"title": "Project Beta", "description": "Description for Project Beta."},
+    {"title": "Project Gamma", "description": "Description for Project Gamma."}
+    ]
+
+    milestones_data = [
+    {"project_id": 1, "task_no": 1, "task": "Initial Planning", "description": "Complete the initial project planning.", "deadline": "2024-11-30 10:00:00"},
+    {"project_id": 1, "task_no": 2, "task": "Design Phase", "description": "Begin designing the project structure.", "deadline": "2024-12-10 12:00:00"},
+    {"project_id": 2, "task_no": 1, "task": "Requirement Gathering", "description": "Gather requirements for the project.", "deadline": "2024-12-01 09:00:00"},
+    {"project_id": 2, "task_no": 2, "task": "Development Start", "description": "Begin the development phase.", "deadline": "2024-12-20 14:00:00"},
+    {"project_id": 3, "task_no": 1, "task": "Market Research", "description": "Conduct market research for the new product.", "deadline": "2024-12-05 11:00:00"}
+    ]
+
+    try:
+        for project_data in projects_data:
+                project = Projects(
+                    title=project_data["title"],
+                    description=project_data["description"]
+                )
+                db.session.add(project)
+        db.session.commit()
+
+        for milestone_data in milestones_data:
+                milestone = Milestones(
+                    project_id=milestone_data["project_id"],
+                    task_no=milestone_data["task_no"],
+                    task=milestone_data["task"],
+                    description=milestone_data["description"],
+                    deadline=datetime.strptime(milestone_data["deadline"], "%Y-%m-%d %H:%M:%S")
+                )
+                db.session.add(milestone)
+        db.session.commit()
+        print("Dummy Project data inserted.")
+    except Exception as e:
+         print(f"ERROR: {e}")
