@@ -28,11 +28,11 @@ This web application is designed to help instructors manage and track student pr
    ```
 3. Clone the repository:
    ```bash
-   git clone https://github.com/the-y9/SE-Project.git
+   git clone https://github.com/the-y9/soft-engg-project-sep-2024-se-sep-8.git
    ```
 4. Navigate into the cloned directory:
    ```bash
-   cd SE-Project
+   cd soft-engg-project-sep-2024-se-sep-8
    ```
 
 ### Creating a Virtual Environment
