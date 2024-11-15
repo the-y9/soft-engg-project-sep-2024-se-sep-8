@@ -68,6 +68,13 @@ class Projects(db.Model):
     def __repr__(self):
         return f"<Projects {self.title}>"
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description
+        }
+    
 class Milestones(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id') ,nullable = False)
