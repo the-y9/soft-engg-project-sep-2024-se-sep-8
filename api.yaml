@@ -1,0 +1,261 @@
+api:
+  resources:
+    - GitHubRepo:
+        description: "Handles GitHub repository operations including checking if an owner exists and fetching commit data."
+        methods:
+          GET:
+            description: "Retrieves commit data for a specific repository belonging to a GitHub user."
+            routes:
+              - "/owner/<string:owner>"
+              - "/owner/<string:owner>/repo/<string:repo>/commits"
+            params:
+              - owner: "The GitHub user/organization's username."
+              - repo: "The repository name (optional)."
+            responses:
+              200:
+                description: "Returns commit data for the specified repository."
+                body:
+                  total_commits: "Total number of commits."
+                  commit_data:
+                    - sha: "Commit hash."
+                    - message: "Commit message."
+                    - committer_name: "Name of the person who committed."
+                    - commit_date: "Commit timestamp."
+                    - author_name: "Original author of the commit."
+                    - author_date: "Original commit timestamp."
+              404:
+                description: "Repository or owner not found."
+              500:
+                description: "Internal server error while retrieving commits."
+                body:
+                  message: "Error message details."
+        helper_functions:
+          key:
+            description: "Fetches the GitHub API token for a given owner."
+            params:
+              - owner: "The GitHub owner for which to retrieve the token."
+            returns:
+              - token: "GitHub API token."
+            error_handling: 
+              - "Returns 'Git Error' if no token is found."
+              - "Handles general exceptions and returns error message."
+
+    - Project_Manager:
+        description: "Manages operations related to projects and milestones."
+        methods:
+          GET:
+            description: "Retrieves project milestones by ID or by project ID."
+            routes:
+              - "/milestone/<int:id>"
+              - "/project/<int:project_id>/milestones"
+            params:
+              - id: "The ID of the milestone to retrieve (optional)."
+              - project_id: "The ID of the project for which milestones are retrieved."
+            responses:
+              200:
+                description: "Returns milestone details or all milestones for a specific project."
+                body:
+                  project: "Project details."
+                  milestones:
+                    - id: "Milestone ID."
+                    - task_no: "Task number."
+                    - task: "Task description."
+                    - description: "Milestone description."
+                    - deadline: "Milestone deadline."
+              404:
+                description: "Project or milestone not found."
+          POST:
+            description: "Creates a new project or milestone."
+            routes:
+              - "/project"
+              - "/milestone"
+            params:
+              - title: "The title of the project (for creating a new project)."
+              - description: "A description of the project or milestone (optional)."
+              - project_id: "The ID of the project for the milestone (required)."
+              - task_no: "The task number for the milestone (required)."
+              - task: "The task description for the milestone (required)."
+              - deadline: "The deadline for the milestone (optional, format: YYYY-MM-DD HH:MM:SS)."
+            responses:
+              201:
+                description: "Successfully created a project or milestone."
+                body:
+                  id: "ID of the created project or milestone."
+                  title: "Title of the created project."
+                  description: "Description of the created project or milestone."
+              400:
+                description: "Bad request due to missing or invalid fields."
+              409:
+                description: "Project with the given title already exists."
+          DELETE:
+            description: "Deletes a milestone by ID."
+            routes:
+              - "/milestone/<int:id>"
+            params:
+              - id: "The ID of the milestone to delete."
+            responses:
+              200:
+                description: "Successfully deleted the milestone."
+              404:
+                description: "Milestone not found."
+              400:
+                description: "ID is required to delete a milestone."
+
+  views:
+    - "/":
+        methods:
+          GET:
+            description: "Home route that renders the main landing page."
+            responses:
+              200:
+                description: "Renders the index.html page."
+    
+    - "/admin":
+        methods:
+          GET:
+            description: "Admin route that only allows authenticated users with the 'admin' role."
+            security:
+              auth_required: "token"
+              roles_required: "admin"
+            responses:
+              200:
+                description: "Welcome message for the admin user."
+                body:
+                  message: "Welcome admin"
+              401:
+                description: "Unauthorized access, invalid token."
+              403:
+                description: "Forbidden access, insufficient role."
+
+    - "/user-signup":
+        methods:
+          POST:
+            description: "Route for user registration."
+            parameters:
+              - email: "The user's email address."
+              - username: "The username for the user."
+              - password: "The password for the user."
+            request_body:
+              type: "application/json"
+              example: 
+                {
+                  "email": "user@example.com",
+                  "username": "user123",
+                  "password": "password123"
+                }
+            responses:
+              201:
+                description: "User successfully registered as student."
+                body:
+                  message: "Successfully registered as student."
+              400:
+                description: "Bad request due to missing or invalid fields."
+                body:
+                  message: "Email already registered or Password not provided."
+              500:
+                description: "Internal server error while registering user."
+                body:
+                  message: "Error message details."
+
+    - "/user-login":
+        methods:
+          POST:
+            description: "Route for user login with email/username and password."
+            parameters:
+              - email: "The user's email address or username."
+              - password: "The user's password."
+            request_body:
+              type: "application/json"
+              example:
+                {
+                  "email": "user@example.com",
+                  "password": "password123"
+                }
+            responses:
+              200:
+                description: "Login successful, returns the authentication token."
+                body:
+                  token: "Authentication token for the user."
+                  email: "User's email address."
+                  role: "User's assigned role."
+              400:
+                description: "Bad request due to missing or incorrect fields (wrong password)."
+                body:
+                  message: "Wrong password"
+              404:
+                description: "User not found (email or username does not exist)."
+                body:
+                  message: "Email or Username not found."
+              403:
+                description: "User is not activated."
+                body:
+                  message: "User not activated."
+
+  dependencies:
+    - flask:
+        description: "Micro web framework for creating the application."
+    - flask_security:
+        description: "Extension for adding authentication and authorization to Flask apps."
+    - werkzeug:
+        description: "Library for security-related utilities (e.g., password hashing)."
+    - flask_restful:
+        description: "Library for creating RESTful APIs in Flask."
+    - flask_excel:
+        description: "Extension for working with Excel files (though not used in the current routes)."
+    - smtplib:
+        description: "Library for sending emails (though not used directly in the current routes)."
+    - sqlalchemy:
+        description: "ORM library used for interacting with the database."
+    - backend.security.datastore:
+        description: "Custom datastore for managing user data and authentication logic."
+  
+  models:
+    - User:
+        description: "Represents a user in the system with fields like email, username, password, and roles."
+    - db:
+        description: "SQLAlchemy database instance used for ORM operations."
+  
+  security:
+    - auth_required:
+        description: "Decorator that ensures the user is authenticated via token."
+    - roles_required:
+        description: "Decorator that ensures the user has the required role (e.g., 'admin')."
+    - password_hashing:
+        description: "Uses werkzeug.security to securely hash and verify passwords."
+    - datastore:
+        description: "A custom datastore interface for handling user management and authentication."
+  
+  email:
+    - smtp:
+        description: "The smtplib module is imported for sending emails, though not used directly in the current routes."
+
+  request_body:
+    signup:
+      type: "application/json"
+      example: 
+        {
+          "email": "user@example.com",
+          "username": "user123",
+          "password": "password123"
+        }
+    login:
+      type: "application/json"
+      example: 
+        {
+          "email": "user@example.com",
+          "password": "password123"
+        }
+
+  responses:
+    - 200:
+        description: "Success - Operation completed successfully."
+    - 201:
+        description: "Created - New resource has been created."
+    - 400:
+        description: "Bad Request - Invalid or missing input data."
+    - 403:
+        description: "Forbidden - The user is authenticated but lacks required permissions."
+    - 404:
+        description: "Not Found - The resource does not exist."
+    - 500:
+        description: "Internal Server Error - An error occurred while processing the request."
