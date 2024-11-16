@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: Team 8 - Software Engineering Project
+  version: '1.0'
+  description: >-
+    This web application is designed to help instructors manage and track
+    student project progress throughout the semester, especially in larger
+    classes. The system allows projects to be broken down into clear milestones
+    and integrates with GitHub to visualize commit histories for real-time
+    coding insights. Leveraging Generative AI, the application also analyzes
+    documents like proposals and reports to assist in evaluation. A centralized
+    dashboard provides an overview of all teams, customizable milestones, and
+    AI-powered progress predictions, making it a comprehensive tool for academic
+    project management.
+
+      US :- User Stories 
+
+    1. Project Initialization and Milestone Generation Component (US 1)
+        * Description: A GenAI-powered tool that allows instructors to input a project statement. The system generates milestones, tasks, and deadlines to create an initial project plan.
+        * Key Features:
+            * Milestone generation based on the project scope
+            * Task breakdown with timelines
+            * Editable templates and checklists for students to follow
+        * US1: As an instructor, I want to provide a project statement so that the GenAI tool can generate milestones, tasks, and deadlines automatically, giving me a structured project plan to start from.
+
+    2. Real-Time Progress Monitoring Dashboard (US 2 & 6)
+        * Description: A dashboard for instructors and TAs to track individual and team progress. This component provides an at-a-glance view of milestones and tasks to identify potential roadblocks or delays.
+        * Key Features:
+            * Real-time updates on team and individual progress
+            * Indicators for stalled tasks or incomplete contributions
+            * Insights into engagement levels with project management tools
+       * US 2: As an instructor, I want to track team progress through a dashboard with real-time updates, so I can identify stalled tasks or missing contributions early. 
+       * US 6: As an instructor, I want a GenAI-powered dashboard to monitor each student’s progress on the project and their engagement with the project management tool, so that I can ensure students are working consistently.
+
+    3. Individual Contribution Tracking Module (US 3 & 13)
+        * Description: A tracking system that records each student's activity and contributions within their team. This ensures fair participation and helps instructors validate student claims.
+        * Key Features:
+            * Detailed logging of individual contributions (e.g., code commits, document edits)
+            * Dashboard views for easy monitoring of contributions
+            * Integration with version control to track code changes and activity frequency
+        * US 3:  As an instructor, I want to monitor each student's contribution So that I can ensure fair participation within a team and validate their claims in the documents.  
+        * US 13: As a student, I want to see a breakdown of my team's contributions, So that I can track everyone's efforts and ensure we are progressing together.
+
+    4. GenAI-Powered Submission Assessment and Feedback Component (US 4 & 5)
+        * Description: A GenAI-enabled system to compare student submissions with planned milestones, perform plagiarism checks, and generate constructive feedback.
+        * Key Features:
+            * Automated comparison of student output against milestones
+            * Feedback suggestions for improvement
+            * Plagiarism check to ensure originality
+        * US 4: As an instructor, I want to use GenAI So that I can compare student submissions with planned milestones and receive suggestions for improvement.  
+        * US 5: As an instructor, I want to use GenAI to help me evaluate student submissions and generate constructive feedback, So that I can provide more comprehensive and consistent assessments.
+
+    5. Automated Reminder System (US 7 & 12)
+        * Description: A Celery and GenAI-powered system to automate reminders for students about upcoming deadlines and missed tasks.
+        * Key Features:
+            * Scheduled notifications for milestones, tasks, and feedback updates
+            * Customizable reminder settings for instructors
+            * Email or in-app notifications for students
+        * US 7: As an instructor, I want to provide timely reminders using Celery and Gen AI, So that students receive prompt and detailed reminders.
+        * US 12: As a student, I want to receive automated alerts when a milestone deadline is approaching, So that I can stay on track and meet project deadlines.
+
+    6. GenAI-Powered Validation for Student Submissions (US 10)
+        * Description: A feature allowing students to validate their work against project requirements and guidelines before submission.
+        * Key Features:
+            * Validation checks for alignment with milestone requirements
+            * Instant feedback on readiness and quality of submissions
+            * Suggestions for additional improvements
+        * US 10: As a student, I want to use GenAI to validate my work before submission So that I can ensure it aligns with the milestone requirements.
+
+    7. Student-Facing Milestone Guidelines and Checklists (US 9)
+        * Description: Detailed milestone guidelines with templates and checklists that clarify expectations for students.
+        * Key Features:
+            * Milestone templates that outline required tasks
+            * Checklists for self-assessment before submission
+            * Access to relevant guidelines to help students understand expectations
+        * US 9: As a student, I want to view detailed milestones with templates and checklists So that I can easily understand what is expected.
+
+    8. AI-Enhanced Performance Prediction Tool (US 14)
+        * Description: An AI model that evaluates student performance based on coding activity and task completion rates, helping TAs identify students who may need additional support.
+        * Key Features:
+            * Predictive analytics to flag at-risk students
+            * Data-driven insights on student engagement and performance
+            * Alerts for TAs to provide timely support
+        * US 14: As a Teaching Assistant, I want an AI model to predict student performance based on coding activity and task completion, So that I can identify students who are falling behind and provide timely support.
+
+    9. Peer Review and Evaluation System (US 17)
+        * Description: A peer review system that enables students to evaluate each other’s contributions. GenAI assists by providing guidance on evaluation criteria.
+        * Key Features:
+            * Structured criteria for peer assessment
+            * GenAI-generated feedback to guide peer review
+            * Insights into peer collaboration and feedback quality
+        * US 17: As a project administrator/TA, I want to implement a peer review system where students can evaluate each other’s code and project contributions, with GenAI providing structured guidance on evaluation criteria such as code quality, documentation, and task management, so that I can foster collaborative learning and provide students with diverse feedback opportunities.
+
+    10. Project Documentation Chatbot (US 11)
+        * Description: A chatbot to answer questions regarding project documentation, guidelines, and deadlines, reducing response time for students.
+        * Key Features:
+            * Quick answers to documentation-related queries
+            * 24/7 access for students
+            * Integration with project documentation to provide accurate responses
+        * US 11: As a student, I want access to a chatbot that can answer questions about project documentation and guidelines, So that I can quickly find information without waiting for instructor responses.
+
+    11. GenAI-Integrated Version Control System (US 8)
+          * Description: A Git-powered version control system to monitor student code changes. Integrated GenAI highlights significant refactors, deletions, and adherence to best practices.
+          * Key Features:
+              * Version tracking for code submissions
+              * Notifications on major code changes or deletions
+              * Adherence checks for version control best practices
+          * US 8: As an instructor, I want to monitor student code changes through a version control system integrated with GenAI, So that I can track project progress, highlight large refractors or deletions, and ensure students are following good version control practices.
+
+    12. Multiple Team Management Interface (15)
+          * Description: An administrative interface that enables project administrators to track milestones and tasks across multiple teams, ensuring consistent progress.
+          * Key Features:
+              * Overview of all teams’ milestones and tasks
+              * Insights on team-specific progress and delays
+              * Administrative control for deadline adjustments
+          * US 15: As a project administrator, I want to track and manage multiple teams' milestones and tasks, So that I can ensure each team is progressing at an appropriate pace across different tasks.
+
+    13. Notification System for Instructor Feedback (US 16)
+          * Description: An alert system that informs students, TAs, and administrators when instructors provide feedback or update project milestones.
+          * Key Features:
+              * Instant notifications for feedback
+              * Update alerts for milestone changes or deadlines
+              * Customizable notification preferences for students and TAs
+          * US 16: As a project administrator, I want to receive notifications when instructors provide feedback or make updates, So that I can stay informed and coordinate support for students when needed.
+
+    14. System Maintenance and IT Support Component (US 18)
+          * Description: A back-end component providing IT staff with system logs, error reports, and tools to maintain system stability.
+          * Key Features:
+              * Access to error logs and system performance reports
+              * Automated alerts for system errors or downtimes
+              * Troubleshooting tools for quick issue resolution
+          * US 18: As IT support staff, I want access to system logs and error reports, So that I can maintain system stability and troubleshoot issues quickly.
+servers:
+  - url: http://127.0.0.1:5000
+    variables: {}
+tags:
+  - name: 0. User Management
+  - name: 1. Project Initialization and Milestone Generation Component
+  - name: 2. Real-Time Progress Monitoring Dashboard
+  - name: 3. Individual Contribution Tracking Module
+  - name: 4. GenAI-Powered Submission Assessment and Feedback Component
+  - name: 5. Automated Reminder System
+  - name: 6. GenAI-Powered Validation for Student Submissions
+  - name: 7. Student-Facing Milestone Guidelines and Checklists
+  - name: 8. AI-Enhanced Performance Prediction Tool
+  - name: 9. Peer Review and Evaluation System
+  - name: 10. Project Documentation Chatbot
+  - name: 11. GenAI-Integrated Version Control System
+  - name: 12. Multiple Team Management Interface
+  - name: 13. Notification System for Instructor Feedback
+  - name: 14. System Maintenance and IT Support Component
+paths:
+  /signup:
+    description: User Signup
+    post:
+      summary: User Signup
+      description: Sign Up for Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  description: The username of the new user.
+                  example: johndoe
+                email:
+                  type: string
+                  description: The email address of the new user.
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  description: The password for the new user account.
+                  example: P@ssw0rd123
+      operationId: '1'
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - 0. User Management
