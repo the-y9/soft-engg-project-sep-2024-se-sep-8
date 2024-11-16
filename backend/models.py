@@ -35,7 +35,7 @@ class RolesUsers(db.Model):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True, index=True)
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean(), default=True)
@@ -48,7 +48,7 @@ class User(db.Model, UserMixin):
 
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
-    category = db.Column(db.String(10))  # Primary, Secondary, Tertiary
+    category = db.Column(db.String(10), db.CheckConstraint("category IN ('Primary', 'Secondary', 'Tertiary')"), nullable=False)
     name = db.Column(db.String(80), unique=True)  # role
     description = db.Column(db.String(255))
 
@@ -59,6 +59,7 @@ class Notifications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    created_for = db.Column(db.Integer, db.ForeignKey('role.name'))
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=func.now(), server_default=func.now(), nullable=False)
 
@@ -96,13 +97,39 @@ class Milestones(db.Model):
     deadline = db.Column(db.TIMESTAMP)  # deadline=datetime(2024, 11, 15, 14, 30, 0) -> YYYY, MM, DD, HH, MM, SS
     
 
-# class Teams(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     project_id = db.Column(db.Integer, db.ForeignKey('projects.id') ,nullable = False)
-#     name = db.Column(db.String(20), nullable=False, unique=True)
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    description = db.Column(db.String(255))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    members = db.relationship('User', secondary='team_members', backref=db.backref('teams', lazy='dynamic'))
 
-# class MilestoneTracker(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
-#     project_id = db.Column(db.Integer, db.ForeignKey('projects.id') ,nullable = False)
-#     name = db.Column(db.String(20), nullable=False, unique=True) 
+    def __repr__(self):
+        return f'<Team {self.name}>'
+
+class TeamMembers(db.Model):
+    __tablename__ = 'team_members'
+    id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class MilestoneTracker(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    milestone_id = db.Column(db.Integer, db.ForeignKey('milestones.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+    progress = db.Column(db.Float, default=0.0)  # Percentage of progress
+    updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    
+    def __repr__(self):
+        return f'<MilestoneTracker(milestone_id={self.milestone_id}, progress={self.progress})>'
+
+class FileStorage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    file_url = db.Column(db.String(255), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=func.now(), nullable=False)
+    uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    related_milestone = db.Column(db.Integer, db.ForeignKey('milestones.id'))
+    
+    def __repr__(self):
+        return f'<FileStorage(filename={self.filename}, uploaded_by={self.uploaded_by})>'
