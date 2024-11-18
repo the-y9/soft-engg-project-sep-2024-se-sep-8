@@ -6,4 +6,4 @@ __pycache__/
 instance/g.db
 .venv/
 seproj/
-__pycache__/
+backend/__pycache__/
