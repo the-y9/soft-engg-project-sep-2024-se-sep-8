@@ -32,7 +32,7 @@ def signup():
             username=data['username'],
             password=generate_password_hash(data['password']),
             roles=['student'],  
-            active=False
+            active=True
         )
         db.session.commit()
         return jsonify({'message': 'Successfully registered as student.'}), 201

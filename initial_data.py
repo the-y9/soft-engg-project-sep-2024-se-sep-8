@@ -56,7 +56,7 @@ with app.app_context():
 
     # GitUser data
     gitUser = [
-        {"userId": "6", "owner":"the-y9", "token": "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"}
+        {"userId": "6", "owner":"the-y9", "token": ""}
     ]
     for user in gitUser:
         db.session.add( GitUser(

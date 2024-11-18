@@ -29,7 +29,7 @@ class GitHubRepo(Resource):
         return response.status_code == 200
 
     def get(self, owner, repo=None):
-        token=key("rough@g.com")
+        # token=key("rough@g.com")
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
@@ -39,7 +39,7 @@ class GitHubRepo(Resource):
             return jsonify({"message": f"'{owner}' is a valid owner name."})
 
         try:
-            token
+            
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
             # token = "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"
