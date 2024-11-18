@@ -296,3 +296,112 @@ paths:
                     example: User not activated.
       tags:
         - 0. User Management
+  /owner/{owner}:
+    get:
+      summary: Check if a GitHub user exists
+      description: Returns a message confirming whether the specified GitHub owner exists.
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          description: GitHub username of the owner
+          schema:
+            type: string
+      responses:
+        200:
+          description: Owner exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: <owner> is a valid owner name.
+        404:
+          description: Owner not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Owner <owner> not found on GitHub.
+      tags:
+        - 11. GenAI-Integrated Version Control System
+  /owner/{owner}/repo/{repo}/commits:
+    get:
+      summary: Get repository commits
+      description: Retrieves a list of commits for the specified repository owned by the given owner.
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          description: GitHub username of the owner
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          description: Name of the repository
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful retrieval of commits
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_commits:
+                    type: integer
+                    example: 42
+                  commit_data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sha:
+                          type: string
+                          example: "abc123def456"
+                        message:
+                          type: string
+                          example: "Initial commit"
+                        committer_name:
+                          type: string
+                          example: "Jane Doe"
+                        commit_date:
+                          type: string
+                          format: date-time
+                          example: "2024-11-18T10:15:30Z"
+                        author_name:
+                          type: string
+                          example: "John Doe"
+                        author_date:
+                          type: string
+                          format: date-time
+                          example: "2024-11-18T09:45:00Z"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error: Repository '{repo}' not found!"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error: {status_code}"
+      tags:
+        - 11. GenAI-Integrated Version Control System
