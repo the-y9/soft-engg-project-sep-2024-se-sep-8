@@ -5,4 +5,8 @@ __pycache__/
 # Ignore SQLite database file
 instance/g.db
 .venv/
+<<<<<<< HEAD
 seproj/
+=======
+__pycache__/
+>>>>>>> e3626c51c1232b680aa12a013e8483267ea23294
