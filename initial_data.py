@@ -1,6 +1,6 @@
 from main import app
 from backend.security import datastore 
-from backend.models import db, Role, GitUser, Projects, Milestones
+from backend.models import db, Role, GitUser, Projects, Milestones, Notifications
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
@@ -70,7 +70,8 @@ with app.app_context():
     projects_data = [
     {"title": "Project Alpha", "description": "Description for Project Alpha."},
     {"title": "Project Beta", "description": "Description for Project Beta."},
-    {"title": "Project Gamma", "description": "Description for Project Gamma."}
+    {"title": "Project Gamma", "description": "Description for Project Gamma."},
+    {"title": "Project Delta", "description": "Description for Project Delta."},
     ]
 
     milestones_data = [
@@ -101,5 +102,17 @@ with app.app_context():
                 db.session.add(milestone)
         db.session.commit()
         print("Dummy Project data inserted.")
+    except Exception as e:
+         print(f"ERROR: {e}")
+         
+    notifications_data = [{"title": "Some title", "message": "Some message"}]
+    try:
+        for notification_data in notifications_data:
+                notification = Notifications(
+                    title=notification_data["title"],
+                    message=notification_data["message"]
+                )
+                db.session.add(notification)
+        db.session.commit()
     except Exception as e:
          print(f"ERROR: {e}")

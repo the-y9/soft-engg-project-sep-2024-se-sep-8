@@ -38,7 +38,7 @@ def signup():
         return jsonify({'message': 'Successfully registered as student.'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        return jsonify({'message': 'Error occurred while creating the user account - ' + str(e)}), 500
     
 
 

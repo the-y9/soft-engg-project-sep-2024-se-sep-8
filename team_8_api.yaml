@@ -131,7 +131,7 @@ info:
               * Troubleshooting tools for quick issue resolution
           * US 18: As IT support staff, I want access to system logs and error reports, So that I can maintain system stability and troubleshoot issues quickly.
 servers:
-  - url: http://127.0.0.1:5000
+  - url: http://127.0.0.1:5000/
     variables: {}
 tags:
   - name: 0. User Management
@@ -150,11 +150,11 @@ tags:
   - name: 13. Notification System for Instructor Feedback
   - name: 14. System Maintenance and IT Support Component
 paths:
-  /signup:
+  /user-signup:
     description: User Signup
     post:
       summary: User Signup
-      description: Sign Up for Users
+      description: Route for user registration.
       requestBody:
         required: true
         content:
@@ -180,7 +180,228 @@ paths:
                   example: P@ssw0rd123
       operationId: '1'
       responses:
-        default:
-          description: Default error sample response
+        '201':
+          description: User successfully registered as student.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message indicating successful user creation.
+                    example: Successfully registered as student.
+        '400':
+          description: Bad request due to missing or invalid fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message indicating the cause of the failure.
+                    example: Email already registered or Password not provided.
+        '500':
+          description: Internal server error while registering user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message indicating a server-side issue.
+                    example: >-
+                      Error occurred while creating the user account - <error
+                      message>
       tags:
         - 0. User Management
+  /user-login:
+    description: User Login
+    post:
+      summary: User Login
+      description: Route for user login with email/username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  description: The email address of the new user.
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  description: The password for the new user account.
+                  example: P@ssw0rd123
+      operationId: '2'
+      responses:
+        '200':
+          description: Login successful, returns the authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Authentication Token.
+                    example: <Auth token>
+                  email:
+                    type: string
+                    description: The email address of the user.
+                    example: johndoe@example.com
+                  role:
+                    type: string
+                    description: The role of the user.
+                    example: Student
+        '400':
+          description: Bad request due to missing or incorrect fields (wrong password).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message indicating that password is wrong.
+                    example: Wrong password
+        '404':
+          description: User not found (email or username does not exist).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message indicating that email or username does not exist.
+                    example: Email or Username not found.
+        '403':
+          description: User is not activated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message indicating that user has not been activated.
+                    example: User not activated.
+      tags:
+        - 0. User Management
+  /owner/{owner}:
+    get:
+      summary: Check if a GitHub user exists
+      description: Returns a message confirming whether the specified GitHub owner exists.
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          description: GitHub username of the owner
+          schema:
+            type: string
+      responses:
+        200:
+          description: Owner exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: <owner> is a valid owner name.
+        404:
+          description: Owner not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Owner <owner> not found on GitHub.
+      tags:
+        - 11. GenAI-Integrated Version Control System
+  /owner/{owner}/repo/{repo}/commits:
+    get:
+      summary: Get repository commits
+      description: Retrieves a list of commits for the specified repository owned by the given owner.
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          description: GitHub username of the owner
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          description: Name of the repository
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful retrieval of commits
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_commits:
+                    type: integer
+                    example: 42
+                  commit_data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sha:
+                          type: string
+                          example: "abc123def456"
+                        message:
+                          type: string
+                          example: "Initial commit"
+                        committer_name:
+                          type: string
+                          example: "Jane Doe"
+                        commit_date:
+                          type: string
+                          format: date-time
+                          example: "2024-11-18T10:15:30Z"
+                        author_name:
+                          type: string
+                          example: "John Doe"
+                        author_date:
+                          type: string
+                          format: date-time
+                          example: "2024-11-18T09:45:00Z"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error: Repository '{repo}' not found!"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error: {status_code}"
+      tags:
+        - 11. GenAI-Integrated Version Control System
