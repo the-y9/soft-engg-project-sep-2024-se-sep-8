@@ -173,7 +173,7 @@ class Project_Manager(Resource):
 
 
     # Delete a milestone
-    def delete(self, id=None):
+    def delete(self, id=None,project_id=None):
         if id:
             milestone = Milestones.query.get(id)
             if not milestone:
@@ -182,7 +182,20 @@ class Project_Manager(Resource):
             db.session.delete(milestone)
             db.session.commit()
             return jsonify({'message': 'Milestone deleted successfully'}), 200
-        return {'message': 'ID is required to delete a milestone'}, 400
+        # return {'message': 'ID is required to delete a milestone'}, 400
+    
+    # Delete a project
+    
+        if project_id:
+            project = Projects.query.filter_by(id=project_id).first()
+            
+            if not project:
+                return jsonify({'message': 'project not found'})
+
+            db.session.delete(project)
+            db.session.commit()
+            return jsonify({'message': 'project deleted successfully'}), 200
+        return {'message': 'ID is required to delete. '}, 400
 
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
