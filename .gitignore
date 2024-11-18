@@ -5,3 +5,4 @@ __pycache__/
 # Ignore SQLite database file
 instance/g.db
 .venv/
+__pycache__/
