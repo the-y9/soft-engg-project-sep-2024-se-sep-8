@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones
+from .models import User, GitUser, Projects, Milestones, Notifications
 import requests
 from datetime import datetime
 
@@ -101,7 +101,6 @@ class Project_Manager(Resource):
         elif project_id:
             project = Projects.query.filter_by(id=project_id).first()
             milestones = Milestones.query.filter_by(project_id=project_id).all()
-            print(project)
             if milestones:
                 return jsonify({
                     'project' : project.to_dict(),
@@ -187,4 +186,85 @@ class Project_Manager(Resource):
 
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+
+class Notification_Manager(Resource):
+    def get(self, id=None, team_id=None):
+        if id:
+            try:
+                notification = Notifications.query.get(id)
+                if notification:
+                    return jsonify({
+                        'id': notification.id,
+                        'title': notification.title,
+                        'message': notification.message,
+                        'created_at': notification.created_at
+                    })
+                return jsonify({'message': 'Notification not found'}), 404
+            except Exception as e:
+                return jsonify({'ERROR': f'{e}'}), 400
+        
+        elif team_id:
+            notifications = Notifications.query.filter_by(created_for=team_id).all()
+            if notifications:
+                notification_list = [{
+                    'id': notification.id,
+                    'title': notification.title,
+                    'message': notification.message,
+                    'created_at': notification.created_at
+                } for notification in notifications]
+                return jsonify(notification_list), 200
+            return jsonify({'message': 'No notifications found for this team'}), 404
+
+        return {'message': 'Team ID or Notification ID is required'}, 400
+    
+    def post(self):
+        data = request.get_json()
+
+        # Ensure required fields are present
+        if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
+            return jsonify({'message': 'Missing required fields'}), 400
+
+        try:
+            # Create a new notification
+            new_notification = Notifications(
+                title=data['title'],
+                message=data['message'],
+                created_for=data['created_for'],
+                created_by=data['created_by']
+            )
+            db.session.add(new_notification)
+            db.session.commit()
+
+            # Convert the SQLAlchemy object into a dictionary
+            notification_data = {
+                'id': new_notification.id,
+                'title': new_notification.title,
+                'message': new_notification.message,
+                'created_for': new_notification.created_for,
+                'created_by': new_notification.created_by,
+                'created_at': new_notification.created_at
+            }
+
+            return jsonify(notification_data), 201  # Return serialized data
+        except Exception as e:
+            return jsonify({'ERROR': f'{e}'}), 400
+    
+    def delete(self, id=None):
+        if id:
+            notification = Notifications.query.get(id)
+            if not notification:
+                return jsonify({'message': 'Notification not found'}), 404
+
+            db.session.delete(notification)
+            db.session.commit()
+            return jsonify({'message': 'Notification deleted successfully'}), 200
+
+        return jsonify({'message': 'Notification ID is required to delete a notification'}), 400
+
+api.add_resource(
+    Notification_Manager,
+    '/notifications',  # For creating a new notification (POST)
+    '/notifications/<int:id>',  # For fetching or deleting a specific notification by ID (GET/DELETE)
+    '/notifications/team/<int:team_id>'  # For fetching all notifications for a specific student (GET)
+)
 

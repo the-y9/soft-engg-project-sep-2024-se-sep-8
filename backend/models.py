@@ -59,7 +59,7 @@ class Notifications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    created_for = db.Column(db.Integer, db.ForeignKey('role.name'))
+    created_for = db.Column(db.Integer, db.ForeignKey('team.id'))
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=func.now(), server_default=func.now(), nullable=False)
 
@@ -103,6 +103,7 @@ class Team(db.Model):
     description = db.Column(db.String(255))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     members = db.relationship('User', secondary='team_members', backref=db.backref('teams', lazy='dynamic'))
+    notifications = db.relationship('Notifications', backref='team', lazy='dynamic')  # Relationship to Notifications
 
     def __repr__(self):
         return f'<Team {self.name}>'
