@@ -84,7 +84,7 @@ class PerformancePrediction(Resource):
     def post(self):
         data = request.get_json()
         if 'students_data' not in data:
-            return jsonify({'message': 'Missing students data'})
+            return jsonify({'message': 'Missing students data'}), 400
 
         # Call GenAI model to analyze performance
         genai_url = "https://genai-model.example.com/predict"
@@ -93,9 +93,9 @@ class PerformancePrediction(Resource):
             if response.status_code == 200:
                 prediction_results = response.json()
                 return jsonify({'students_needing_support': prediction_results}), 200
-            return jsonify({'message': 'Error from GenAI model'}), response.status_code
+            return jsonify({'message': 'Error from GenAI model'}), response.status_code, 500
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'})
+            return jsonify({'ERROR': f'{e}'}), 500
 
 api.add_resource(PerformancePrediction, '/students/performance-prediction')
 
