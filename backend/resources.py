@@ -219,14 +219,14 @@ class Notification_Manager(Resource):
         
         elif team_id:
             notifications = Notifications.query.filter_by(created_for=team_id).all()
+            
             if notifications:
                 notification_list = [{
                     'id': notification.id,
                     'title': notification.title,
-                    'message': notification.message,
-                    'created_at': notification.created_at
+                    'message': notification.message
                 } for notification in notifications]
-                return jsonify(notification_list), 200
+                return notification_list, 200
             return jsonify({'message': 'No notifications found for this team'}), 404
 
         return {'message': 'Team ID or Notification ID is required'}, 400
@@ -279,6 +279,6 @@ api.add_resource(
     Notification_Manager,
     '/notifications',  # For creating a new notification (POST)
     '/notifications/<int:id>',  # For fetching or deleting a specific notification by ID (GET/DELETE)
-    '/notifications/team/<int:team_id>'  # For fetching all notifications for a specific student (GET)
+    '/notifications/team/<int:team_id>'  # For fetching all notifications for a specific team (GET)
 )
 
