@@ -13,7 +13,7 @@ info:
     AI-powered progress predictions, making it a comprehensive tool for academic
     project management.
 
-      US :- User Stories 
+      US :- User Stories
 
     1. Project Initialization and Milestone Generation Component (US 1)
         * Description: A GenAI-powered tool that allows instructors to input a project statement. The system generates milestones, tasks, and deadlines to create an initial project plan.
@@ -22,6 +22,13 @@ info:
             * Task breakdown with timelines
             * Editable templates and checklists for students to follow
         * US1: As an instructor, I want to provide a project statement so that the GenAI tool can generate milestones, tasks, and deadlines automatically, giving me a structured project plan to start from.
+        * List of APIs:
+            * POST API :- To create a new project
+            * POST API :- To generate a project plan using GenAI
+            * POST API :- To create a new milestone
+            * DELETE API :- To delete a milestone
+            * DELETE API :- To delete a project
+            * GET API :- To reterive project plan
 
     2. Real-Time Progress Monitoring Dashboard (US 2, 6, 14 & 15)
         * Description: A dashboard for instructors and TAs to track individual and team progress. This component provides an at-a-glance view of milestones and tasks to identify potential roadblocks or delays.
@@ -33,6 +40,12 @@ info:
        * US 6: As an instructor, I want a GenAI-powered dashboard to monitor each student’s progress on the project and their engagement with the project management tool, so that I can ensure students are working consistently.
        * US 14: As a Teaching Assistant, I want to monitor students' performance based on coding activity and task completion, So that I can identify students who are falling behind and provide timely support.
        * US 15: As a project administrator, I want to track and manage multiple teams' milestones and tasks, So that I can ensure each team is progressing at an appropriate pace across different tasks.
+       * List of APIs:
+            * GET API :- To get the details regarding team progress
+            * GET API :- To get the details regading individual progress
+            * GET API :- To get the stalled tasks summary
+            * GET API :- To get the engagement data for all students in a project
+            * POST API :- Allowing updating the status of specific task or milestone manually
 
     3. Individual Contribution Tracking Module (US 3 & 13)
         * Description: A tracking system that records each student's activity and contributions within their team. This ensures fair participation and helps instructors validate student claims.
@@ -42,6 +55,8 @@ info:
             * Integration with version control to track code changes and activity frequency
         * US 3:  As an instructor, I want to monitor each student's contribution So that I can ensure fair participation within a team and validate their claims in the documents.  
         * US 13: As a student, I want to see a breakdown of my team's contributions, So that I can track everyone's efforts and ensure we are progressing together.
+        * List of APIs:
+            * POST API :- Allows manual updates of contribution data by instructors or students.
 
     4. GenAI-Powered Submission Assessment and Feedback Component (US 4, 5 & 10)
         * Description: A GenAI-enabled system to compare student submissions with planned milestones, perform plagiarism checks, and generate constructive feedback.
@@ -49,68 +64,88 @@ info:
             * Automated comparison of student output against milestones
             * Feedback suggestions for improvement
             * Plagiarism check to ensure originality
-        * US 4: As an instructor, I want to use GenAI So that I can compare student submissions with planned milestones and receive suggestions for improvement.  
+        * US 4: As an instructor, I want to use GenAI So that I can compare student submissions with planned milestones and receive suggestions for improvement.
         * US 5: As an instructor, I want to use GenAI to help me evaluate student submissions and generate constructive feedback, So that I can provide more comprehensive and consistent assessments.
-        
         * US 10: As a student, I want to use GenAI to validate my work before submission So that I can ensure it aligns with the milestone requirements.
+        * List of APIs:
+            * POST API :- To compare submission with planned milestones using GenAI
+            * POST API :- To generate feedback for a submission using GenAI
+            * POST API :- To perform plagiarism check
+            * GET API :- To fetch assessment summary
 
-    5. Automated Reminder System (US 7 & 12)
-        * Description: A Celery and GenAI-powered system to automate reminders for students about upcoming deadlines and missed tasks.
-        * Key Features:
-            * Scheduled notifications for milestones, tasks, and feedback updates
-            * Customizable reminder settings for instructors
-            * Email or in-app notifications for students
-        * US 7: As an instructor, I want to provide timely reminders using Celery and Gen AI, So that students receive prompt and detailed reminders.
-        * US 12: As a student, I want to receive automated alerts when a milestone deadline is approaching, So that I can stay on track and meet project deadlines.
-        
-
-    6. Student-Facing Milestone Guidelines and Checklists (US 9)
+    5. Student-Facing Milestone Guidelines and Checklists (US 9)
         * Description: Detailed milestone guidelines with templates and checklists that clarify expectations for students.
         * Key Features:
             * Milestone templates that outline required tasks
             * Checklists for self-assessment before submission
             * Access to relevant guidelines to help students understand expectations
         * US 9: As a student, I want to view detailed milestones with templates and checklists So that I can easily understand what is expected.
+        * List of APIs:
+            * GET API :- To get a milestone by ID
+            * GET API :- To get all milstones for a project
 
-    7. Peer Review and Evaluation System (US 17)
+    6. Peer Review and Evaluation System (US 17)
         * Description: A peer review system that enables students to evaluate each other’s contributions. GenAI assists by providing guidance on evaluation criteria.
         * Key Features:
             * Structured criteria for peer assessment
             * GenAI-generated feedback to guide peer review
             * Insights into peer collaboration and feedback quality
-        * US 17: As a project administrator/TA, I want to implement a peer review system where students can evaluate each other’s code and project contributions, with GenAI providing structured guidance on evaluation criteria such as code quality, documentation, and task management, so that I can foster collaborative learning and provide students with diverse feedback opportunities.
+        * US 17: As a project administrator/TA, I want a peer review system where students can evaluate each other’s code and project contributions, so that it can foster collaborative learning and provide students with diverse feedback opportunities.
+        * List of APIs:
+            * POST API :- To add evaluation criteria for a project
+            * POST API :- To submit a peer review
+            * GET API :- To retrieve peer reviews for a project
+            * PUT API :- To edit a peer review
+            * DELETE API :- To delete a peer review
 
-    8. Project Documentation Chatbot (US 11)
+    7. Project Documentation Chatbot (US 11)
         * Description: A chatbot to answer questions regarding project documentation, guidelines, and deadlines, reducing response time for students.
         * Key Features:
             * Quick answers to documentation-related queries
             * 24/7 access for students
             * Integration with project documentation to provide accurate responses
         * US 11: As a student, I want access to a chatbot that can answer questions about project documentation and guidelines, So that I can quickly find information without waiting for instructor responses.
+        * List of APIs:
+            * POST API :- To upload project documentation
+            * POST API :- To query project documentation
 
-    9. GenAI-Integrated Version Control System (US 8)
+    8. GenAI-Integrated Version Control System (US 8)
           * Description: A Git-powered version control system to monitor student code changes. Integrated GenAI highlights significant refactors, deletions, and adherence to best practices.
           * Key Features:
               * Version tracking for code submissions
               * Notifications on major code changes or deletions
               * Adherence checks for version control best practices
           * US 8: As an instructor, I want to monitor student code changes through a version control system integrated with GenAI, So that I can track project progress, highlight large refractors or deletions, and ensure students are following good version control practices.
+          * List of APIs:
+              * GET API :- To check if GitHub user exists
+              * GET API :- To get repository commits
+              * GET API :- To analyze repository changes
 
-    10. Notification System for Instructor Feedback (US 16)
+    9. Notification System (US 7, 12, & 16)
           * Description: An alert system that informs students, TAs, and administrators when instructors provide feedback or update project milestones.
           * Key Features:
               * Instant notifications for feedback
               * Update alerts for milestone changes or deadlines
               * Customizable notification preferences for students and TAs
+          * US 7: As an instructor, I want to provide timely reminders using Celery and Gen AI, So that students receive prompt and detailed reminders.
+          * US 12: As a student, I want to receive automated alerts when a milestone deadline is approaching, So that I can stay on track and meet project deadlines.
           * US 16: As a project administrator, I want to receive notifications when instructors provide feedback or make updates, So that I can stay informed and coordinate support for students when needed.
+          * List of APIs:
+              * POST API :- To create a new notification
+              * GET API :- To retrieve a notification
+              * DELETE API :- To delete a notification
+              * GET API :- To retrieve notifications for a team
 
-    11. System Maintenance and IT Support Component (US 18)
+    10. System Maintenance and IT Support Component (US 18)
           * Description: A back-end component providing IT staff with system logs, error reports, and tools to maintain system stability.
           * Key Features:
               * Access to error logs and system performance reports
               * Automated alerts for system errors or downtimes
               * Troubleshooting tools for quick issue resolution
           * US 18: As IT support staff, I want access to system logs and error reports, So that I can maintain system stability and troubleshoot issues quickly.
+          * List of APIs:
+              * GET API :- To retrieve system logs
+              * POST API :- To search logs by keyword
 servers:
   - url: http://127.0.0.1:5000/
     variables: {}
@@ -120,13 +155,12 @@ tags:
   - name: 2. Real-Time Progress Monitoring Dashboard
   - name: 3. Individual Contribution Tracking Module
   - name: 4. GenAI-Powered Submission Assessment and Feedback Component
-  - name: 5. Automated Reminder System
-  - name: 6. Student-Facing Milestone Guidelines and Checklists
-  - name: 7. Peer Review and Evaluation System
-  - name: 8. Project Documentation Chatbot
-  - name: 9. GenAI-Integrated Version Control System
-  - name: 10. Notification System for Instructor Feedback
-  - name: 11. System Maintenance and IT Support Component
+  - name: 5. Student-Facing Milestone Guidelines and Checklists
+  - name: 6. Peer Review and Evaluation System
+  - name: 7. Project Documentation Chatbot
+  - name: 8. GenAI-Integrated Version Control System
+  - name: 9. Notification System for Instructor
+  - name: 10. System Maintenance and IT Support Component
 paths:
   /user-signup:
     description: User Signup
@@ -307,7 +341,7 @@ paths:
                     type: string
                     example: Owner <owner> not found on GitHub.
       tags:
-        - 9. GenAI-Integrated Version Control System
+        - 8. GenAI-Integrated Version Control System
   /owner/{owner}/repo/{repo}/commits:
     get:
       summary: Get repository commits
@@ -382,7 +416,7 @@ paths:
                     type: string
                     example: "Error: {status_code}"
       tags:
-        - 9. GenAI-Integrated Version Control System
+        - 8. GenAI-Integrated Version Control System
   /project:
     post:
       summary: Create a new project
@@ -544,7 +578,7 @@ paths:
                     type: string
                     example: "Milestone not found"
       tags:
-        - 6. Student-Facing Milestone Guidelines and Checklists
+        - 5. Student-Facing Milestone Guidelines and Checklists
     delete:
       summary: Delete a milestone by ID
       description: Deletes a milestone by its ID.
@@ -635,7 +669,7 @@ paths:
                     type: string
                     example: "Milestones not found for the project"
       tags:
-        - 6. Student-Facing Milestone Guidelines and Checklists
+        - 5. Student-Facing Milestone Guidelines and Checklists
     delete:
       summary: Delete a project by ID
       description: Deletes a project by its ID.
@@ -1444,7 +1478,7 @@ paths:
               example:
                 message: "An error occurred: Internal server error"
       tags:
-        - 7. Peer Review and Evaluation System
+        - 6. Peer Review and Evaluation System
   /peer-review:
     post:
       summary: Submit a peer review
@@ -1511,7 +1545,7 @@ paths:
                     type: string
                     example: "Invalid request data."
       tags:
-        - 7. Peer Review and Evaluation System
+        - 6. Peer Review and Evaluation System
   /peer-review/project/{projectId}:
     get:
       summary: Retrieve peer reviews for a specific project
@@ -1568,7 +1602,7 @@ paths:
                     type: string
                     example: "No peer reviews found for project ID 1001."
       tags:
-        - 7. Peer Review and Evaluation System
+        - 6. Peer Review and Evaluation System
   /peer-review/{reviewId}:
     put:
       summary: Edit a peer review
@@ -1624,7 +1658,7 @@ paths:
                     type: string
                     example: "Peer review not found."
       tags:
-        - 7. Peer Review and Evaluation System
+        - 6. Peer Review and Evaluation System
 
     delete:
       summary: Delete a peer review
@@ -1659,7 +1693,7 @@ paths:
                     type: string
                     example: "Peer review not found."
       tags:
-        - 7. Peer Review and Evaluation System
+        - 6. Peer Review and Evaluation System
   /chatbot/documentation/upload:
     post:
       summary: Upload project documentation
@@ -1698,7 +1732,7 @@ paths:
               example:
                 message: "Invalid input. Title and content are required."
       tags:
-        - 8. Project Documentation Chatbot
+        - 7. Project Documentation Chatbot
   /chatbot/query:
     post:
       summary: Query project documentation
@@ -1741,7 +1775,7 @@ paths:
               example:
                 message: "Invalid query input."
       tags:
-        - 8. Project Documentation Chatbot
+        - 7. Project Documentation Chatbot
   /repos/{id}/analyze:
     get:
       summary: Analyze repository changes
@@ -1771,7 +1805,7 @@ paths:
                   adherence_score:
                     type: number
       tags:
-        - 9. GenAI-Integrated Version Control System
+        - 8. GenAI-Integrated Version Control System
   /logs:
     get:
       summary: Retrieve system logs
@@ -1812,7 +1846,7 @@ paths:
                     message:
                       type: string
       tags:
-        - 11. System Maintenance and IT Support Component
+        - 10. System Maintenance and IT Support Component
   /logs/search:
     post:
       summary: Search logs by keyword
@@ -1845,4 +1879,187 @@ paths:
                     message:
                       type: string
       tags:
-        - 11. System Maintenance and IT Support Component
+        - 10. System Maintenance and IT Support Component
+  /notifications:
+    post:
+      summary: Create a new notification
+      description: Endpoint for creating a new notification for a team or individual.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Title of the notification.
+                message:
+                  type: string
+                  description: Content/message of the notification.
+                created_for:
+                  type: integer
+                  description: ID of the team or individual the notification is created for.
+                created_by:
+                  type: integer
+                  description: ID of the user (e.g., instructor) creating the notification.
+              required:
+                - title
+                - message
+                - created_for
+                - created_by
+            example:
+              title: "Project Submission Reminder"
+              message: "Don't forget to submit your project by tomorrow!"
+              created_for: 5
+              created_by: 1
+      responses:
+        '201':
+          description: Notification created successfully.
+          content:
+            application/json:
+              example:
+                id: 10
+                title: "Project Submission Reminder"
+                message: "Don't forget to submit your project by tomorrow!"
+                created_for: 5
+                created_by: 1
+                created_at: "2024-11-05T12:00:00Z"
+        '400':
+          description: Missing or invalid data.
+          content:
+            application/json:
+              example:
+                message: "Missing required fields."
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              example:
+                ERROR: "Database connection error."
+      tags:
+        - 9. Notification System for Instructor
+  /notifications/{id}:
+    get:
+      summary: Retrieve a specific notification
+      description: Fetch details of a specific notification using its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the notification to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification details retrieved successfully.
+          content:
+            application/json:
+              example:
+                id: 10
+                title: "Project Submission Reminder"
+                message: "Don't forget to submit your project by tomorrow!"
+                created_at: "2024-11-05T12:00:00Z"
+        '404':
+          description: Notification not found.
+          content:
+            application/json:
+              example:
+                message: "Notification not found."
+        '400':
+          description: Invalid notification ID.
+          content:
+            application/json:
+              example:
+                message: "Invalid ID format."
+      tags:
+        - 9. Notification System for Instructor
+
+    delete:
+      summary: Delete a specific notification
+      description: Delete a notification by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the notification to delete.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification deleted successfully.
+          content:
+            application/json:
+              example:
+                message: "Notification deleted successfully."
+        '404':
+          description: Notification not found.
+          content:
+            application/json:
+              example:
+                message: "Notification not found."
+        '400':
+          description: Invalid notification ID.
+          content:
+            application/json:
+              example:
+                message: "Notification ID is required to delete a notification."
+      tags:
+        - 9. Notification System for Instructor
+  /notifications/team/{team_id}:
+    get:
+      summary: Retrieve notifications for a team
+      description: Fetch all notifications created for a specific team.
+      parameters:
+        - name: team_id
+          in: path
+          required: true
+          description: The ID of the team for which notifications are to be retrieved.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of notifications retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: Notification ID.
+                    title:
+                      type: string
+                      description: Title of the notification.
+                    message:
+                      type: string
+                      description: Content/message of the notification.
+                    created_at:
+                      type: string
+                      format: date-time
+                      description: Time the notification was created.
+              example:
+                - id: 1
+                  title: "Milestone Reminder"
+                  message: "Your milestone submission is due tomorrow."
+                  created_at: "2024-11-01T10:30:00Z"
+                - id: 2
+                  title: "Meeting Scheduled"
+                  message: "Team meeting scheduled for 3 PM today."
+                  created_at: "2024-11-04T09:00:00Z"
+        '404':
+          description: No notifications found for the team.
+          content:
+            application/json:
+              example:
+                message: "No notifications found for this team."
+        '400':
+          description: Invalid team ID.
+          content:
+            application/json:
+              example:
+                message: "Invalid team ID format."
+      tags:
+        - 9. Notification System for Instructor
