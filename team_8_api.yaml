@@ -636,6 +636,48 @@ paths:
                     example: "Milestones not found for the project"
       tags:
         - 6. Student-Facing Milestone Guidelines and Checklists
+    delete:
+      summary: Delete a project by ID
+      description: Deletes a project by its ID.
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Project deleted successfully"
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Project not found"
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ID is required to delete a project"
+      tags:
+        - 1. Project Initialization and Milestone Generation Component
   /project-plan:
     post:
       summary: Generate a project plan using GenAI
