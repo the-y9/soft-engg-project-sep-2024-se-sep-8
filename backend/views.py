@@ -5,6 +5,7 @@ from backend.security import datastore
 from flask_restful import marshal, fields
 import flask_excel as excel
 from .models import User, db
+from .chatbot import chatbot_bp
 from sqlalchemy import or_ 
 import smtplib
 

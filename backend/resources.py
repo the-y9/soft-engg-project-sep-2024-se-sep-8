@@ -7,6 +7,7 @@ from .instance import cache
 from .models import User, GitUser, Projects, Milestones, Notifications
 import requests
 from datetime import datetime
+from .other_api import other_api_bp
 
 
 api = Api()
@@ -235,7 +236,7 @@ class Notification_Manager(Resource):
 
         # Ensure required fields are present
         if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
-            return jsonify({'message': 'Missing required fields'}), 400
+            return jsonify({'message': 'Missing required fields'})
 
         try:
             # Create a new notification
@@ -258,21 +259,21 @@ class Notification_Manager(Resource):
                 'created_at': new_notification.created_at
             }
 
-            return jsonify(notification_data), 201  # Return serialized data
+            return jsonify(notification_data)  # Return serialized data
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 400
+            return jsonify({'ERROR': f'{e}'})
     
     def delete(self, id=None):
         if id:
             notification = Notifications.query.get(id)
             if not notification:
-                return jsonify({'message': 'Notification not found'}), 404
+                return jsonify({'message': 'Notification not found'})
 
             db.session.delete(notification)
             db.session.commit()
-            return jsonify({'message': 'Notification deleted successfully'}), 200
+            return jsonify({'message': 'Notification deleted successfully'})
 
-        return jsonify({'message': 'Notification ID is required to delete a notification'}), 400
+        return jsonify({'message': 'Notification ID is required to delete a notification'})
 
 api.add_resource(
     Notification_Manager,
