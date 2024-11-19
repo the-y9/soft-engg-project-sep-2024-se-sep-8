@@ -23,7 +23,7 @@ info:
             * Editable templates and checklists for students to follow
         * US1: As an instructor, I want to provide a project statement so that the GenAI tool can generate milestones, tasks, and deadlines automatically, giving me a structured project plan to start from.
 
-    2. Real-Time Progress Monitoring Dashboard (US 2 & 6)
+    2. Real-Time Progress Monitoring Dashboard (US 2, 6, 14 & 15)
         * Description: A dashboard for instructors and TAs to track individual and team progress. This component provides an at-a-glance view of milestones and tasks to identify potential roadblocks or delays.
         * Key Features:
             * Real-time updates on team and individual progress
@@ -31,6 +31,8 @@ info:
             * Insights into engagement levels with project management tools
        * US 2: As an instructor, I want to track team progress through a dashboard with real-time updates, so I can identify stalled tasks or missing contributions early. 
        * US 6: As an instructor, I want a GenAI-powered dashboard to monitor each student’s progress on the project and their engagement with the project management tool, so that I can ensure students are working consistently.
+       * US 14: As a Teaching Assistant, I want to monitor students' performance based on coding activity and task completion, So that I can identify students who are falling behind and provide timely support.
+       * US 15: As a project administrator, I want to track and manage multiple teams' milestones and tasks, So that I can ensure each team is progressing at an appropriate pace across different tasks.
 
     3. Individual Contribution Tracking Module (US 3 & 13)
         * Description: A tracking system that records each student's activity and contributions within their team. This ensures fair participation and helps instructors validate student claims.
@@ -41,7 +43,7 @@ info:
         * US 3:  As an instructor, I want to monitor each student's contribution So that I can ensure fair participation within a team and validate their claims in the documents.  
         * US 13: As a student, I want to see a breakdown of my team's contributions, So that I can track everyone's efforts and ensure we are progressing together.
 
-    4. GenAI-Powered Submission Assessment and Feedback Component (US 4 & 5)
+    4. GenAI-Powered Submission Assessment and Feedback Component (US 4, 5 & 10)
         * Description: A GenAI-enabled system to compare student submissions with planned milestones, perform plagiarism checks, and generate constructive feedback.
         * Key Features:
             * Automated comparison of student output against milestones
@@ -49,6 +51,8 @@ info:
             * Plagiarism check to ensure originality
         * US 4: As an instructor, I want to use GenAI So that I can compare student submissions with planned milestones and receive suggestions for improvement.  
         * US 5: As an instructor, I want to use GenAI to help me evaluate student submissions and generate constructive feedback, So that I can provide more comprehensive and consistent assessments.
+        
+        * US 10: As a student, I want to use GenAI to validate my work before submission So that I can ensure it aligns with the milestone requirements.
 
     5. Automated Reminder System (US 7 & 12)
         * Description: A Celery and GenAI-powered system to automate reminders for students about upcoming deadlines and missed tasks.
@@ -58,16 +62,9 @@ info:
             * Email or in-app notifications for students
         * US 7: As an instructor, I want to provide timely reminders using Celery and Gen AI, So that students receive prompt and detailed reminders.
         * US 12: As a student, I want to receive automated alerts when a milestone deadline is approaching, So that I can stay on track and meet project deadlines.
+        
 
-    6. GenAI-Powered Validation for Student Submissions (US 10)
-        * Description: A feature allowing students to validate their work against project requirements and guidelines before submission.
-        * Key Features:
-            * Validation checks for alignment with milestone requirements
-            * Instant feedback on readiness and quality of submissions
-            * Suggestions for additional improvements
-        * US 10: As a student, I want to use GenAI to validate my work before submission So that I can ensure it aligns with the milestone requirements.
-
-    7. Student-Facing Milestone Guidelines and Checklists (US 9)
+    6. Student-Facing Milestone Guidelines and Checklists (US 9)
         * Description: Detailed milestone guidelines with templates and checklists that clarify expectations for students.
         * Key Features:
             * Milestone templates that outline required tasks
@@ -75,15 +72,7 @@ info:
             * Access to relevant guidelines to help students understand expectations
         * US 9: As a student, I want to view detailed milestones with templates and checklists So that I can easily understand what is expected.
 
-    8. AI-Enhanced Performance Prediction Tool (US 14)
-        * Description: An AI model that evaluates student performance based on coding activity and task completion rates, helping TAs identify students who may need additional support.
-        * Key Features:
-            * Predictive analytics to flag at-risk students
-            * Data-driven insights on student engagement and performance
-            * Alerts for TAs to provide timely support
-        * US 14: As a Teaching Assistant, I want an AI model to predict student performance based on coding activity and task completion, So that I can identify students who are falling behind and provide timely support.
-
-    9. Peer Review and Evaluation System (US 17)
+    7. Peer Review and Evaluation System (US 17)
         * Description: A peer review system that enables students to evaluate each other’s contributions. GenAI assists by providing guidance on evaluation criteria.
         * Key Features:
             * Structured criteria for peer assessment
@@ -91,7 +80,7 @@ info:
             * Insights into peer collaboration and feedback quality
         * US 17: As a project administrator/TA, I want to implement a peer review system where students can evaluate each other’s code and project contributions, with GenAI providing structured guidance on evaluation criteria such as code quality, documentation, and task management, so that I can foster collaborative learning and provide students with diverse feedback opportunities.
 
-    10. Project Documentation Chatbot (US 11)
+    8. Project Documentation Chatbot (US 11)
         * Description: A chatbot to answer questions regarding project documentation, guidelines, and deadlines, reducing response time for students.
         * Key Features:
             * Quick answers to documentation-related queries
@@ -99,7 +88,7 @@ info:
             * Integration with project documentation to provide accurate responses
         * US 11: As a student, I want access to a chatbot that can answer questions about project documentation and guidelines, So that I can quickly find information without waiting for instructor responses.
 
-    11. GenAI-Integrated Version Control System (US 8)
+    9. GenAI-Integrated Version Control System (US 8)
           * Description: A Git-powered version control system to monitor student code changes. Integrated GenAI highlights significant refactors, deletions, and adherence to best practices.
           * Key Features:
               * Version tracking for code submissions
@@ -107,15 +96,7 @@ info:
               * Adherence checks for version control best practices
           * US 8: As an instructor, I want to monitor student code changes through a version control system integrated with GenAI, So that I can track project progress, highlight large refractors or deletions, and ensure students are following good version control practices.
 
-    12. Multiple Team Management Interface (15)
-          * Description: An administrative interface that enables project administrators to track milestones and tasks across multiple teams, ensuring consistent progress.
-          * Key Features:
-              * Overview of all teams’ milestones and tasks
-              * Insights on team-specific progress and delays
-              * Administrative control for deadline adjustments
-          * US 15: As a project administrator, I want to track and manage multiple teams' milestones and tasks, So that I can ensure each team is progressing at an appropriate pace across different tasks.
-
-    13. Notification System for Instructor Feedback (US 16)
+    10. Notification System for Instructor Feedback (US 16)
           * Description: An alert system that informs students, TAs, and administrators when instructors provide feedback or update project milestones.
           * Key Features:
               * Instant notifications for feedback
@@ -123,7 +104,7 @@ info:
               * Customizable notification preferences for students and TAs
           * US 16: As a project administrator, I want to receive notifications when instructors provide feedback or make updates, So that I can stay informed and coordinate support for students when needed.
 
-    14. System Maintenance and IT Support Component (US 18)
+    11. System Maintenance and IT Support Component (US 18)
           * Description: A back-end component providing IT staff with system logs, error reports, and tools to maintain system stability.
           * Key Features:
               * Access to error logs and system performance reports
@@ -140,15 +121,12 @@ tags:
   - name: 3. Individual Contribution Tracking Module
   - name: 4. GenAI-Powered Submission Assessment and Feedback Component
   - name: 5. Automated Reminder System
-  - name: 6. GenAI-Powered Validation for Student Submissions
-  - name: 7. Student-Facing Milestone Guidelines and Checklists
-  - name: 8. AI-Enhanced Performance Prediction Tool
-  - name: 9. Peer Review and Evaluation System
-  - name: 10. Project Documentation Chatbot
-  - name: 11. GenAI-Integrated Version Control System
-  - name: 12. Multiple Team Management Interface
-  - name: 13. Notification System for Instructor Feedback
-  - name: 14. System Maintenance and IT Support Component
+  - name: 6. Student-Facing Milestone Guidelines and Checklists
+  - name: 7. Peer Review and Evaluation System
+  - name: 8. Project Documentation Chatbot
+  - name: 9. GenAI-Integrated Version Control System
+  - name: 10. Notification System for Instructor Feedback
+  - name: 11. System Maintenance and IT Support Component
 paths:
   /user-signup:
     description: User Signup
@@ -329,7 +307,7 @@ paths:
                     type: string
                     example: Owner <owner> not found on GitHub.
       tags:
-        - 11. GenAI-Integrated Version Control System
+        - 9. GenAI-Integrated Version Control System
   /owner/{owner}/repo/{repo}/commits:
     get:
       summary: Get repository commits
@@ -404,7 +382,7 @@ paths:
                     type: string
                     example: "Error: {status_code}"
       tags:
-        - 11. GenAI-Integrated Version Control System
+        - 9. GenAI-Integrated Version Control System
   /project:
     post:
       summary: Create a new project
@@ -566,7 +544,7 @@ paths:
                     type: string
                     example: "Milestone not found"
       tags:
-        - 7. Student-Facing Milestone Guidelines and Checklists
+        - 6. Student-Facing Milestone Guidelines and Checklists
     delete:
       summary: Delete a milestone by ID
       description: Deletes a milestone by its ID.
@@ -657,7 +635,7 @@ paths:
                     type: string
                     example: "Milestones not found for the project"
       tags:
-        - 7. Student-Facing Milestone Guidelines and Checklists
+        - 6. Student-Facing Milestone Guidelines and Checklists
   /project-plan:
     post:
       summary: Generate a project plan using GenAI
@@ -1329,3 +1307,500 @@ paths:
                     example: "Submission not found."
       tags:
         - 4. GenAI-Powered Submission Assessment and Feedback Component
+  /project/{projectId}/evaluation-criteria:
+    post:
+      summary: Add evaluation criteria for a specific project
+      description: Allows an instructor to add a list of evaluation criteria for a specific project.
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: integer
+          description: ID of the project to which the criteria are added.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                criteriaList:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      criterion:
+                        type: string
+                        description: Name of the evaluation criterion.
+                      description:
+                        type: string
+                        description: Additional details about the criterion.
+              required:
+                - criteriaList
+            example:
+              criteriaList:
+                - criterion: "Code Quality"
+                  description: "Measures code efficiency and readability"
+                - criterion: "Team Collaboration"
+                  description: "Evaluates how well the student collaborated with the team"
+      responses:
+        '201':
+          description: Criteria added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  projectId:
+                    type: integer
+                  criteria:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        criterion:
+                          type: string
+                        description:
+                          type: string
+              example:
+                message: "Evaluation criteria added successfully"
+                projectId: 101
+                criteria:
+                  - id: 1
+                    criterion: "Code Quality"
+                    description: "Measures code efficiency and readability"
+                  - id: 2
+                    criterion: "Team Collaboration"
+                    description: "Evaluates how well the student collaborated with the team"
+        '400':
+          description: Invalid data format or missing fields.
+          content:
+            application/json:
+              example:
+                message: "Invalid data format. Please provide a valid criteria list."
+        '403':
+          description: Unauthorized access.
+          content:
+            application/json:
+              example:
+                message: "You are not authorized to add criteria."
+        '404':
+          description: Project ID not found.
+          content:
+            application/json:
+              example:
+                message: "Project with ID 101 not found."
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              example:
+                message: "An error occurred: Internal server error"
+      tags:
+        - 7. Peer Review and Evaluation System
+  /peer-review:
+    post:
+      summary: Submit a peer review
+      description: Allows a student to submit a peer review for a specific project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reviewerId
+                - projectId
+                - criteria
+              properties:
+                reviewerId:
+                  type: integer
+                  description: The ID of the student submitting the review.
+                  example: 201
+                projectId:
+                  type: integer
+                  description: The ID of the project associated with the review.
+                  example: 1001
+                criteria:
+                  type: array
+                  description: Structured criteria for peer assessment.
+                  items:
+                    type: object
+                    properties:
+                      criterion:
+                        type: string
+                        description: The criterion being assessed.
+                        example: "Code quality"
+                      score:
+                        type: number
+                        description: The score given for the criterion.
+                        example: 4.5
+                      comment:
+                        type: string
+                        description: Additional feedback for the criterion.
+                        example: "Well-written and optimized code."
+      responses:
+        201:
+          description: Peer review submitted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Peer review submitted successfully."
+                  reviewId:
+                    type: integer
+                    example: 501
+        400:
+          description: Invalid request body or data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request data."
+      tags:
+        - 7. Peer Review and Evaluation System
+  /peer-review/project/{projectId}:
+    get:
+      summary: Retrieve peer reviews for a specific project
+      description: Fetch all peer reviews associated with a specific project.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the project.
+          example: 1001
+      responses:
+        200:
+          description: Peer reviews retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectId:
+                    type: integer
+                    example: 1001
+                  reviews:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reviewerId:
+                          type: integer
+                          example: 201
+                        criteria:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              criterion:
+                                type: string
+                                example: "Code quality"
+                              score:
+                                type: number
+                                example: 4.5
+                              comment:
+                                type: string
+                                example: "Well-written and optimized code."
+        404:
+          description: No peer reviews found for the project.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No peer reviews found for project ID 1001."
+      tags:
+        - 7. Peer Review and Evaluation System
+  /peer-review/{reviewId}:
+    put:
+      summary: Edit a peer review
+      description: Allows a student to update an existing peer review.
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the peer review to be updated.
+          example: 501
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                criteria:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      criterion:
+                        type: string
+                        example: "Collaboration"
+                      score:
+                        type: number
+                        example: 4.7
+                      comment:
+                        type: string
+                        example: "Improved collaboration in recent weeks."
+      responses:
+        200:
+          description: Peer review updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Peer review updated successfully."
+        404:
+          description: Peer review not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Peer review not found."
+      tags:
+        - 7. Peer Review and Evaluation System
+
+    delete:
+      summary: Delete a peer review
+      description: Enables a student to delete a previously submitted peer review.
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the peer review to be deleted.
+          example: 501
+      responses:
+        200:
+          description: Peer review deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Peer review deleted successfully."
+        404:
+          description: Peer review not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Peer review not found."
+      tags:
+        - 7. Peer Review and Evaluation System
+  /chatbot/documentation/upload:
+    post:
+      summary: Upload project documentation
+      description: Allows instructors to upload or update project documentation for chatbot reference.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Title of the project documentation.
+                content:
+                  type: string
+                  description: Text content of the documentation.
+              required:
+                - title
+                - content
+            example:
+              title: "Capstone Project Guidelines"
+              content: |
+                "This document provides details about project milestones, deadlines, and expectations..."
+      responses:
+        '201':
+          description: Documentation uploaded successfully.
+          content:
+            application/json:
+              example:
+                message: "Documentation uploaded successfully."
+        '400':
+          description: Invalid input or missing required fields.
+          content:
+            application/json:
+              example:
+                message: "Invalid input. Title and content are required."
+      tags:
+        - 8. Project Documentation Chatbot
+  /chatbot/query:
+    post:
+      summary: Query project documentation
+      description: Allows students to ask questions about the project documentation and receive chatbot-generated answers.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  description: The query asked by the student.
+              required:
+                - question
+            example:
+              question: "What is the deadline for the second milestone?"
+      responses:
+        '200':
+          description: Query response from the chatbot.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  question:
+                    type: string
+                    description: The question asked by the user.
+                  answer:
+                    type: string
+                    description: Chatbot-generated response.
+              example:
+                question: "What is the deadline for the second milestone?"
+                answer: "The deadline for the second milestone is 2024-11-10."
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              example:
+                message: "Invalid query input."
+      tags:
+        - 8. Project Documentation Chatbot
+  /repos/{id}/analyze:
+    get:
+      summary: Analyze repository changes
+      description: Use GenAI to analyze changes in the repository.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: GenAI analysis results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refactor_highlights:
+                    type: array
+                    items:
+                      type: string
+                  deletion_warnings:
+                    type: array
+                    items:
+                      type: string
+                  adherence_score:
+                    type: number
+      tags:
+        - 9. GenAI-Integrated Version Control System
+  /logs:
+    get:
+      summary: Retrieve system logs
+      description: Fetch system logs with optional filters (e.g., date range, severity).
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for logs (ISO format).
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for logs (ISO format).
+          schema:
+            type: string
+            format: date
+        - name: severity
+          in: query
+          description: Severity level (INFO, WARNING, ERROR).
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    severity:
+                      type: string
+                    message:
+                      type: string
+      tags:
+        - 11. System Maintenance and IT Support Component
+  /logs/search:
+    post:
+      summary: Search logs by keyword
+      description: Perform a search on system logs using keywords or patterns.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keyword:
+                  type: string
+                  description: Keyword or pattern for searching logs.
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    severity:
+                      type: string
+                    message:
+                      type: string
+      tags:
+        - 11. System Maintenance and IT Support Component
