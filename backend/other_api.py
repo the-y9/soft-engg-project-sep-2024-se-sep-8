@@ -6,6 +6,7 @@ from flask_restful import Resource, Api, reqparse, marshal_with, fields
 from .models import User, db, Projects, Milestones
 import requests
 from sqlalchemy import func,case
+import google.generativeai as genai
 
 other_api_bp = Blueprint('other_api', __name__)
 
@@ -101,22 +102,30 @@ api.add_resource(PerformancePrediction, '/students/performance-prediction')
 class DocumentationChatbot(Resource):
     def post(self):
         data = request.get_json()
-        if 'question' not in data:
-            return jsonify({'message': 'Missing question field'}), 400
 
-        # Call Chatbot API
-        chatbot_url = "https://chatbot.example.com/answer"
-        payload = {"question": data['question']}
+        # Check if 'question' and 'api_key' fields are present
+        if 'question' not in data or 'api_key' not in data:
+            return jsonify({'message': 'Missing question or api_key field'}), 400
+
+        question = data['question']
+        api_key = data['api_key']
 
         try:
-            response = requests.post(chatbot_url, json=payload)
-            if response.status_code == 200:
-                chatbot_response = response.json()
-                return jsonify({'response': chatbot_response['answer']}), 200
-            return jsonify({'message': 'Error from chatbot API'}), response.status_code
-        except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            # Configure Gemini API dynamically with the provided API key
+            genai.configure(api_key=api_key)
 
+            # Generate a response using the Gemini API
+            model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+            response = model.generate_content(question)
+            answer = response.text
+
+            return jsonify({'response': answer}), 200
+        
+        except genai.exceptions.InvalidApiKeyError:
+            return jsonify({'error': 'Invalid API Key'}), 401
+        except Exception as e:
+            return jsonify({'ERROR': str(e)}), 500
+        
 api.add_resource(DocumentationChatbot, '/chatbot/ask')
 
 class TeamPerformance(Resource):
