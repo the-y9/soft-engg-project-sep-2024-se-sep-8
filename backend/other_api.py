@@ -3,7 +3,7 @@ from backend.models import Notifications, db
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify, request, Blueprint
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
-from .models import User, db, Projects, Milestones
+from .models import User, db, Projects, Milestones,Team, TeamMembers
 import requests
 from sqlalchemy import func,case
 
@@ -12,7 +12,7 @@ other_api_bp = Blueprint('other_api', __name__)
 '''have to Replace https://genai-model.example.com/ with actual GenAI model URLs or APIs.
 '''
 
-api = Api()
+api = Api(other_api_bp)
 
 # celery = Celery('tasks', broker='redis://localhost:6379/0')
 # @celery.task
@@ -83,7 +83,7 @@ class PerformancePrediction(Resource):
     def post(self):
         data = request.get_json()
         if 'students_data' not in data:
-            return jsonify({'message': 'Missing students data'}), 400
+            return jsonify({'message': 'Missing students data'})
 
         # Call GenAI model to analyze performance
         genai_url = "https://genai-model.example.com/predict"
@@ -94,7 +94,7 @@ class PerformancePrediction(Resource):
                 return jsonify({'students_needing_support': prediction_results}), 200
             return jsonify({'message': 'Error from GenAI model'}), response.status_code
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(PerformancePrediction, '/students/performance-prediction')
 
@@ -102,7 +102,7 @@ class DocumentationChatbot(Resource):
     def post(self):
         data = request.get_json()
         if 'question' not in data:
-            return jsonify({'message': 'Missing question field'}), 400
+            return jsonify({'message': 'Missing question field'})
 
         # Call Chatbot API
         chatbot_url = "https://chatbot.example.com/answer"
@@ -112,26 +112,37 @@ class DocumentationChatbot(Resource):
             response = requests.post(chatbot_url, json=payload)
             if response.status_code == 200:
                 chatbot_response = response.json()
-                return jsonify({'response': chatbot_response['answer']}), 200
+                return jsonify({'response': chatbot_response['answer']})
             return jsonify({'message': 'Error from chatbot API'}), response.status_code
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(DocumentationChatbot, '/chatbot/ask')
 
+# will be dited
 class TeamPerformance(Resource):
     def get(self):
         try:
             # Aggregate performance data
             teams = db.session.query(
-                Projects.id,
-                Projects.title,
+                Team.id.label('team_id'),
+                Team.name.label('team_name'),
                 func.count(Milestones.id).label('total_milestones'),
                 func.sum(
-                    case([(Milestones.deadline < datetime.now(), 1)], else_=0)
+                    case(
+                        [
+                            (Milestones.deadline < datetime.now(), 1)
+                        ], 
+                        else_=0
+                    )
                 ).label('overdue_milestones')
-            ).join(Milestones).group_by(Projects.id).all()
+            ).join(TeamMembers, TeamMembers.team_id == Team.id) \
+             .join(User, TeamMembers.user_id == User.id) \
+             .join(Projects, Projects.id == Team.project_id) \
+             .join(Milestones, Milestones.project_id == Projects.id) \
+             .group_by(Team.id).all()
 
+            # Prepare response data
             team_data = [{
                 'team_id': team[0],
                 'team_name': team[1],
@@ -139,16 +150,20 @@ class TeamPerformance(Resource):
                 'overdue_milestones': team[3]
             } for team in teams]
 
-            return jsonify({'teams': team_data}), 200
+            return jsonify({'teams': team_data})
+
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            return jsonify({'ERROR': f'{e}'})
+
 
 api.add_resource(TeamPerformance, '/teams/performance')
+
 
 class InstructorFeedbackNotifications(Resource):
     def get(self, project_id):
         try:
             notifications = Notifications.query.filter_by(created_for=project_id).all()
+            
             feedback = [{
                 'id': notif.id,
                 'title': notif.title,
@@ -156,8 +171,8 @@ class InstructorFeedbackNotifications(Resource):
                 'created_at': notif.created_at
             } for notif in notifications]
 
-            return jsonify({'feedback_notifications': feedback}), 200
+            return jsonify({'feedback_notifications': feedback})
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(InstructorFeedbackNotifications, '/feedback/<int:project_id>')

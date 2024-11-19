@@ -5,6 +5,7 @@ from backend.config import DevelopmentConfig
 from backend.security import datastore
 from backend.resources import api
 from backend.instance import cache
+from backend.other_api import other_api_bp
 
 def install(package):
     try:
@@ -38,5 +39,6 @@ def create_app():
 
 
 app = create_app()
+app.register_blueprint(other_api_bp)
 if __name__ == '__main__':
     app.run(debug=True)
