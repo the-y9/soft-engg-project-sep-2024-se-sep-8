@@ -154,7 +154,6 @@ class PeerReview(db.Model):
 
 class SystemLog(db.Model):
     __tablename__ = 'system_logs'
-
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     severity = db.Column(db.String(20), nullable=False)  # e.g., INFO, WARNING, ERROR
