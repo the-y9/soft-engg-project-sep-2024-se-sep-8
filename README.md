@@ -58,6 +58,11 @@ Once the virtual environment is activated, install the required dependencies by 
 ```bash
 pip install -r requirements.txt
 ```
+*Once the dependencies are installed from the requirements.txt file, there is a possibility that an error in loading a spacy model (en_core_web_sm).
+To handle it run the following command in the virtual environment:
+```bash
+python -m spacy download en_core_web_sm
+```
 
 ## Git Instructions
 
