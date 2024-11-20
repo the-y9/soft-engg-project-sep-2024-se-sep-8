@@ -13,8 +13,6 @@ info:
     AI-powered progress predictions, making it a comprehensive tool for academic
     project management.
 
-      US :- User Stories
-
     1. Project Initialization and Milestone Generation Component
         * Description: A GenAI-powered tool that allows instructors to input a project statement. The system generates milestones, tasks, and deadlines to create an initial project plan.
         * List of APIs:
