@@ -3,7 +3,7 @@ from backend.models import Notifications, db
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify, request, Blueprint
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
-from .models import User, db, Projects, Milestones,Team, TeamMembers
+from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview
 import requests
 from sqlalchemy import func,case
 import google.generativeai as genai
@@ -185,3 +185,127 @@ class InstructorFeedbackNotifications(Resource):
             return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(InstructorFeedbackNotifications, '/feedback/<int:project_id>')
+
+# Peer Review: Add Evaluation Criteria
+class AddEvaluationCriteria(Resource):
+    def post(self, projectId):
+        data = request.get_json()
+        if 'criteriaList' not in data:
+            return jsonify({'message': 'Invalid data format. Please provide a valid criteria list.'}), 400
+
+        try:
+            project = Projects.query.get(projectId)
+            if not project:
+                return jsonify({'message': f'Project with ID {projectId} not found.'}), 404
+
+            criteria_objects = []
+            for item in data['criteriaList']:
+                criterion = item.get('criterion')
+                description = item.get('description', '')
+                if not criterion:
+                    return jsonify({'message': 'Each criterion must have a name.'}), 400
+                criteria_objects.append(EvaluationCriteria(project_id=projectId, criterion=criterion, description=description))
+
+            db.session.add_all(criteria_objects)
+            db.session.commit()
+
+            return jsonify({
+                'message': 'Evaluation criteria added successfully',
+                'projectId': projectId,
+                'criteria': [{'id': c.id, 'criterion': c.criterion, 'description': c.description} for c in criteria_objects]
+            }), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+
+# Peer Review: Submit Peer Review
+class SubmitPeerReview(Resource):
+    def post(self):
+        data = request.get_json()
+        required_fields = ['reviewerId', 'projectId', 'criteria']
+
+        if not all(field in data for field in required_fields):
+            return jsonify({'message': 'Invalid request data.'}), 400
+
+        try:
+            peer_review = PeerReview(
+                reviewer_id=data['reviewerId'],
+                project_id=data['projectId'],
+                criteria=data['criteria']
+            )
+            db.session.add(peer_review)
+            db.session.commit()
+
+            return jsonify({'message': 'Peer review submitted successfully.', 'reviewId': peer_review.id}), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+
+# Peer Review: Retrieve Peer Reviews
+class RetrievePeerReviews(Resource):
+    def get(self, projectId):
+        try:
+            reviews = PeerReview.query.filter_by(project_id=projectId).all()
+            if not reviews:
+                return jsonify({'message': f'No peer reviews found for project ID {projectId}.'}), 404
+
+            return jsonify({
+                'projectId': projectId,
+                'reviews': [
+                    {
+                        'reviewerId': review.reviewer_id,
+                        'criteria': review.criteria,
+                        'created_at': review.created_at
+                    } for review in reviews
+                ]
+            }), 200
+
+        except Exception as e:
+            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+
+# Peer Review: Edit Peer Review
+class EditPeerReview(Resource):
+    def put(self, reviewId):
+        data = request.get_json()
+        if 'criteria' not in data:
+            return jsonify({'message': 'Invalid request data.'}), 400
+
+        try:
+            review = PeerReview.query.get(reviewId)
+            if not review:
+                return jsonify({'message': 'Peer review not found.'}), 404
+
+            review.criteria = data['criteria']
+            db.session.commit()
+
+            return jsonify({'message': 'Peer review updated successfully.'}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+
+# Peer Review: Delete Peer Review
+class DeletePeerReview(Resource):
+    def delete(self, reviewId):
+        try:
+            review = PeerReview.query.get(reviewId)
+            if not review:
+                return jsonify({'message': 'Peer review not found.'}), 404
+
+            db.session.delete(review)
+            db.session.commit()
+
+            return jsonify({'message': 'Peer review deleted successfully.'}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+
+# Registering Resources
+api.add_resource(AddEvaluationCriteria, '/project/<int:projectId>/evaluation-criteria')
+api.add_resource(SubmitPeerReview, '/peer-review')
+api.add_resource(RetrievePeerReviews, '/peer-review/project/<int:projectId>')
+api.add_resource(EditPeerReview, '/peer-review/<int:reviewId>')
+api.add_resource(DeletePeerReview, '/peer-review/<int:reviewId>')
