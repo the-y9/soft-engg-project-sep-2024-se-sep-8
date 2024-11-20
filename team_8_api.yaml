@@ -1512,3 +1512,77 @@ paths:
                     example: "Peer review not found."
       tags:
         - 5. Peer Review and Evaluation System
+  /logs:
+    get:
+      summary: Retrieve system logs
+      description: Fetch system logs with optional filters (e.g., date range, severity).
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for logs (ISO format).
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for logs (ISO format).
+          schema:
+            type: string
+            format: date
+        - name: severity
+          in: query
+          description: Severity level (INFO, WARNING, ERROR).
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    severity:
+                      type: string
+                    message:
+                      type: string
+      tags:
+        - 9. System Maintenance and IT Support Component
+  /logs/search:
+    post:
+      summary: Search logs by keyword
+      description: Perform a search on system logs using keywords or patterns.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keyword:
+                  type: string
+                  description: Keyword or pattern for searching logs.
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    severity:
+                      type: string
+                    message:
+                      type: string
+      tags:
+        - 9. System Maintenance and IT Support Component

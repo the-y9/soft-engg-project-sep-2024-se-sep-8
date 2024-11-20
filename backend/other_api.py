@@ -3,7 +3,7 @@ from backend.models import Notifications, db
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify, request, Blueprint
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
-from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview
+from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview, SystemLog
 import requests
 from sqlalchemy import func,case
 import google.generativeai as genai
@@ -309,3 +309,73 @@ api.add_resource(SubmitPeerReview, '/peer-review')
 api.add_resource(RetrievePeerReviews, '/peer-review/project/<int:projectId>')
 api.add_resource(EditPeerReview, '/peer-review/<int:reviewId>')
 api.add_resource(DeletePeerReview, '/peer-review/<int:reviewId>')
+
+class RetrieveLogs(Resource):
+    def get(self):
+        try:
+            # Retrieve query parameters
+            start_date = request.args.get('start_date')
+            end_date = request.args.get('end_date')
+            severity = request.args.get('severity')
+
+            # Base query
+            query = SystemLog.query
+
+            # Add filters if provided
+            if start_date:
+                query = query.filter(SystemLog.timestamp >= start_date)
+            if end_date:
+                query = query.filter(SystemLog.timestamp <= end_date)
+            if severity:
+                query = query.filter(SystemLog.severity.ilike(severity))
+
+            # Execute query
+            logs = query.order_by(SystemLog.timestamp.asc()).all()
+
+            # Prepare response
+            log_data = [
+                {
+                    'timestamp': log.timestamp.isoformat(),
+                    'severity': log.severity,
+                    'message': log.message
+                }
+                for log in logs
+            ]
+
+            return jsonify(log_data), 200
+
+        except Exception as e:
+            return jsonify({'ERROR': str(e)}), 500
+
+api.add_resource(RetrieveLogs, '/logs')
+class SearchLogs(Resource):
+    def post(self):
+        try:
+            # Parse request body
+            data = request.get_json()
+
+            if not data or 'keyword' not in data:
+                return jsonify({'message': 'Keyword is required for searching logs.'}), 400
+
+            keyword = data['keyword']
+
+            # Perform case-insensitive search
+            logs = SystemLog.query.filter(SystemLog.message.ilike(f"%{keyword}%")).all()
+
+            # Prepare response
+            search_results = [
+                {
+                    'timestamp': log.timestamp.isoformat(),
+                    'severity': log.severity,
+                    'message': log.message
+                }
+                for log in logs
+            ]
+
+            return jsonify(search_results), 200
+
+        except Exception as e:
+            return jsonify({'ERROR': str(e)}), 500
+
+
+api.add_resource(SearchLogs, '/logs/search')
