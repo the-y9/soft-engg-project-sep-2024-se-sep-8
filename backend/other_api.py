@@ -219,6 +219,8 @@ class AddEvaluationCriteria(Resource):
             db.session.rollback()
             return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
+api.add_resource(AddEvaluationCriteria, '/project/<int:projectId>/evaluation-criteria')
+
 # Peer Review: Submit Peer Review
 class SubmitPeerReview(Resource):
     def post(self):
@@ -243,6 +245,8 @@ class SubmitPeerReview(Resource):
             db.session.rollback()
             return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
+api.add_resource(SubmitPeerReview, '/peer-review')
+
 # Peer Review: Retrieve Peer Reviews
 class RetrievePeerReviews(Resource):
     def get(self, projectId):
@@ -265,6 +269,8 @@ class RetrievePeerReviews(Resource):
         except Exception as e:
             return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
+api.add_resource(RetrievePeerReviews, '/peer-review/project/<int:projectId>')
+
 # Peer Review: Edit Peer Review
 class EditPeerReview(Resource):
     def put(self, reviewId):
@@ -286,6 +292,8 @@ class EditPeerReview(Resource):
             db.session.rollback()
             return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
+api.add_resource(EditPeerReview, '/peer-review/<int:reviewId>')
+
 # Peer Review: Delete Peer Review
 class DeletePeerReview(Resource):
     def delete(self, reviewId):
@@ -303,11 +311,6 @@ class DeletePeerReview(Resource):
             db.session.rollback()
             return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
-# Registering Resources
-api.add_resource(AddEvaluationCriteria, '/project/<int:projectId>/evaluation-criteria')
-api.add_resource(SubmitPeerReview, '/peer-review')
-api.add_resource(RetrievePeerReviews, '/peer-review/project/<int:projectId>')
-api.add_resource(EditPeerReview, '/peer-review/<int:reviewId>')
 api.add_resource(DeletePeerReview, '/peer-review/<int:reviewId>')
 
 class RetrieveLogs(Resource):

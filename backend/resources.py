@@ -92,8 +92,8 @@ class Project_Manager(Resource):
                         'task': milestone.task,
                         'description': milestone.description,
                         'deadline': milestone.deadline
-                    })
-                return jsonify({'message': 'Milestone not found'})
+                    }), 200
+                return jsonify({'message': 'Milestone not found'}), 404
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
 
@@ -112,10 +112,10 @@ class Project_Manager(Resource):
                     'task': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
-                } for milestone in milestones]})
-            return jsonify({'message': 'Milestones not found for the project'})
+                } for milestone in milestones]}), 200
+            return jsonify({'message': 'Milestones not found for the project'}), 404
         
-        return {'message': 'Project ID is required to retrieve milestones'}
+        return {'message': 'Project ID is required to retrieve milestones'}, 404
 
     # Create a new
     def post(self):
