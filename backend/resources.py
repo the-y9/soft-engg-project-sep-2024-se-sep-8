@@ -124,12 +124,12 @@ class Project_Manager(Resource):
         # Case 1: Create a new project
         if 'title' in data:
             if 'title' not in data:
-                return jsonify({'message': 'Project title is required'})
+                return jsonify({'message': 'Project title is required'}), 400
 
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()
             if existing_project:
-                return jsonify({'message': 'Project with this title already exists'})
+                return jsonify({'message': 'Project with this title already exists'}), 400
 
             # Create a new project
             new_project = Projects(
@@ -143,13 +143,13 @@ class Project_Manager(Resource):
                 'id': new_project.id,
                 'title': new_project.title,
                 'description': new_project.description
-            })
+            }), 201
 
         # Case 2: Create a new milestone
         elif 'project_id' in data and 'task_no' in data and 'task' in data:
             project = Projects.query.get(data['project_id'])
             if not project:
-                return jsonify({'message': 'Project not found'})
+                return jsonify({'message': 'Project not found'}), 404
 
             new_milestone = Milestones(
                 project_id=data['project_id'],
@@ -196,7 +196,7 @@ class Project_Manager(Resource):
             db.session.delete(project)
             db.session.commit()
             return jsonify({'message': 'project deleted successfully'}), 200
-        return {'message': 'ID is required to delete. '}, 400
+        return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')

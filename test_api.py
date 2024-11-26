@@ -1,9 +1,9 @@
 import pytest
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
-BASE_URL = "http://127.0.0.1:5000"  # Replace with your server's actual base URL
+BASE_URL = "http://127.0.0.1:5000"
 
 
 # Helper function for creating test data
