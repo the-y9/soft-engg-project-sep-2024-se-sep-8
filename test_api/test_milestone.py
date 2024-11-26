@@ -12,7 +12,7 @@ def test_create_milestone_success():
         "description": "Design the database schema",
         "deadline": "2024-11-20 23:59:59"
     }
-    response = requests.post(f"{BASE_URL}/project", json=data)
+    response = requests.post(f"{BASE_URL}/milestone", json=data)
     assert response.status_code == 201
     assert response.json['task'] == "Design schema"
 
@@ -23,7 +23,7 @@ def test_create_milestone_project_not_found():
         "task_no": 1,
         "task": "Invalid project"
     }
-    response = requests.post(f"{BASE_URL}/project", json=data)
+    response = requests.post(f"{BASE_URL}/milestone", json=data)
     assert response.status_code == 404
     assert response.json['message'] == "Project not found"
 
@@ -33,7 +33,7 @@ def test_create_milestone_missing_project_id():
         "task_no": 1,
         "task": "Missing project_id"
     }
-    response = requests.post(f"{BASE_URL}/project", json=data)
+    response = requests.post(f"{BASE_URL}/milestone", json=data)
     assert response.status_code == 400
     assert "Invalid data for creating project or milestone" in response.json['message']
 
@@ -43,7 +43,7 @@ def test_create_milestone_missing_task():
         "project_id": 1,
         "task_no": 1
     }
-    response = requests.post(f"{BASE_URL}/project", json=data)
+    response = requests.post(f"{BASE_URL}/milestone", json=data)
     assert response.status_code == 400
     assert "Invalid data for creating project or milestone" in response.json['message']
 
@@ -53,7 +53,7 @@ def test_create_milestone_invalid_task_no():
         "project_id": 1,
         "task": "Missing task_no"
     }
-    response = requests.post(f"{BASE_URL}/project", json=data)
+    response = requests.post(f"{BASE_URL}/milestone", json=data)
     assert response.status_code == 400
     assert "Invalid data for creating project or milestone" in response.json['message']
 
