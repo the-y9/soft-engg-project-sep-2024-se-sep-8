@@ -351,6 +351,7 @@ class RetrieveLogs(Resource):
             return jsonify({'ERROR': str(e)}), 500
 
 api.add_resource(RetrieveLogs, '/logs')
+
 class SearchLogs(Resource):
     def post(self):
         try:
@@ -379,6 +380,5 @@ class SearchLogs(Resource):
 
         except Exception as e:
             return jsonify({'ERROR': str(e)}), 500
-
 
 api.add_resource(SearchLogs, '/logs/search')
