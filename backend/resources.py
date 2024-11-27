@@ -206,7 +206,7 @@ class Notification_Manager(Resource):
                         'title': notification.title,
                         'message': notification.message,
                         'created_at': notification.created_at
-                    })
+                    }), 200
                 return jsonify({'message': 'Notification not found'}), 404
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
@@ -230,7 +230,7 @@ class Notification_Manager(Resource):
 
         # Ensure required fields are present
         if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
-            return jsonify({'message': 'Missing required fields'})
+            return jsonify({'message': 'Missing required fields'}), 400
 
         try:
             # Create a new notification
@@ -253,7 +253,8 @@ class Notification_Manager(Resource):
                 'created_at': new_notification.created_at
             }
 
-            return jsonify(notification_data)  # Return serialized data
+            # return jsonify(notification_data)  # Return serialized data
+            return jsonify({'message': 'Notification created successfully.'}), 200
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
     
@@ -261,13 +262,13 @@ class Notification_Manager(Resource):
         if id:
             notification = Notifications.query.get(id)
             if not notification:
-                return jsonify({'message': 'Notification not found'})
+                return jsonify({'message': 'Notification not found'}), 404
 
             db.session.delete(notification)
             db.session.commit()
-            return jsonify({'message': 'Notification deleted successfully'})
+            return jsonify({'message': 'Notification deleted successfully'}), 200
 
-        return jsonify({'message': 'Notification ID is required to delete a notification'})
+        return jsonify({'message': 'Notification ID is required to delete a notification'}), 404
 
 api.add_resource(
     Notification_Manager,
