@@ -180,7 +180,7 @@ class InstructorFeedbackNotifications(Resource):
                 'created_at': notif.created_at
             } for notif in notifications]
 
-            return jsonify({'feedback_notifications': feedback})
+            return jsonify({'feedback_notifications': feedback}), 200
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
 
