@@ -34,13 +34,12 @@ class GitHubRepo(Resource):
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
-            return jsonify({"message": f"Owner '{owner}' not found on GitHub."})
+            return jsonify({"message": f"Owner '{owner}' not found on GitHub."}), 404
 
         if not repo:
-            return jsonify({"message": f"'{owner}' is a valid owner name."})
+            return jsonify({"message": f"'{owner}' is a valid owner name."}), 200
 
         try:
-            
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
             # token = "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"
@@ -53,26 +52,21 @@ class GitHubRepo(Resource):
             response = requests.get(url,headers=headers)
             if response.status_code == 200:
                 commits = response.json()
-                
                 commit_data = [{
-            'sha': commit['sha'],
-            'message': commit['commit']['message'],
-            'committer_name': commit['commit']['committer']['name'],  # Who applied the commit
-            'commit_date': commit['commit']['committer']['date'],
-            'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
-            'author_date': commit['commit']['author']['date']
-        } for commit in commits]
-                
-                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data})
+                    'sha': commit['sha'],
+                    'message': commit['commit']['message'],
+                    'committer_name': commit['commit']['committer']['name'],  # Who applied the commit
+                    'commit_date': commit['commit']['committer']['date'],
+                    'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
+                    'author_date': commit['commit']['author']['date']
+                } for commit in commits]
+                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data}), 200
             elif response.status_code == 404:
-                return jsonify({"message": f"Error: Repository '{repo}' not found!"})
+                return jsonify({"message": f"Error: Repository '{repo}' not found!"}), 404
             else:
                 return jsonify({"message":f"Error: {response.status_code}"})
         except Exception as e:
             return jsonify({"message":f"Error: {e}"})
-
-        else:
-            return jsonify({"message": f"Error retrieving commits: {response.status_code}"}), response.status_code
 
 # Add the resource with different routes for owner and repo
 api.add_resource(GitHubRepo, '/owner/<string:owner>', '/owner/<string:owner>/repo/<string:repo>/commits')
