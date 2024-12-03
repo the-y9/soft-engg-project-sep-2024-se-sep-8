@@ -101,28 +101,22 @@ api.add_resource(PerformancePrediction, '/students/performance-prediction')
 
 class DocumentationChatbot(Resource):
     def post(self):
+        def post(self):
         data = request.get_json()
 
-        # Check if 'question' and 'api_key' fields are present
         if 'question' not in data or 'api_key' not in data:
             return jsonify({'message': 'Missing question or api_key field'}), 400
 
         question = data['question']
         api_key = data['api_key']
-
+        prompt = """In course projects such as the ones you have already done in Application Development I and II, it can be challenging for instructors to effectively track the progress of student projects, particularly in larger classes where multiple teams are working on different tasks. To address this issue, you are required to develop a web application that allows instructors to manage and monitor student projects throughout the semester. The system should enable the instructor to break down projects into well-defined milestones, allowing for clearer tracking of progress and deadlines. Key features include integrating with GitHub or similar version control systems to automatically pull and visualize commit histories, ensuring students are on track with their coding progress. Additionally, the application can leverage Generative AI (GenAI) tools to assist instructors by analyzing student-submitted documents, such as project proposals, progress reports, and technical documentation. You can also think of additional features such as providing a centralized dashboard where instructors can see an overview of all students or teams, customizable milestones and task management, using AI to predict if students are on track, etc. These are just a few examples of features; please feel free to add others. """ + question
         try:
-            # Configure Gemini API dynamically with the provided API key
             genai.configure(api_key=api_key)
-
-            # Generate a response using the Gemini API
             model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-            response = model.generate_content(question)
-            answer = response.text
-
-            return jsonify({'response': answer}), 200
+            response = model.generate_content(prompt)
+            answer = str(response.candidates[0].content.parts[0].text)
+            return ({'response': answer}), 200
         
-        except genai.exceptions.InvalidApiKeyError:
-            return jsonify({'error': 'Invalid API Key'}), 401
         except Exception as e:
             return jsonify({'ERROR': str(e)}), 500
         
