@@ -9,13 +9,13 @@ import notification from './components/notification.js'
 import student_dashboard from './components/student_dashboard.js'
 
 export default [
-    { path:'/' , component : home , name:'home'},
-    { path:'/login', component: login , name:'login'},
+    { path:'/' , component : home , name:'Home'},
+    { path:'/login', component: login , name:'Login'},
     { path:'/404_page' , component: Not_found_page , name:'404_page'},
-    { path:'/register', component: register, name:'register'},
-    { path:'/instructor_dashboard', component: instructor_dashboard, name:'instructor_dashboard'},
-    { path:'/create_milestone', component: create_milestone, name:'create_milestone'},
-    { path:'/milestone_tracker', component: milestone_tracker, name:'milestone_tracker'},
-    { path:'/notification', component: notification, name:'notification'},
-    { path:'/student_dashboard', component: student_dashboard, name:'student_dashboard'},
+    { path:'/register', component: register, name:'Register'},
+    { path:'/instructor_dashboard', component: instructor_dashboard, name:'Instructor Dashboard'},
+    { path:'/create_milestone', component: create_milestone, name:'Create Milestone'},
+    { path:'/milestone_tracker', component: milestone_tracker, name:'Milestone Tracker'},
+    { path:'/notification', component: notification, name:'Notification'},
+    { path:'/student_dashboard', component: student_dashboard, name:'Student Dashboard'},
 ]

@@ -48,9 +48,4 @@ export default  {
             this.$router.push('/register')
         }
     },
-
-    components:{
-        // librarian_dashboard,
-        // user_dashboard,
-    }
 }

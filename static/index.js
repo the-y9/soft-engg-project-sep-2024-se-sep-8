@@ -7,8 +7,8 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const requiredRole = to.meta.role;
     const role = localStorage.getItem('role')
-    if (!authToken && to.name!=='login' && to.name!=='register' && to.name!=='home') {
-         next({name:'login'})
+    if (!authToken && to.name!=='Login' && to.name!=='Register' && to.name!=='Home') {
+         next({name:'Login'})
     }
     else if (requiresAuth && requiredRole !== role) {
         next('/unauthorized');
@@ -38,8 +38,15 @@ new Vue({
         has_changed: true,
     },
     watch:{
-        $route(to,from){
-            this.has_changed = !this.has_changed
-        }
+        // $route(to,from){
+        //     this.has_changed = !this.has_changed
+        // },
+        $route: {
+            immediate: true,
+            handler(to, from) {
+                this.has_changed = !this.has_changed;
+                document.title = to.name;
+            }
+        },
     }
 })

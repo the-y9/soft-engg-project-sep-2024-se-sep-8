@@ -101,7 +101,6 @@ api.add_resource(PerformancePrediction, '/students/performance-prediction')
 
 class DocumentationChatbot(Resource):
     def post(self):
-        def post(self):
         data = request.get_json()
 
         if 'question' not in data or 'api_key' not in data:
