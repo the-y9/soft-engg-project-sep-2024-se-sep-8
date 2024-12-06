@@ -116,8 +116,8 @@ class Project_Manager(Resource):
         data = request.get_json()
 
         # Case 1: Create a new project
-        if 'title' not in data:
-            return jsonify({'message': 'Project title is required'}), 400
+        # if 'title' not in data:
+        #     return jsonify({'message': 'Project title is required'}), 400
         if 'title' in data:
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()

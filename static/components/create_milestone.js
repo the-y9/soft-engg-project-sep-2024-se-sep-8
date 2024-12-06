@@ -1,107 +1,157 @@
 export default {
-    template: `
-     <div class="create-milestone-page">
-      <section class="page-header">
-        <div class="header-content">
-          <h1 class="hero-title">Create Milestone</h1>
-          <p class="hero-subtitle">Define your project milestones and set tasks with ease.</p>
+  template: `
+   <div class="create-milestone-page">
+    <section class="page-header">
+      <div class="header-content">
+        <h1 class="hero-title">Create Project</h1>
+        <p class="hero-subtitle">Define your project and set milestones with ease.</p>
+      </div>
+    </section>
+
+    <section class="milestone-form">
+      <form @submit.prevent="createProject">
+        <div class="form-group">
+          <label for="project-heading" class="form-label">Project Title</label>
+          <input type="text" id="project-heading" v-model="projectHeading" class="form-control" placeholder="Enter project heading" required />
         </div>
-      </section>
 
-      <section class="milestone-form">
-        <form @submit.prevent="createMilestone">
+        <div class="form-group ai-group">
+          <label for="project-description" class="form-label">Project Description</label>
+          <input type="text" id="project-description" v-model="projectDescription" class="form-control" placeholder="Enter project description" required />
+          <button type="button" class="ai-button" @click="fetchMilestonesFromAI">AI</button>
+        </div>
+
+        <!-- Dynamic Milestones -->
+        <div v-for="(milestone, index) in milestones" :key="index" class="milestone-inputs">
+          <div class="milestone-header">
+            <h3>Milestone {{ index + 1 }}</h3>
+            <button type="button" class="remove-button" @click="removeMilestone(index)">✖</button>
+          </div>
           <div class="form-group">
-            <label for="project-heading" class="form-label">Project Heading</label>
-            <input type="text" id="project-heading" v-model="projectHeading" class="form-control" placeholder="Enter project heading" required />
+            <label :for="'milestone-task-' + index" class="form-label">Task</label>
+            <input type="text" :id="'milestone-task-' + index" v-model="milestone.task" class="form-control" placeholder="Enter task name" required />
           </div>
-
-          <div class="form-group ai-group">
-            <label for="project-description" class="form-label">Project Description</label>
-            <input type="text" id="project-description" v-model="projectDescription" class="form-control" placeholder="Enter project description" required />
-            <button type="button" class="ai-button" @click="fetchMilestonesFromAI">AI</button>
-          </div>
-
           <div class="form-group">
-            <label for="num-milestones" class="form-label">Number of Milestones</label>
-            <select id="num-milestones" v-model.number="numMilestones" class="form-control" @change="generateMilestoneInputs" required>
-              <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-            </select>
+            <label :for="'milestone-desc-' + index" class="form-label">Description</label>
+            <textarea :id="'milestone-desc-' + index" v-model="milestone.description" class="form-control" placeholder="Enter task description" required></textarea>
           </div>
-
-          <div v-for="i in numMilestones" :key="i" class="milestone-inputs">
-            <h3>Milestone {{ i }}</h3>
-            <div class="form-group">
-              <label :for="'milestone-task-' + i" class="form-label">Task</label>
-              <input type="text" :id="'milestone-task-' + i" v-model="milestones[i - 1].task" class="form-control" placeholder="Enter task name" required />
-            </div>
-            <div class="form-group">
-              <label :for="'milestone-desc-' + i" class="form-label">Description</label>
-              <textarea :id="'milestone-desc-' + i" v-model="milestones[i - 1].description" class="form-control" placeholder="Enter task description" required></textarea>
-            </div>
-            <div class="form-group">
-              <label :for="'milestone-deadline-' + i" class="form-label">Deadline</label>
-              <input type="date" :id="'milestone-deadline-' + i" v-model="milestones[i - 1].deadline" class="form-control" required />
-            </div>
+          <div class="form-group">
+            <label :for="'milestone-deadline-' + index" class="form-label">Deadline</label>
+            <input type="date" :id="'milestone-deadline-' + index" v-model="milestone.deadline" class="form-control" required />
           </div>
+        </div>
 
-          <button type="submit" class="create-button">Create Milestone</button>
-        </form>
-      </section>
-    </div>`,
+        <!-- Add Milestone Button -->
+        <div class="add-milestone-button">
+          <button type="button" class="plus-button text-center" @click="addMilestone">+</button>
+        </div>
 
-    data() {
-        return {
-            projectHeading: '',
-            projectDescription: '',
-            numMilestones: 1,
-            milestones: [
-                { task: '', description: '', deadline: '' }
-            ]
-        }
-    },
+        <button type="submit" class="create-button">Create Project</button>
+      </form>
+    </section>
+  </div>`,
 
-    methods: {
-        generateMilestoneInputs() {
-            this.milestones = Array.from({ length: this.numMilestones }, () => ({ task: '', description: '', deadline: '' }));
-        },
+  data() {
+      return {
+          projectHeading: '',
+          projectDescription: '',
+          milestones: [] // Start with an empty array
+      };
+  },
 
-        async fetchMilestonesFromAI() {
-            try {
-                const response = await fetch('https://api.example.com/generate-milestones', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        projectHeading: this.projectHeading,
-                        projectDescription: this.projectDescription
-                    })
-                });
-                const data = await response.json();
+  methods: {
+      addMilestone() {
+          // Add a new empty milestone object to the milestones array
+          this.milestones.push({ task: '', description: '', deadline: '' });
+      },
 
-                // Populate the milestones array with the response
-                if (data.milestones && data.milestones.length) {
-                    this.numMilestones = data.milestones.length;
-                    this.milestones = data.milestones.map(milestone => ({
-                        task: milestone.task,
-                        description: milestone.description,
-                        deadline: milestone.deadline || ''
-                    }));
-                } else {
-                    alert('No milestones generated by AI. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error fetching milestones from AI:', error);
-                alert('Failed to fetch milestones from AI. Please check your connection and try again.');
+      removeMilestone(index) {
+          // Remove the milestone at the given index
+          this.milestones.splice(index, 1);
+      },
+
+      async fetchMilestonesFromAI() {
+          try {
+              const response = await fetch('https://api.example.com/generate-milestones', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authentication-Token': localStorage.getItem('auth-token')
+                  },
+                  body: JSON.stringify({
+                      projectHeading: this.projectHeading,
+                      projectDescription: this.projectDescription
+                  })
+              });
+              const data = await response.json();
+
+              // Populate the milestones array with the response
+              if (data.milestones && data.milestones.length) {
+                  this.milestones = data.milestones.map(milestone => ({
+                      task: milestone.task,
+                      description: milestone.description,
+                      deadline: milestone.deadline || ''
+                  }));
+              } else {
+                  alert('No milestones generated by AI. Please try again.');
+              }
+          } catch (error) {
+              console.error('Error fetching milestones from AI:', error);
+              alert('Failed to fetch milestones from AI. Please check your connection and try again.');
+          }
+      },
+
+      async createProject() {
+        try {
+            // Step 1: Send Project Data to Backend
+            const projectResponse = await fetch('/project', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authentication-Token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({
+                    title: this.projectHeading,
+                    description: this.projectDescription
+                })
+            });
+
+            const projectData = await projectResponse.json();
+
+            if (!projectResponse.ok) {
+                throw new Error(projectData.message || 'Failed to create project.');
             }
-        },
 
-        createMilestone() {
-            console.log('Project Heading:', this.projectHeading);
-            console.log('Project Description:', this.projectDescription);
-            console.log('Milestones:', this.milestones);
-            alert('Milestone created successfully!');
-            // Logic for submitting the milestone data can be added here
+            const { projectId, title, description } = projectData;
+            console.log('Project Created:', { projectId, title, description });
+
+            // Step 2: Send Milestones Data to Backend
+            const milestonesResponse = await fetch('/milestone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authentication-Token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({
+                    projectId: projectId,
+                    milestones: this.milestones
+                })
+            });
+
+            const milestonesData = await milestonesResponse.json();
+
+            if (!milestonesResponse.ok) {
+                throw new Error(milestonesData.message || 'Failed to create milestones.');
+            }
+
+            console.log('Milestones Created:', milestonesData);
+
+            alert('Project and milestones created successfully!');
+            this.$router.push(`/projects/${projectId}`)
+        } catch (error) {
+            console.error('Error creating milestones:', error);
+            alert('Failed to create milestones. Please try again.');
         }
     }
-}
+  }
+};
