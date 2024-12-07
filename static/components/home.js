@@ -1,6 +1,3 @@
-// import librarian_dashboard from "./librarian_dashboard.js"
-// import user_dashboard from "./user_dashboard.js"
-
 export default  {
     template: `
      <div class="landing-page">

@@ -23,6 +23,7 @@ export default {
 
     data() {
         return {
+            projectId: this.$route.params.id,
             teams: [
                 {
                     id: 1,
