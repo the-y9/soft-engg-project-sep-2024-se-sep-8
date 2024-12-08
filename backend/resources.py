@@ -243,7 +243,7 @@ api.add_resource(Project_Manager, '/projects','/project', '/milestone', '/milest
 
 class Notification_Manager(Resource):
     @roles_required('instructor')
-    def get(self, id=None, team_id=None):
+    def get(self, id=None, user_id=None):
         if id:
             try:
                 notification = Notifications.query.get(id)
@@ -254,12 +254,12 @@ class Notification_Manager(Resource):
                         'message': notification.message,
                         'created_at': notification.created_at
                     }), 200
-                return jsonify({'message': 'Notification not found'}), 404
+                return jsonify({'message': 'Notification not found'})
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
         
-        elif team_id:
-            notifications = Notifications.query.filter_by(created_for=team_id).all()
+        elif user_id:
+            notifications = Notifications.query.filter_by(created_for=user_id).all()
             
             if notifications:
                 notification_list = [{
@@ -322,6 +322,6 @@ api.add_resource(
     Notification_Manager,
     '/notifications',  # For creating a new notification (POST)
     '/notifications/<int:id>',  # For fetching or deleting a specific notification by ID (GET/DELETE)
-    '/notifications/team/<int:team_id>'  # For fetching all notifications for a specific team (GET)
+    '/notifications/user/<int:user_id>'  # For fetching all notifications for a specific user (GET)
 )
 

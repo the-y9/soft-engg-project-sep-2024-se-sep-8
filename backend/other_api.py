@@ -49,7 +49,7 @@ class ReminderManager(Resource):
             send_reminder_notifications.apply_async()
             return jsonify({'message': 'Reminder notifications sent successfully'}), 200
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 400
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(ReminderManager, '/reminders/send')
 
@@ -59,12 +59,12 @@ class SubmissionValidation(Resource):
         data = request.get_json()
         required_fields = ['submission', 'project_id', 'milestone_id']
         if not all(field in data for field in required_fields):
-            return jsonify({'message': 'Missing required fields'}), 400
+            return jsonify({'message': 'Missing required fields'})
 
         # Fetch milestone details
         milestone = Milestones.query.get(data['milestone_id'])
         if not milestone:
-            return jsonify({'message': 'Milestone not found'}), 404
+            return jsonify({'message': 'Milestone not found'})
 
         # Call the GenAI model for validation
         genai_url = "https://genai-model.example.com/validate"
@@ -181,7 +181,7 @@ class InstructorFeedbackNotifications(Resource):
                 'created_at': notif.created_at
             } for notif in notifications]
 
-            return jsonify({'feedback_notifications': feedback}), 200
+            return jsonify({'feedback_notifications': feedback})
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
 
@@ -198,14 +198,14 @@ class AddEvaluationCriteria(Resource):
         try:
             project = Projects.query.get(projectId)
             if not project:
-                return jsonify({'message': f'Project with ID {projectId} not found.'}), 404
+                return jsonify({'message': f'Project with ID {projectId} not found.'})
 
             criteria_objects = []
             for item in data['criteriaList']:
                 criterion = item.get('criterion')
                 description = item.get('description', '')
                 if not criterion:
-                    return jsonify({'message': 'Each criterion must have a name.'}), 400
+                    return jsonify({'message': 'Each criterion must have a name.'})
                 criteria_objects.append(EvaluationCriteria(project_id=projectId, criterion=criterion, description=description))
 
             db.session.add_all(criteria_objects)
@@ -219,7 +219,7 @@ class AddEvaluationCriteria(Resource):
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(AddEvaluationCriteria, '/project/<int:projectId>/evaluation-criteria')
 
@@ -230,7 +230,7 @@ class SubmitPeerReview(Resource):
         required_fields = ['reviewerId', 'projectId', 'criteria']
 
         if not all(field in data for field in required_fields):
-            return jsonify({'message': 'Invalid request data.'}), 400
+            return jsonify({'message': 'Invalid request data.'})
 
         try:
             peer_review = PeerReview(
