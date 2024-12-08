@@ -65,7 +65,7 @@ def user_login():
     
     if check_password_hash(user.password, data.get("password")):
         if user.active:
-            return jsonify({"token":user.get_auth_token(),"email":user.email,"role":user.roles[0].name}),200
+            return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name}),200
         else:
             return jsonify({"message":"User not activated"}),403
     
