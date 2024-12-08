@@ -39,18 +39,17 @@ class GitHubRepo(Resource):
         if not repo:
             return jsonify({"message": f"'{owner}' is a valid owner name."})
 
-        try:
-            
+        try:  
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-            # token = "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"
+            token = ""
             token = key(owner)
             headers = {}
             if token:
                 headers['Authorization'] = f'token {token}'
                 headers['Accept'] = "application/vnd.github.v3+json"
             
-            response = requests.get(url,headers=headers)
+            response = requests.get(url)
             if response.status_code == 200:
                 commits = response.json()
                 
