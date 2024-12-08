@@ -9,7 +9,12 @@ from sqlalchemy import func,case
 import google.generativeai as genai
 import json
 import re
-GOOGLE_API_KEY = 'API_KEY'
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
