@@ -46,7 +46,8 @@ def create_app():
 app = create_app()
 
 # List of endpoints where authentication is not required
-EXEMPTED_ENDPOINTS = ['/login', '/signup', '/public-resource']
+EXEMPTED_ENDPOINTS = ['/','/user-login', '/user-signup']
+
 
 # Decorator to skip authentication for exempted endpoints
 def exempt_from_auth(func):
@@ -55,26 +56,16 @@ def exempt_from_auth(func):
         return func(*args, **kwargs)
     return wrapper
 
-# Before request hook to authenticate users based on token
-@app.before_request
+# @app.before_request
 def before_request():
-    # Check if the current endpoint is exempted from authentication
     if request.endpoint in EXEMPTED_ENDPOINTS:
-        return  # Skip authentication for exempted routes
+        return 
     
-    token = request.headers.get('Authorization')  # Get the token from the request header
-
+    token = request.headers.get('auth-token')
+    print(101,token)
     if not token:
         return jsonify({"message": "Authorization token is missing!"}), 401
 
-    # Assuming the token is of the form 'Bearer <token>'
-    token = token.replace('Bearer ', '').strip()
-
-    # Use your token validation logic here (e.g., you could use JWT)
-    user = User.query.filter_by(fs_uniquifier=token).first()
-
-    if not user:
-        return jsonify({"message": "Invalid token!"}), 401
 
 
 app.register_blueprint(other_api_bp)
