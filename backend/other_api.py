@@ -454,7 +454,7 @@ class GenerateMilestones(Resource):
                 return {
                     'ERROR': 'Could not extract JSON content',
                     'raw_output': ai_output
-                }, 500
+                }
 
             try:
                 # Attempt to parse the extracted JSON
@@ -470,7 +470,7 @@ class GenerateMilestones(Resource):
                         raise ValueError("Milestone is missing 'task' or 'description' fields")
 
                 # Return the parsed milestones
-                return {'milestones': milestones}, 200
+                return {'milestones': milestones}
 
             except (json.JSONDecodeError, ValueError) as e:
                 return {
@@ -482,6 +482,36 @@ class GenerateMilestones(Resource):
             return {
                 'ERROR': f'Failed to generate milestones: {str(e)}',
                 'raw_output': ai_output
-            }, 500
+            }
 
 api.add_resource(GenerateMilestones, '/generate-milestones')
+
+class TeamByUser(Resource):
+    def get(self, user_id):
+        # Query the TeamMembers table to find the team_id for the given user_id
+        team_member = TeamMembers.query.filter_by(user_id=user_id).first()
+        if team_member:
+            return jsonify({'team_id': team_member.team_id})
+        return jsonify({'message': 'User not found or not assigned to any team'})
+
+class UsersByTeam(Resource):
+    def get(self, team_id):
+        # Query the TeamMembers table to find all users for the given team_id
+        team_members = TeamMembers.query.filter_by(team_id=team_id).all()
+        if team_members:
+            # Extract user_id from the results and fetch user data from the User table
+            users = []
+            for team_member in team_members:
+                user = User.query.get(team_member.user_id)
+                if user:
+                    users.append({
+                        'user_id': user.id,
+                        'username': user.username,  # Assuming 'username' is a field in User model
+                        'email': user.email  # Assuming 'email' is a field in User model
+                    })
+            return jsonify({'team_id': team_id, 'users': users})
+        return jsonify({'message': 'Team not found or no members assigned to this team'})
+
+# Add resources to the API
+api.add_resource(TeamByUser, '/team_by_user/<int:user_id>')
+api.add_resource(UsersByTeam, '/user_by_team/<int:team_id>')
