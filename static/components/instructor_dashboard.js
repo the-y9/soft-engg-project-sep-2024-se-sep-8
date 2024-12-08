@@ -66,12 +66,6 @@ export default {
               <h5 class="modal-title" id="selectTeamModalLabel">Select a Project and Team</h5>
             </div>
             <div class="modal-body">
-              <div v-if="loading" class="text-center">
-                <div class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
-              <div v-else>
                 <div class="form-group mb-3">
                   <label for="projectSelect">Project</label>
                   <select class="form-control" id="projectSelect" v-model="selectedProjectId" @change="updateTeams">
@@ -86,7 +80,6 @@ export default {
                     <option v-for="team in availableTeams" :key="team.id" :value="team.id">{{ team.name }}</option>
                   </select>
                 </div>
-              </div>
             </div>
             <div class="modal-footer justify-content-center">
               <button type="button" class="btn btn-primary" @click="goToTeamTracker" :disabled="!selectedTeamId">Track Team</button>
