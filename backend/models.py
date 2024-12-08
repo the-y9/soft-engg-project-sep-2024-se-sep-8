@@ -66,6 +66,18 @@ class Notifications(db.Model):
     def __repr__(self):
         return f'<Notification(title={self.title}, created_at={self.created_at})>'
 
+class NotificationUser(db.Model):
+    __tablename__ = 'notification_user'
+    
+    notification_id = db.Column(db.Integer, db.ForeignKey('notifications.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    notification = db.relationship('Notifications', backref=db.backref('users', lazy='dynamic'))
+    user = db.relationship('User', backref=db.backref('notifications', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<NotificationUser(notification_id={self.notification_id}, user_id={self.user_id})>'
+
 
 class GitUser(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

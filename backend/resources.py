@@ -148,7 +148,7 @@ class Project_Manager(Resource):
                     'milestones': milestones
                 })
             
-            # print(result)
+            # print(result[0])
             return jsonify({'projects': result})
 
         # Return message if no projects found
