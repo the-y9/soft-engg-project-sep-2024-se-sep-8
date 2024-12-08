@@ -34,10 +34,10 @@ class GitHubRepo(Resource):
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
-            return jsonify({"message": f"Owner '{owner}' not found on GitHub."}), 404
+            return jsonify({"message": f"Owner '{owner}' not found on GitHub."})
 
         if not repo:
-            return jsonify({"message": f"'{owner}' is a valid owner name."}), 200
+            return jsonify({"message": f"'{owner}' is a valid owner name."})
 
         try:
             # Fetch commit information for the repository
@@ -60,9 +60,9 @@ class GitHubRepo(Resource):
                     'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
                     'author_date': commit['commit']['author']['date']
                 } for commit in commits]
-                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data}), 200
+                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data})
             elif response.status_code == 404:
-                return jsonify({"message": f"Error: Repository '{repo}' not found!"}), 404
+                return jsonify({"message": f"Error: Repository '{repo}' not found!"})
             else:
                 return jsonify({"message":f"Error: {response.status_code}"})
         except Exception as e:
@@ -87,9 +87,9 @@ class Project_Manager(Resource):
                         'description': milestone.description,
                         'deadline': milestone.deadline
                     }), 200
-                return jsonify({'message': 'Milestone not found'}), 404
+                return jsonify({'message': 'Milestone not found'})
             except Exception as e:
-                return jsonify({'ERROR': f'{e}'}), 400
+                return jsonify({'ERROR': f'{e}'})
 
     # Get all milestones for a specific project
     
@@ -107,7 +107,21 @@ class Project_Manager(Resource):
                     'description': milestone.description,
                     'deadline': milestone.deadline
                 } for milestone in milestones]}), 200
-            return jsonify({'message': 'Milestones not found for the project'}), 404
+            return jsonify({'message': 'Milestones not found for the project'})
+        
+        # Case 2: Get all projects
+        all_projects = Projects.query.all()  # Retrieve all projects from the database
+        if all_projects:
+            return jsonify({
+                'projects': [
+                    {
+                        'id': project.id,
+                        'title': project.title,
+                        'description': project.description
+                    } for project in all_projects
+                ]
+            })
+        return jsonify({'message': 'No projects found'})
         
         return {'message': 'Project ID is required to retrieve milestones'}, 404
 
@@ -194,7 +208,7 @@ class Project_Manager(Resource):
         return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
-api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+api.add_resource(Project_Manager, '/projects','/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
     @roles_required('instructor')
