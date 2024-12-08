@@ -149,7 +149,7 @@ class Project_Manager(Resource):
                 })
             
             # print(result[0])
-            return jsonify({'projects': result})
+            return jsonify(result)
 
         # Return message if no projects found
         return jsonify({'message': 'No projects found'})
