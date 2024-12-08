@@ -1,7 +1,7 @@
 # from celery import Celery
 from backend.models import Notifications, db
 from datetime import datetime, timedelta
-from flask import current_app as app, jsonify, request, Blueprint
+from flask import current_app as app, jsonify, request, Blueprint, send_from_directory
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
 from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview, SystemLog
 import requests
@@ -375,3 +375,21 @@ class SearchLogs(Resource):
             return jsonify({'ERROR': str(e)}), 500
 
 api.add_resource(SearchLogs, '/logs/search')
+
+# Path to the directory where PDF files are stored
+PDF_DIRECTORY = 'pdfs'
+
+class MilestoneDocument(Resource):
+    def get(self, team_id, milestone_id):
+        try:
+            filename = f'team_{team_id}_milestone_{milestone_id}.pdf'
+            return send_from_directory(PDF_DIRECTORY, filename, as_attachment=True)
+
+        except FileNotFoundError:
+            return {"message": "Document not found"}, 404
+
+        except Exception as e:
+            return {"message": str(e)}, 500
+
+
+api.add_resource(MilestoneDocument, '/teams/<int:team_id>/milestones/<int:milestone_id>/document')
