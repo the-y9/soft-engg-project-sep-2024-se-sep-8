@@ -42,14 +42,14 @@ class GitHubRepo(Resource):
         try:
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-            # token = "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"
+            token = ""
             token = key(owner)
             headers = {}
             if token:
                 headers['Authorization'] = f'token {token}'
                 headers['Accept'] = "application/vnd.github.v3+json"
             
-            response = requests.get(url,headers=headers)
+            response = requests.get(url)
             if response.status_code == 200:
                 commits = response.json()
                 commit_data = [{
@@ -112,6 +112,7 @@ class Project_Manager(Resource):
         return {'message': 'Project ID is required to retrieve milestones'}, 404
 
     # Create a new
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
 
@@ -167,6 +168,7 @@ class Project_Manager(Resource):
 
 
     # Delete a milestone
+    @roles_required('instructor')
     def delete(self, id=None,project_id=None):
         if id:
             milestone = Milestones.query.get(id)
@@ -195,6 +197,7 @@ class Project_Manager(Resource):
 api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
+    @roles_required('instructor')
     def get(self, id=None, team_id=None):
         if id:
             try:
@@ -256,7 +259,8 @@ class Notification_Manager(Resource):
             return jsonify({'message': 'Notification created successfully.'}), 200
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
-    
+        
+    @roles_required('instructor')
     def delete(self, id=None):
         if id:
             notification = Notifications.query.get(id)

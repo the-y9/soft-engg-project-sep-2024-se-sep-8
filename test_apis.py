@@ -1,15 +1,9 @@
 import pytest
 import requests
 from datetime import datetime
-<<<<<<< HEAD
 
 # Base URL for the API
 BASE_URL = "http://127.0.0.1:5000"  # Replace with your server's actual base URL
-=======
-
-
-BASE_URL = "http://127.0.0.1:5000"
->>>>>>> 025111fa776496f8820582ea719b3204c887d9e4
 
 
 # Helper function for creating test data

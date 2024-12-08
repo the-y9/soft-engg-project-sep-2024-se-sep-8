@@ -2,6 +2,7 @@
 from backend.models import Notifications, db
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify, request, Blueprint, send_from_directory
+from flask_security import roles_required
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
 from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview, SystemLog
 import requests
@@ -53,6 +54,7 @@ class ReminderManager(Resource):
 api.add_resource(ReminderManager, '/reminders/send')
 
 class SubmissionValidation(Resource):
+    @roles_required('student')
     def post(self):
         data = request.get_json()
         required_fields = ['submission', 'project_id', 'milestone_id']
@@ -86,6 +88,7 @@ class SubmissionValidation(Resource):
 api.add_resource(SubmissionValidation, '/submission/validate')
 
 class PerformancePrediction(Resource):
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
         if 'students_data' not in data:
@@ -186,6 +189,7 @@ api.add_resource(InstructorFeedbackNotifications, '/feedback/<int:project_id>')
 
 # Peer Review: Add Evaluation Criteria
 class AddEvaluationCriteria(Resource):
+    @roles_required('instructor')
     def post(self, projectId):
         data = request.get_json()
         if 'criteriaList' not in data:
@@ -402,6 +406,7 @@ api.add_resource(MilestoneDocument, '/teams/<int:team_id>/milestones/<int:milest
 
 
 class GenerateMilestones(Resource):
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
 
