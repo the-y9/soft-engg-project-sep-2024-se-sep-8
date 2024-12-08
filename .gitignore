@@ -9,3 +9,4 @@ venv/
 seproj/
 backend/__pycache__/
 backend/.env
+venv/
