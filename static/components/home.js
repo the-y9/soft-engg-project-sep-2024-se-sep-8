@@ -1,6 +1,3 @@
-// import librarian_dashboard from "./librarian_dashboard.js"
-// import user_dashboard from "./user_dashboard.js"
-
 export default  {
     template: `
      <div class="landing-page">
@@ -48,9 +45,4 @@ export default  {
             this.$router.push('/register')
         }
     },
-
-    components:{
-        // librarian_dashboard,
-        // user_dashboard,
-    }
 }

@@ -17,6 +17,7 @@ def install(package):
 try:
     from flask import Flask
     from flask_security import SQLAlchemyUserDatastore, Security
+    import logging
 except ImportError as e:
     missing_module = str(e).split("'")[1]  # Extracting the missing module's name
     print(f"Module '{missing_module}' is missing. Installing...")

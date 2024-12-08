@@ -1,58 +1,84 @@
 export default {
-    template: `
-     <div class="notification-page">
+  template: `
+    <div class="notification-page">
       <section class="page-header">
         <div class="header-content">
           <h1 class="hero-title">Notification System</h1>
           <p class="hero-subtitle">Create and send notifications to students with ease.</p>
         </div>
-      </section>
-
+      </section>        
       <section class="notification-form">
-        <form @submit.prevent="createNotification">
-          <div class="form-group">
-            <label for="notification-title" class="form-label">Notification Title</label>
-            <input type="text" id="notification-title" v-model="notificationTitle" class="form-control" placeholder="Enter notification title" required />
-          </div>
-          
-          <div class="form-group">
-            <label for="notification-message" class="form-label">Notification Message</label>
-            <textarea id="notification-message" v-model="notificationMessage" class="form-control" placeholder="Enter your message" required></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label for="recipients" class="form-label">Select Recipients</label>
-            <select id="recipients" v-model="selectedRecipient" class="form-control" required>
-              <option v-for="student in students" :key="student.id" :value="student.id">{{ student.name }}</option>
-            </select>
-          </div>
+        <div class="notification-target text-center mb-4">
+          <h4 style="font-weight:bold" v-if="teamName">Team: {{ teamName }}</h4>
+          <h4 style="font-weight:bold" v-if="memberName">Member: {{ memberName }}</h4>
+        </div>
+          <form @submit.prevent="createNotification">
+            <div class="form-group">
+              <label for="notification-title" class="form-label">Notification Title</label>
+              <input type="text" id="notification-title" v-model="notificationTitle" class="form-control" placeholder="Enter notification title" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="notification-message" class="form-label">Notification Message</label>
+              <textarea id="notification-message" v-model="notificationMessage" class="form-control" placeholder="Enter your message" required></textarea>
+            </div>
 
-          <button type="submit" class="create-button">Send Notification</button>
-        </form>
+            <button type="submit" class="create-button btn btn-primary">Send Notification</button>
+          </form>
       </section>
-    </div>`,
+    </div>
+  `,
 
-    data() {
-        return {
-            notificationTitle: '',
-            notificationMessage: '',
-            selectedRecipient: null,
-            students: [
-                { id: 1, name: 'Student A' },
-                { id: 2, name: 'Student B' },
-                { id: 3, name: 'Student C' }
-            ]
-        }
-    },
-
-    methods: {
-        createNotification() {
-            if (this.notificationTitle && this.notificationMessage && this.selectedRecipient) {
-                alert(`Notification titled "${this.notificationTitle}" sent to recipient ID: ${this.selectedRecipient}`);
-                // Logic for sending the notification can be added here (e.g., API call)
-            } else {
-                alert('Please fill out all fields.');
-            }
-        }
+  data() {
+    return {
+      teamId: null,
+      teamName: null,
+      memberId: null,
+      memberName: null,
+      notificationTitle: '',
+      notificationMessage: ''
     }
-}
+  },
+
+  created() {
+    this.teamId = this.$route.query.team_id;
+    this.teamName = this.$route.query.team_name;
+    this.memberId = this.$route.query.member_id;
+    this.memberName = this.$route.query.member_name;
+    console.log(this.teamId, this.memberId);
+  },
+
+  methods: {
+    async createNotification() {
+      if (this.notificationTitle && this.notificationMessage) {
+        try {
+          const response = await fetch('/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authentication-Token': localStorage.getItem('auth-token')
+            },
+            body: JSON.stringify({
+              // Backend: if team_id and member_id both are present send to member only, otherwise send to entire team.
+              teamId: this.teamId,
+              memberId: this.memberId,
+              notificationTitle: this.notificationTitle,
+              notificationMessage: this.notificationMessage
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to send notification.');
+          }
+          this.$router.go(-1);
+          alert('Notification Sent');
+        } catch (error) {
+          console.error('Error sending notification:', error);
+          alert('Failed to send notification. Please try again.');
+        }
+      } else {
+        alert('Please fill out all fields.');
+      }
+    }
+  }
+};

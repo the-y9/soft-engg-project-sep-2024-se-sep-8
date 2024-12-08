@@ -139,3 +139,27 @@ class FileStorage(db.Model):
     
     def __repr__(self):
         return f'<FileStorage(filename={self.filename}, uploaded_by={self.uploaded_by})>'
+
+
+class EvaluationCriteria(db.Model):
+    __tablename__ = 'evaluation_criteria'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    criterion = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+
+class PeerReview(db.Model):
+    __tablename__ = 'peer_reviews'
+    id = db.Column(db.Integer, primary_key=True)
+    reviewer_id = db.Column(db.Integer, nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    criteria = db.Column(db.JSON, nullable=False)  # Stores a JSON array of criteria evaluations
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class SystemLog(db.Model):
+    __tablename__ = 'system_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    severity = db.Column(db.String(20), nullable=False)  # e.g., INFO, WARNING, ERROR
+    message = db.Column(db.Text, nullable=False)

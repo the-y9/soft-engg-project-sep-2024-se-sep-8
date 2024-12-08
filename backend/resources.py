@@ -34,12 +34,12 @@ class GitHubRepo(Resource):
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
-            return jsonify({"message": f"Owner '{owner}' not found on GitHub."})
+            return jsonify({"message": f"Owner '{owner}' not found on GitHub."}), 404
 
         if not repo:
-            return jsonify({"message": f"'{owner}' is a valid owner name."})
+            return jsonify({"message": f"'{owner}' is a valid owner name."}), 200
 
-        try:  
+        try:
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
             token = ""
@@ -52,26 +52,21 @@ class GitHubRepo(Resource):
             response = requests.get(url)
             if response.status_code == 200:
                 commits = response.json()
-                
                 commit_data = [{
-            'sha': commit['sha'],
-            'message': commit['commit']['message'],
-            'committer_name': commit['commit']['committer']['name'],  # Who applied the commit
-            'commit_date': commit['commit']['committer']['date'],
-            'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
-            'author_date': commit['commit']['author']['date']
-        } for commit in commits]
-                
-                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data})
+                    'sha': commit['sha'],
+                    'message': commit['commit']['message'],
+                    'committer_name': commit['commit']['committer']['name'],  # Who applied the commit
+                    'commit_date': commit['commit']['committer']['date'],
+                    'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
+                    'author_date': commit['commit']['author']['date']
+                } for commit in commits]
+                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data}), 200
             elif response.status_code == 404:
-                return jsonify({"message": f"Error: Repository '{repo}' not found!"})
+                return jsonify({"message": f"Error: Repository '{repo}' not found!"}), 404
             else:
                 return jsonify({"message":f"Error: {response.status_code}"})
         except Exception as e:
             return jsonify({"message":f"Error: {e}"})
-
-        else:
-            return jsonify({"message": f"Error retrieving commits: {response.status_code}"}), response.status_code
 
 # Add the resource with different routes for owner and repo
 api.add_resource(GitHubRepo, '/owner/<string:owner>', '/owner/<string:owner>/repo/<string:repo>/commits')
@@ -91,8 +86,8 @@ class Project_Manager(Resource):
                         'task': milestone.task,
                         'description': milestone.description,
                         'deadline': milestone.deadline
-                    })
-                return jsonify({'message': 'Milestone not found'})
+                    }), 200
+                return jsonify({'message': 'Milestone not found'}), 404
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
 
@@ -111,24 +106,23 @@ class Project_Manager(Resource):
                     'task': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
-                } for milestone in milestones]})
-            return jsonify({'message': 'Milestones not found for the project'})
+                } for milestone in milestones]}), 200
+            return jsonify({'message': 'Milestones not found for the project'}), 404
         
-        return {'message': 'Project ID is required to retrieve milestones'}
+        return {'message': 'Project ID is required to retrieve milestones'}, 404
 
     # Create a new
     def post(self):
         data = request.get_json()
 
         # Case 1: Create a new project
+        # if 'title' not in data:
+        #     return jsonify({'message': 'Project title is required'}), 400
         if 'title' in data:
-            if 'title' not in data:
-                return jsonify({'message': 'Project title is required'})
-
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()
             if existing_project:
-                return jsonify({'message': 'Project with this title already exists'})
+                return jsonify({'message': 'Project with this title already exists'}), 400
 
             # Create a new project
             new_project = Projects(
@@ -142,13 +136,13 @@ class Project_Manager(Resource):
                 'id': new_project.id,
                 'title': new_project.title,
                 'description': new_project.description
-            })
+            }), 201
 
         # Case 2: Create a new milestone
         elif 'project_id' in data and 'task_no' in data and 'task' in data:
             project = Projects.query.get(data['project_id'])
             if not project:
-                return jsonify({'message': 'Project not found'})
+                return jsonify({'message': 'Project not found'}), 404
 
             new_milestone = Milestones(
                 project_id=data['project_id'],
@@ -195,7 +189,7 @@ class Project_Manager(Resource):
             db.session.delete(project)
             db.session.commit()
             return jsonify({'message': 'project deleted successfully'}), 200
-        return {'message': 'ID is required to delete. '}, 400
+        return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
@@ -211,7 +205,7 @@ class Notification_Manager(Resource):
                         'title': notification.title,
                         'message': notification.message,
                         'created_at': notification.created_at
-                    })
+                    }), 200
                 return jsonify({'message': 'Notification not found'}), 404
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
@@ -235,7 +229,7 @@ class Notification_Manager(Resource):
 
         # Ensure required fields are present
         if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
-            return jsonify({'message': 'Missing required fields'})
+            return jsonify({'message': 'Missing required fields'}), 400
 
         try:
             # Create a new notification
@@ -258,7 +252,8 @@ class Notification_Manager(Resource):
                 'created_at': new_notification.created_at
             }
 
-            return jsonify(notification_data)  # Return serialized data
+            # return jsonify(notification_data)  # Return serialized data
+            return jsonify({'message': 'Notification created successfully.'}), 200
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
     
@@ -266,13 +261,13 @@ class Notification_Manager(Resource):
         if id:
             notification = Notifications.query.get(id)
             if not notification:
-                return jsonify({'message': 'Notification not found'})
+                return jsonify({'message': 'Notification not found'}), 404
 
             db.session.delete(notification)
             db.session.commit()
-            return jsonify({'message': 'Notification deleted successfully'})
+            return jsonify({'message': 'Notification deleted successfully'}), 200
 
-        return jsonify({'message': 'Notification ID is required to delete a notification'})
+        return jsonify({'message': 'Notification ID is required to delete a notification'}), 404
 
 api.add_resource(
     Notification_Manager,
