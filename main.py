@@ -46,8 +46,7 @@ def create_app():
 app = create_app()
 
 # List of endpoints where authentication is not required
-EXEMPTED_ENDPOINTS = ['/','/user-login', '/user-signup']
-
+EXEMPTED_ENDPOINTS = ['/','/user-login', '/user-signup','/favicon.ico']
 
 # Decorator to skip authentication for exempted endpoints
 def exempt_from_auth(func):
@@ -58,9 +57,9 @@ def exempt_from_auth(func):
 
 # @app.before_request
 def before_request():
-    if request.endpoint in EXEMPTED_ENDPOINTS:
+    print(202, request.path)
+    if request.path in EXEMPTED_ENDPOINTS:
         return 
-    
     token = request.headers.get('auth-token')
     print(101,token)
     if not token:
