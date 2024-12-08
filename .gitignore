@@ -8,3 +8,4 @@ instance/g.db
 seproj/
 backend/__pycache__/
 backend/.env
+venv/
