@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones, Notifications
+from .models import User, GitUser, Projects, Milestones, Notifications, Team
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
@@ -109,18 +109,49 @@ class Project_Manager(Resource):
                 } for milestone in milestones]}), 200
             return jsonify({'message': 'Milestones not found for the project'})
         
+
+        '''{
+                id: 2,
+                name: 'Project Beta',
+                teams: [{ id: 3, name: 'Team C' }],
+                startDate: '2024-03-01',
+                endDate: '2024-08-15',
+                milestones: [
+                    { id: 201, name: 'Milestone 1', status: 'Pending' }
+                ]
+            }
+        '''
         # Case 2: Get all projects
         all_projects = Projects.query.all()  # Retrieve all projects from the database
+
         if all_projects:
-            return jsonify({
-                'projects': [
-                    {
-                        'id': project.id,
-                        'title': project.title,
-                        'description': project.description
-                    } for project in all_projects
+            result = []
+            
+            for project in all_projects:
+                # Get teams related to the project
+                teams = [
+                    {'id': team.id, 'name': team.name} for team in Team.query.filter_by(project_id=project.id).all()
                 ]
-            })
+                
+                # Get milestones related to the project
+                milestones = [
+                    {'id': milestone.id, 'name': milestone.task, 'status': 'Pending'} for milestone in Milestones.query.filter_by(project_id=project.id).all()
+                ]
+                
+                # Add project data to the result list
+                result.append({
+                    'id': project.id,
+                    'name': project.title,
+                    'teams': teams,
+                    'startDate': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
+                    'endDate': project.end_date.strftime('%Y-%m-%d') if project.end_date else None,
+                    'milestones': milestones
+                })
+            
+            # print(result)
+            return jsonify({'projects': result})
+
+        # Return message if no projects found
         return jsonify({'message': 'No projects found'})
         
         return {'message': 'Project ID is required to retrieve milestones'}, 404
