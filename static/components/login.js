@@ -55,6 +55,9 @@ export default {
             if (data.role == "student"){
             this.$router.push({ path: '/student_dashboard' })
             }
+            else if (data.role == "admin" || data.role == "instructor" || data.role == "ta" ){
+                this.$router.push({ path: '/instructor_dashboard' })
+            }
           } else {
             this.error = data.message
           }
