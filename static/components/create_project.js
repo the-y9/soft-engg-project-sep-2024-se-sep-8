@@ -44,7 +44,10 @@ export default {
             <strong>AI Response:</strong>
             <ul>
               <li v-for="(milestone, index) in aiResponse" :key="index">
-                {{ milestone.task }} - {{ milestone.description }}
+                Task : {{ milestone.task }};  
+                <br>
+                Description : {{ milestone.description }}
+                <br>
               </li>
             </ul>
           </div>

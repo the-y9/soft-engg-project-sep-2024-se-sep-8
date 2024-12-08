@@ -7,6 +7,11 @@ from .models import User, db, Projects, Milestones,Team, TeamMembers, Evaluation
 import requests
 from sqlalchemy import func,case
 import google.generativeai as genai
+import json
+import re
+GOOGLE_API_KEY = 'API_KEY'
+genai.configure(api_key=GOOGLE_API_KEY)
+
 
 other_api_bp = Blueprint('other_api', __name__)
 
@@ -393,3 +398,85 @@ class MilestoneDocument(Resource):
 
 
 api.add_resource(MilestoneDocument, '/teams/<int:team_id>/milestones/<int:milestone_id>/document')
+
+
+
+class GenerateMilestones(Resource):
+    def post(self):
+        data = request.get_json()
+
+        # Validate input
+        if 'projectHeading' not in data or 'projectDescription' not in data:
+            return {'message': 'Missing projectHeading or projectDescription'}, 400
+
+        project_heading = data['projectHeading']
+        project_description = data['projectDescription']
+
+        # Construct the AI prompt with a sample output
+        prompt = f"""
+        Generate a list of milestones for the project described below:
+        Heading: {project_heading}
+        Description: {project_description}
+
+        Output requirements:
+        - Provide milestones as a JSON-formatted list
+        - Each milestone must have 'task' and 'description' keys
+        - Provide 3-5 meaningful milestones for the project
+
+        JSON Format Example:
+        [
+            {{
+                "task": "Milestone 1 Title",
+                "description": "Detailed description of milestone 1."
+            }},
+            {{
+                "task": "Milestone 2 Title",
+                "description": "Detailed description of milestone 2."
+            }}
+        ]
+        """
+
+        try:
+            # Call Generative AI
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+            ai_output = response.text.strip()
+
+            # Use regex to extract JSON-like content
+            json_match = re.search(r'\[\s*{.*?}\s*(?:,\s*{.*?}\s*)*\]', ai_output, re.DOTALL)
+            
+            if not json_match:
+                return {
+                    'ERROR': 'Could not extract JSON content',
+                    'raw_output': ai_output
+                }, 500
+
+            try:
+                # Attempt to parse the extracted JSON
+                milestones = json.loads(json_match.group(0))
+
+                # Validate milestones structure
+                if not isinstance(milestones, list):
+                    raise ValueError("Extracted content is not a list of milestones")
+
+                # Ensure each milestone has required fields
+                for milestone in milestones:
+                    if not all(key in milestone for key in ['task', 'description']):
+                        raise ValueError("Milestone is missing 'task' or 'description' fields")
+
+                # Return the parsed milestones
+                return {'milestones': milestones}, 200
+
+            except (json.JSONDecodeError, ValueError) as e:
+                return {
+                    'ERROR': f'Invalid milestone format: {str(e)}',
+                    'raw_output': ai_output
+                }, 500
+
+        except Exception as e:
+            return {
+                'ERROR': f'Failed to generate milestones: {str(e)}',
+                'raw_output': ai_output
+            }, 500
+
+api.add_resource(GenerateMilestones, '/generate-milestones')
