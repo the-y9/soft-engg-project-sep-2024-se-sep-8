@@ -40,7 +40,7 @@ export default {
           >
             Generate AI
           </button>
-          <div v-if="aiResponse" class="alert alert-info mt-2">
+          <div v-if="aiResponse.length != 0" class="alert alert-info mt-2">
             <strong>AI Response:</strong>
             <ul>
               <li v-for="(milestone, index) in aiResponse" :key="index">
@@ -127,7 +127,7 @@ export default {
       projectHeading: '',
       projectDescription: '',
       milestones: [], // Start with an empty array
-      aiResponse: [{task:'Sdfsdfs', description: 'dsfsfsgfs'}] // AI-generated milestones to display in the DOM
+      aiResponse: [] // AI-generated milestones to display in the DOM
     };
   },
 

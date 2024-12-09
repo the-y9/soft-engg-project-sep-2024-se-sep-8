@@ -66,6 +66,18 @@ class Notifications(db.Model):
     def __repr__(self):
         return f'<Notification(title={self.title}, created_at={self.created_at})>'
 
+class NotificationUser(db.Model):
+    __tablename__ = 'notification_user'
+    
+    notification_id = db.Column(db.Integer, db.ForeignKey('notifications.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    notification = db.relationship('Notifications', backref=db.backref('users', lazy='dynamic'))
+    user = db.relationship('User', backref=db.backref('notifications', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<NotificationUser(notification_id={self.notification_id}, user_id={self.user_id})>'
+
 
 class GitUser(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -77,6 +89,8 @@ class Projects(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(25), nullable=False, unique=True)
     description = db.Column(db.String(255))
+    start_date = db.Column(db.TIMESTAMP)
+    end_date = db.Column(db.TIMESTAMP)
 
     def __repr__(self):
         return f"<Projects {self.title}>"
@@ -104,6 +118,8 @@ class Team(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     members = db.relationship('User', secondary='team_members', backref=db.backref('teams', lazy='dynamic'))
     notifications = db.relationship('Notifications', backref='team', lazy='dynamic')  # Relationship to Notifications
+    repo_owner = db.Column(db.Integer, db.ForeignKey('git_user.id'))
+    repo_name = db.Column(db.String(100))
 
     def __repr__(self):
         return f'<Team {self.name}>'
@@ -131,6 +147,7 @@ class FileStorage(db.Model):
     uploaded_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     related_milestone = db.Column(db.Integer, db.ForeignKey('milestones.id'))
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
     
     def __repr__(self):
         return f'<FileStorage(filename={self.filename}, uploaded_by={self.uploaded_by})>'

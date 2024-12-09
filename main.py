@@ -18,6 +18,10 @@ try:
     from flask import Flask
     from flask_security import SQLAlchemyUserDatastore, Security
     import logging
+    from flask import Flask, request, jsonify
+    from flask_security import current_user
+    from backend.models import db, User
+    from functools import wraps
 except ImportError as e:
     missing_module = str(e).split("'")[1]  # Extracting the missing module's name
     print(f"Module '{missing_module}' is missing. Installing...")
@@ -40,6 +44,29 @@ def create_app():
 
 
 app = create_app()
+
+# List of endpoints where authentication is not required
+EXEMPTED_ENDPOINTS = ['/','/user-login', '/user-signup','/favicon.ico']
+
+# Decorator to skip authentication for exempted endpoints
+def exempt_from_auth(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+# @app.before_request
+def before_request():
+    print(202, request.path)
+    if request.path in EXEMPTED_ENDPOINTS:
+        return 
+    token = request.headers.get('auth-token')
+    print(101,token)
+    if not token:
+        return jsonify({"message": "Authorization token is missing!"}), 401
+
+
+
 app.register_blueprint(other_api_bp)
 if __name__ == '__main__':
     app.run(debug=True)

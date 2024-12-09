@@ -22,11 +22,6 @@ export default {
           <h3 class="dashboard-card-title">Milestone Tracker</h3>
           <p class="dashboard-card-description">Track and monitor the progress of your milestones in real-time.</p>
         </div>
-        <div class="dashboard-card" @click="goToCreateNotification">
-          <img src="static/images/doc_analyzer.webp" alt="Document Analyzer" class="dashboard-image" />
-          <h3 class="dashboard-card-title">Create Notification</h3>
-          <p class="dashboard-card-description">You can create Notifications From Here.</p>
-        </div>
         <div class="dashboard-card" @click="openTeamTrackerModal">
             <img src="static/images/team_tracker.webp" alt="Team Tracker" class="dashboard-image" />
             <h3 class="dashboard-card-title">Team Tracker</h3>
@@ -66,12 +61,6 @@ export default {
               <h5 class="modal-title" id="selectTeamModalLabel">Select a Project and Team</h5>
             </div>
             <div class="modal-body">
-              <div v-if="loading" class="text-center">
-                <div class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
-              <div v-else>
                 <div class="form-group mb-3">
                   <label for="projectSelect">Project</label>
                   <select class="form-control" id="projectSelect" v-model="selectedProjectId" @change="updateTeams">
@@ -86,7 +75,6 @@ export default {
                     <option v-for="team in availableTeams" :key="team.id" :value="team.id">{{ team.name }}</option>
                   </select>
                 </div>
-              </div>
             </div>
             <div class="modal-footer justify-content-center">
               <button type="button" class="btn btn-primary" @click="goToTeamTracker" :disabled="!selectedTeamId">Track Team</button>
@@ -156,9 +144,6 @@ export default {
               this.$router.push(`/milestone_tracker/${this.selectedProjectId}`);
               this.selectedProjectId = null; // Reset the selected project after navigation
           }
-      },
-      goToCreateNotification() {
-          this.$router.push('/notification');
       },
       openProjectModal() {
           const modal = new bootstrap.Modal(document.getElementById('selectProjectModal'));

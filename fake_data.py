@@ -100,9 +100,9 @@ with app.app_context():
     except Exception as e:
         print(f"ERROR (GitUser): {e}")
 
-    # Add 100 random projects
+    # Add 10 random projects
     try:
-        for _ in range(100):
+        for _ in range(10):
             project = Projects(
                 title=fake.catch_phrase(),
                 description=fake.text(max_nb_chars=200)
@@ -113,10 +113,10 @@ with app.app_context():
     except Exception as e:
         print(f"ERROR (Projects): {e}")
 
-    # Add 100 random milestones
+    # Add 50 random milestones
     try:
         project_ids = [project.id for project in Projects.query.all()]
-        for _ in range(500):
+        for _ in range(50):
             milestone = Milestones(
                 project_id=random.choice(project_ids),
                 task_no=random.randint(1, 5),

@@ -5,6 +5,8 @@ __pycache__/
 # Ignore SQLite database file
 instance/g.db
 .venv/
+venv/
 seproj/
 backend/__pycache__/
 backend/.env
+venv/

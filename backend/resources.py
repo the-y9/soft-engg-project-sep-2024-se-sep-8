@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones, Notifications
+from .models import User, GitUser, Projects, Milestones, Notifications, Team
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
@@ -34,22 +34,22 @@ class GitHubRepo(Resource):
         """Handles both checking if the owner exists and getting repository commits."""
         
         if not self.check_owner_exists(owner):
-            return jsonify({"message": f"Owner '{owner}' not found on GitHub."}), 404
+            return jsonify({"message": f"Owner '{owner}' not found on GitHub."})
 
         if not repo:
-            return jsonify({"message": f"'{owner}' is a valid owner name."}), 200
+            return jsonify({"message": f"'{owner}' is a valid owner name."})
 
         try:
             # Fetch commit information for the repository
             url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-            # token = "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"
+            token = ""
             token = key(owner)
             headers = {}
             if token:
                 headers['Authorization'] = f'token {token}'
                 headers['Accept'] = "application/vnd.github.v3+json"
             
-            response = requests.get(url,headers=headers)
+            response = requests.get(url)
             if response.status_code == 200:
                 commits = response.json()
                 commit_data = [{
@@ -60,9 +60,9 @@ class GitHubRepo(Resource):
                     'author_name': commit['commit']['author']['name'],  # Who originally wrote the commit
                     'author_date': commit['commit']['author']['date']
                 } for commit in commits]
-                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data}), 200
+                return jsonify({"total_commits":len(commit_data),"commit_data":commit_data})
             elif response.status_code == 404:
-                return jsonify({"message": f"Error: Repository '{repo}' not found!"}), 404
+                return jsonify({"message": f"Error: Repository '{repo}' not found!"})
             else:
                 return jsonify({"message":f"Error: {response.status_code}"})
         except Exception as e:
@@ -87,9 +87,9 @@ class Project_Manager(Resource):
                         'description': milestone.description,
                         'deadline': milestone.deadline
                     }), 200
-                return jsonify({'message': 'Milestone not found'}), 404
+                return jsonify({'message': 'Milestone not found'})
             except Exception as e:
-                return jsonify({'ERROR': f'{e}'}), 400
+                return jsonify({'ERROR': f'{e}'})
 
     # Get all milestones for a specific project
     
@@ -107,11 +107,57 @@ class Project_Manager(Resource):
                     'description': milestone.description,
                     'deadline': milestone.deadline
                 } for milestone in milestones]}), 200
-            return jsonify({'message': 'Milestones not found for the project'}), 404
+            return jsonify({'message': 'Milestones not found for the project'})
+        
+
+        '''{
+                id: 2,
+                name: 'Project Beta',
+                teams: [{ id: 3, name: 'Team C' }],
+                startDate: '2024-03-01',
+                endDate: '2024-08-15',
+                milestones: [
+                    { id: 201, name: 'Milestone 1', status: 'Pending' }
+                ]
+            }
+        '''
+        # Case 2: Get all projects
+        all_projects = Projects.query.all()  # Retrieve all projects from the database
+
+        if all_projects:
+            result = []
+            
+            for project in all_projects:
+                # Get teams related to the project
+                teams = [
+                    {'id': team.id, 'name': team.name} for team in Team.query.filter_by(project_id=project.id).all()
+                ]
+                
+                # Get milestones related to the project
+                milestones = [
+                    {'id': milestone.id, 'name': milestone.task, 'status': 'Pending'} for milestone in Milestones.query.filter_by(project_id=project.id).all()
+                ]
+                
+                # Add project data to the result list
+                result.append({
+                    'id': project.id,
+                    'name': project.title,
+                    'teams': teams,
+                    'startDate': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
+                    'endDate': project.end_date.strftime('%Y-%m-%d') if project.end_date else None,
+                    'milestones': milestones
+                })
+            
+            # print(result[0])
+            return jsonify(result)
+
+        # Return message if no projects found
+        return jsonify({'message': 'No projects found'})
         
         return {'message': 'Project ID is required to retrieve milestones'}, 404
 
     # Create a new
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
 
@@ -167,6 +213,7 @@ class Project_Manager(Resource):
 
 
     # Delete a milestone
+    @roles_required('instructor')
     def delete(self, id=None,project_id=None):
         if id:
             milestone = Milestones.query.get(id)
@@ -192,10 +239,11 @@ class Project_Manager(Resource):
         return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
-api.add_resource(Project_Manager, '/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+api.add_resource(Project_Manager, '/projects','/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
-    def get(self, id=None, team_id=None):
+    @roles_required('instructor')
+    def get(self, id=None, user_id=None):
         if id:
             try:
                 notification = Notifications.query.get(id)
@@ -206,12 +254,12 @@ class Notification_Manager(Resource):
                         'message': notification.message,
                         'created_at': notification.created_at
                     }), 200
-                return jsonify({'message': 'Notification not found'}), 404
+                return jsonify({'message': 'Notification not found'})
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'}), 400
         
-        elif team_id:
-            notifications = Notifications.query.filter_by(created_for=team_id).all()
+        elif user_id:
+            notifications = Notifications.query.filter_by(created_for=user_id).all()
             
             if notifications:
                 notification_list = [{
@@ -256,7 +304,8 @@ class Notification_Manager(Resource):
             return jsonify({'message': 'Notification created successfully.'}), 200
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
-    
+        
+    @roles_required('instructor')
     def delete(self, id=None):
         if id:
             notification = Notifications.query.get(id)
@@ -273,6 +322,6 @@ api.add_resource(
     Notification_Manager,
     '/notifications',  # For creating a new notification (POST)
     '/notifications/<int:id>',  # For fetching or deleting a specific notification by ID (GET/DELETE)
-    '/notifications/team/<int:team_id>'  # For fetching all notifications for a specific team (GET)
+    '/notifications/user/<int:user_id>'  # For fetching all notifications for a specific user (GET)
 )
 

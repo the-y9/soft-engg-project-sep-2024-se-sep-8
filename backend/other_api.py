@@ -2,6 +2,7 @@
 from backend.models import Notifications, db
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify, request, Blueprint, send_from_directory
+from flask_security import roles_required
 from flask_restful import Resource, Api, reqparse, marshal_with, fields
 from .models import User, db, Projects, Milestones,Team, TeamMembers, EvaluationCriteria, PeerReview, SystemLog
 import requests
@@ -48,21 +49,22 @@ class ReminderManager(Resource):
             send_reminder_notifications.apply_async()
             return jsonify({'message': 'Reminder notifications sent successfully'}), 200
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 400
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(ReminderManager, '/reminders/send')
 
 class SubmissionValidation(Resource):
+    @roles_required('student')
     def post(self):
         data = request.get_json()
         required_fields = ['submission', 'project_id', 'milestone_id']
         if not all(field in data for field in required_fields):
-            return jsonify({'message': 'Missing required fields'}), 400
+            return jsonify({'message': 'Missing required fields'})
 
         # Fetch milestone details
         milestone = Milestones.query.get(data['milestone_id'])
         if not milestone:
-            return jsonify({'message': 'Milestone not found'}), 404
+            return jsonify({'message': 'Milestone not found'})
 
         # Call the GenAI model for validation
         genai_url = "https://genai-model.example.com/validate"
@@ -86,6 +88,7 @@ class SubmissionValidation(Resource):
 api.add_resource(SubmissionValidation, '/submission/validate')
 
 class PerformancePrediction(Resource):
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
         if 'students_data' not in data:
@@ -178,7 +181,7 @@ class InstructorFeedbackNotifications(Resource):
                 'created_at': notif.created_at
             } for notif in notifications]
 
-            return jsonify({'feedback_notifications': feedback}), 200
+            return jsonify({'feedback_notifications': feedback})
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
 
@@ -186,6 +189,7 @@ api.add_resource(InstructorFeedbackNotifications, '/feedback/<int:project_id>')
 
 # Peer Review: Add Evaluation Criteria
 class AddEvaluationCriteria(Resource):
+    @roles_required('instructor')
     def post(self, projectId):
         data = request.get_json()
         if 'criteriaList' not in data:
@@ -194,14 +198,14 @@ class AddEvaluationCriteria(Resource):
         try:
             project = Projects.query.get(projectId)
             if not project:
-                return jsonify({'message': f'Project with ID {projectId} not found.'}), 404
+                return jsonify({'message': f'Project with ID {projectId} not found.'})
 
             criteria_objects = []
             for item in data['criteriaList']:
                 criterion = item.get('criterion')
                 description = item.get('description', '')
                 if not criterion:
-                    return jsonify({'message': 'Each criterion must have a name.'}), 400
+                    return jsonify({'message': 'Each criterion must have a name.'})
                 criteria_objects.append(EvaluationCriteria(project_id=projectId, criterion=criterion, description=description))
 
             db.session.add_all(criteria_objects)
@@ -215,7 +219,7 @@ class AddEvaluationCriteria(Resource):
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(AddEvaluationCriteria, '/project/<int:projectId>/evaluation-criteria')
 
@@ -226,7 +230,7 @@ class SubmitPeerReview(Resource):
         required_fields = ['reviewerId', 'projectId', 'criteria']
 
         if not all(field in data for field in required_fields):
-            return jsonify({'message': 'Invalid request data.'}), 400
+            return jsonify({'message': 'Invalid request data.'})
 
         try:
             peer_review = PeerReview(
@@ -402,6 +406,7 @@ api.add_resource(MilestoneDocument, '/teams/<int:team_id>/milestones/<int:milest
 
 
 class GenerateMilestones(Resource):
+    @roles_required('instructor')
     def post(self):
         data = request.get_json()
 
@@ -449,7 +454,7 @@ class GenerateMilestones(Resource):
                 return {
                     'ERROR': 'Could not extract JSON content',
                     'raw_output': ai_output
-                }, 500
+                }
 
             try:
                 # Attempt to parse the extracted JSON
@@ -465,7 +470,7 @@ class GenerateMilestones(Resource):
                         raise ValueError("Milestone is missing 'task' or 'description' fields")
 
                 # Return the parsed milestones
-                return {'milestones': milestones}, 200
+                return {'milestones': milestones}
 
             except (json.JSONDecodeError, ValueError) as e:
                 return {
@@ -477,6 +482,36 @@ class GenerateMilestones(Resource):
             return {
                 'ERROR': f'Failed to generate milestones: {str(e)}',
                 'raw_output': ai_output
-            }, 500
+            }
 
 api.add_resource(GenerateMilestones, '/generate-milestones')
+
+class TeamByUser(Resource):
+    def get(self, user_id):
+        # Query the TeamMembers table to find the team_id for the given user_id
+        team_member = TeamMembers.query.filter_by(user_id=user_id).first()
+        if team_member:
+            return jsonify({'team_id': team_member.team_id})
+        return jsonify({'message': 'User not found or not assigned to any team'})
+
+class UsersByTeam(Resource):
+    def get(self, team_id):
+        # Query the TeamMembers table to find all users for the given team_id
+        team_members = TeamMembers.query.filter_by(team_id=team_id).all()
+        if team_members:
+            # Extract user_id from the results and fetch user data from the User table
+            users = []
+            for team_member in team_members:
+                user = User.query.get(team_member.user_id)
+                if user:
+                    users.append({
+                        'user_id': user.id,
+                        'username': user.username,  # Assuming 'username' is a field in User model
+                        'email': user.email  # Assuming 'email' is a field in User model
+                    })
+            return jsonify({'team_id': team_id, 'users': users})
+        return jsonify({'message': 'Team not found or no members assigned to this team'})
+
+# Add resources to the API
+api.add_resource(TeamByUser, '/team_by_user/<int:user_id>')
+api.add_resource(UsersByTeam, '/user_by_team/<int:team_id>')

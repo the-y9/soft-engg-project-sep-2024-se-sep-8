@@ -52,8 +52,12 @@ export default {
             localStorage.setItem('auth-token', data.token)
             localStorage.setItem('role', data.role)
             localStorage.setItem('email', data.email)
+            localStorage.setItem('user_id', data.id)
             if (data.role == "student"){
             this.$router.push({ path: '/student_dashboard' })
+            }
+            else if (data.role == "admin" || data.role == "instructor" || data.role == "ta" ){
+                this.$router.push({ path: '/instructor_dashboard' })
             }
           } else {
             this.error = data.message
