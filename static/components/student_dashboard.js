@@ -1,62 +1,62 @@
 export default {
   template: `
-   <div class="student-dashboard-page">
-    <section class="page-header">
-      <div class="header-content">
-        <h1 class="hero-title">Student Dashboard</h1>
-        <p class="hero-subtitle">View your project milestones, upload documents, and check feedback.</p>
-      </div>
-    </section>
-
-    <section class="milestone-content">
-      <div v-for="milestone in milestones" :key="milestone.id" class="milestone-card">
-        <div class="milestone-header">
-          <h3 class="milestone-title">{{ milestone.name }}</h3>
-          <p class="milestone-deadline">Deadline: {{ milestone.deadline }}</p>
+    <div class="student-dashboard-page">
+      <section class="page-header">
+        <div class="header-content">
+          <h1 class="hero-title">Student Dashboard</h1>
+          <p class="hero-subtitle">View your project milestones, upload documents, and check feedback.</p>
         </div>
-        <div class="progress-container">
-          <div class="progress-bar" :style="{ width: milestone.progress + '%' }"></div>
-        </div>
-        <p class="progress-text">Progress: {{ milestone.progress }}%</p>
+      </section>
 
-        <div class="form-group">
-          <label :for="'upload-' + milestone.id" class="form-label">Upload Document</label>
-          <input type="file" :id="'upload-' + milestone.id" @change="uploadDocument($event, milestone.id)" class="form-control" />
-        </div>
-
-        <div class="button-group">
-          <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
-        </div>
-      </div>
-    </section>
-
-    <div class="chatbot-icon" @click="toggleChatbot">
-      <img src="static/images/chatbot.png" alt="Chatbot" />
-    </div>
-
-    <div class="modal fade" id="chatbotModal" tabindex="-1" aria-labelledby="chatbotModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="chatbotModalLabel">Chatbot</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <section class="milestone-content">
+        <div v-for="milestone in milestones" :key="milestone.id" class="milestone-card">
+          <div class="milestone-header">
+            <h3 class="milestone-title">{{ milestone.name }}</h3>
+            <p class="milestone-deadline">Deadline: {{ milestone.deadline }}</p>
           </div>
-          <div class="modal-body">
-            <div class="messages" id="messages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
-              <div v-for="entry in chatHistory.Chat_History" :key="entry.id">
-                <div class="message user-message p-2 mb-2 rounded bg-primary text-white">{{ entry.User }}</div>
-                <div class="message bot-message p-2 mb-2 rounded bg-light">{{ entry.bot }}</div>
+          <div class="progress-container">
+            <div class="progress-bar" :style="{ width: milestone.progress + '%' }"></div>
+          </div>
+          <p class="progress-text">Progress: {{ milestone.progress }}%</p>
+
+          <div class="form-group">
+            <label :for="'upload-' + milestone.id" class="form-label">Upload Document</label>
+            <input type="file" :id="'upload-' + milestone.id" @change="uploadDocument($event, milestone.id)" class="form-control" />
+          </div>
+
+          <div class="button-group">
+            <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="chatbot-icon" @click="toggleChatbot">
+        <img src="static/images/chatbot.png" alt="Chatbot" />
+      </div>
+
+      <div class="modal fade" id="chatbotModal" tabindex="-1" aria-labelledby="chatbotModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="chatbotModalLabel">Chatbot</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="messages" id="messages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                <div v-for="entry in chatHistory.Chat_History" :key="entry.id">
+                  <div class="message user-message p-2 mb-2 rounded bg-primary text-white">{{ entry.User }}</div>
+                  <div class="message bot-message p-2 mb-2 rounded bg-light" v-html="entry.bot"></div>
+                </div>
+              </div>
+              <div class="input-group mt-3">
+                <input type="text" id="user-input" v-model="chatHistory.current_message" @keydown.enter="sendMessage" placeholder="Type your message" class="form-control" />
+                <button class="btn btn-primary" @click="sendMessage">Send</button>
               </div>
             </div>
-            <div class="input-group mt-3">
-              <input type="text" id="user-input" v-model="chatHistory.current_message" @keydown.enter="sendMessage" placeholder="Type your message" class="form-control" />
-              <button class="btn btn-primary" @click="sendMessage">Send</button>
-            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>`,
+    </div>`,
 
   data() {
       return {
@@ -78,13 +78,11 @@ export default {
           const file = event.target.files[0];
           if (file) {
               alert(`Document uploaded for milestone ID: ${milestoneId}`);
-              // Logic for handling file upload can be added here
           }
       },
 
       viewFeedback(milestoneId) {
           alert(`Viewing feedback for milestone ID: ${milestoneId}`);
-          // Logic for viewing feedback can be added here
       },
 
       toggleChatbot() {
@@ -94,11 +92,8 @@ export default {
 
       async sendMessage() {
           if (this.chatHistory.current_message.trim() !== '') {
-
-              // Add user message to chat
               const userMessage = this.chatHistory.current_message;
 
-              // Send chat history with current message to backend
               try {
                   const response = await fetch('/chatbot', {
                       method: 'POST',
@@ -113,19 +108,26 @@ export default {
                       throw new Error(data.message || 'Failed to get bot response.');
                   }
 
-                  // Update the last entry with the bot's response
-                  this.chatHistory.Chat_History.push({ User: userMessage, bot: data.bot_response });
-                  
-                  // Clear the current message
-                  this.chatHistory.current_message = '';
-                  console.log(this.chatHistory);
+                  this.chatHistory.Chat_History.push({
+                      User: userMessage,
+                      bot: this.renderMarkdown(data.bot_response)
+                  });
 
-                  // Update chat display
+                  this.chatHistory.current_message = '';
                   this.updateChatDisplay();
               } catch (error) {
                   console.error('Error getting bot response:', error);
-                  alert('Failed to get bot response. Please try again.');
               }
+          }
+      },
+
+      renderMarkdown(markdownText) {
+          try {
+              const md = window.markdownit(); // Initialize markdown-it
+              return md.render(markdownText); // Render Markdown to HTML
+          } catch (error) {
+              console.error('Markdown rendering failed:', error);
+              return markdownText; // Fallback to plain text
           }
       },
 
@@ -136,4 +138,4 @@ export default {
           });
       }
   }
-}
+};
