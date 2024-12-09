@@ -5,6 +5,7 @@ from backend.config import DevelopmentConfig
 from backend.security import datastore
 from backend.resources import api
 from backend.instance import cache
+from backend.team_api import team_api_bp
 from backend.other_api import other_api_bp
 
 def install(package):
@@ -67,6 +68,7 @@ def before_request():
 
 
 
+app.register_blueprint(team_api_bp)
 app.register_blueprint(other_api_bp)
 if __name__ == '__main__':
     app.run(debug=True)
