@@ -32,7 +32,7 @@ export default {
     </section>
 
     <!-- Modal for Project Selection -->
-    <div class="modal fade" id="selectProjectModal" tabindex="-1" aria-labelledby="selectProjectModalLabel" aria-hidden="true">
+    <div class="modal" id="selectProjectModal" tabindex="-1" aria-labelledby="selectProjectModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -54,7 +54,7 @@ export default {
     </div>
 
     <!-- Modal for Team Tracker -->
-      <div class="modal fade" id="selectTeamModal" tabindex="-1" aria-labelledby="selectTeamModalLabel" aria-hidden="true">
+      <div class="modal" id="selectTeamModal" tabindex="-1" aria-labelledby="selectTeamModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -117,7 +117,8 @@ export default {
         ],
           selectedProjectId: null,
           selectedTeamId: null,
-          availableTeams: []
+          availableTeams: [],
+          modal: null
       }
   },
 
@@ -141,20 +142,21 @@ export default {
       },
       goToMilestoneTracker() {
           if (this.selectedProjectId) {
+              this.modal.hide();
               this.$router.push(`/milestone_tracker/${this.selectedProjectId}`);
               this.selectedProjectId = null; // Reset the selected project after navigation
           }
       },
       openProjectModal() {
-          const modal = new bootstrap.Modal(document.getElementById('selectProjectModal'));
-          modal.show();
+          this.modal = new bootstrap.Modal(document.getElementById('selectProjectModal'));
+          this.modal.show();
       },
       selectProject(projectId) {
           this.selectedProjectId = projectId;
       },
       openTeamTrackerModal() {
-        const modal = new bootstrap.Modal(document.getElementById('selectTeamModal'));
-        modal.show();
+        this.modal = new bootstrap.Modal(document.getElementById('selectTeamModal'));
+        this.modal.show();
       },
       updateTeams() {
         const project = this.projects.find(proj => proj.id === this.selectedProjectId);
@@ -163,6 +165,7 @@ export default {
       },
       goToTeamTracker() {
           if (this.selectedProjectId && this.selectedTeamId) {
+              this.modal.hide();
               this.$router.push(`/team_tracker/${this.selectedProjectId}/${this.selectedTeamId}`);
               this.selectedProjectId = null; // Reset the selected project after navigation
               this.selectedTeamId = null;    // Reset the selected team after navigation
