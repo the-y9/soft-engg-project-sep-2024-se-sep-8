@@ -8,9 +8,10 @@ from .models import User, db, Projects, Milestones,Team, TeamMembers, Evaluation
 import requests
 from sqlalchemy import func,case
 import google.generativeai as genai
+import pandas as pd
 import json
 import re
-GOOGLE_API_KEY = 'AIzaSyBXWPw2U4D1DuOtEDRLrCBcNxnb1qlBh30'
+GOOGLE_API_KEY = 'API_KEY'
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
@@ -486,32 +487,116 @@ class GenerateMilestones(Resource):
 
 api.add_resource(GenerateMilestones, '/generate-milestones')
 
-class TeamByUser(Resource):
-    def get(self, user_id):
-        # Query the TeamMembers table to find the team_id for the given user_id
-        team_member = TeamMembers.query.filter_by(user_id=user_id).first()
-        if team_member:
-            return jsonify({'team_id': team_member.team_id})
-        return jsonify({'message': 'User not found or not assigned to any team'})
 
-class UsersByTeam(Resource):
-    def get(self, team_id):
-        # Query the TeamMembers table to find all users for the given team_id
-        team_members = TeamMembers.query.filter_by(team_id=team_id).all()
-        if team_members:
-            # Extract user_id from the results and fetch user data from the User table
-            users = []
-            for team_member in team_members:
-                user = User.query.get(team_member.user_id)
-                if user:
-                    users.append({
-                        'user_id': user.id,
-                        'username': user.username,  # Assuming 'username' is a field in User model
-                        'email': user.email  # Assuming 'email' is a field in User model
-                    })
-            return jsonify({'team_id': team_id, 'users': users})
-        return jsonify({'message': 'Team not found or no members assigned to this team'})
+class Chatbot(Resource):
+    def post(self):
+        try:
 
-# Add resources to the API
-api.add_resource(TeamByUser, '/team_by_user/<int:user_id>')
-api.add_resource(UsersByTeam, '/user_by_team/<int:team_id>')
+            # Query each table separately
+            projects = db.session.query(
+                Projects.id.label('project_id'),
+                Projects.title.label('project_title'),
+                Projects.description.label('project_description')
+            ).all()
+
+            milestones = db.session.query(
+                Milestones.id.label('milestone_id'),
+                Milestones.project_id.label('project_id'),
+                Milestones.task_no.label('milestone_task_no'),
+                Milestones.task.label('milestone_task'),
+                Milestones.description.label('milestone_description'),
+                Milestones.deadline.label('milestone_deadline')
+            ).all()
+
+            teams = db.session.query(
+                Team.id.label('team_id'),
+                Team.name.label('team_name'),
+                Team.description.label('team_description'),
+                Team.project_id.label('project_id')
+            ).all()
+
+            # Convert query results into DataFrames
+            projects_df = pd.DataFrame([{
+                'project_id': p.project_id,
+                'project_title': p.project_title,
+                'project_description': p.project_description
+            } for p in projects])
+
+            milestones_df = pd.DataFrame([{
+                'milestone_id': m.milestone_id,
+                'project_id': m.project_id,
+                'milestone_task_no': m.milestone_task_no,
+                'milestone_task': m.milestone_task,
+                'milestone_description': m.milestone_description,
+                'milestone_deadline': m.milestone_deadline
+            } for m in milestones])
+
+            teams_df = pd.DataFrame([{
+                'team_id': t.team_id,
+                'team_name': t.team_name,
+                'team_description': t.team_description,
+                'project_id': t.project_id
+            } for t in teams])
+
+            # Combine the DataFrames into strings for the prompt
+            projects_string = projects_df.to_string(index=False)
+            milestones_string = milestones_df.to_string(index=False)
+            teams_string = teams_df.to_string(index=False)
+
+            # Fetch the chat data
+            try:
+                data = request.get_json()
+            except Exception as e:
+                print(f"Error Parsing JSON: {e}")
+                return {'message': 'Invalid JSON payload.'}
+
+            if not data or 'Chat_History' not in data or 'current_message' not in data:
+                return {'message': 'Invalid request format. Include Chat_History and current_message.'}, 400
+
+            chat_history = data.get('Chat_History', [])
+            current_message = data['current_message'].strip()
+
+            if not current_message:
+                return {'message': 'Current message is empty.'}, 400
+
+            # Construct the AI prompt
+            prompt = f"""
+            You are a helpful, knowledgeable, and friendly AI assistant. Respond to the user's messages in a conversational tone. Be concise and polite.
+            You have access to detailed information about projects, milestones, and teams. Use the following data to answer the student's questions accurately and specifically.
+
+            Projects Data:
+            {projects_string}
+
+            Milestones Data:
+            {milestones_string}
+
+            Teams Data:
+            {teams_string}
+
+            Here is the conversation so far:
+            """
+            for chat in chat_history:
+                prompt += f"User: {chat['User']}\nBot: {chat['bot']}\n"
+            prompt += f"User: {current_message}\nBot:"
+
+
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+
+            bot_response = response.text.strip()
+
+            if not bot_response or bot_response.lower() in [
+                "i don't know.",
+                "i'm not sure."
+            ]:
+                bot_response = "I'm sorry, I didn't understand that. Could you please rephrase?"
+
+            return {'bot_response': bot_response}
+
+        except Exception as e:
+            print(f"Error Processing Request: {e}")
+            return {
+                'ERROR': f'Failed to process chatbot request: {str(e)}'
+            }
+
+api.add_resource(Chatbot, '/chatbot')
