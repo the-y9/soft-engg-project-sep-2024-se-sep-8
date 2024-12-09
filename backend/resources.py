@@ -130,7 +130,7 @@ class Project_Manager(Resource):
             for project in all_projects:
                 # Get teams related to the project
                 teams = [
-                    {'id': team.id, 'name': team.name} for team in Team.query.filter_by(project_id=project.id).all()
+                    {'id': team.id, 'name': team.name, 'repo_owner': team.repo_owner, 'repo_name': team.repo_name} for team in Team.query.filter_by(project_id=project.id).all()
                 ]
                 
                 # Get milestones related to the project
