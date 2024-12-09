@@ -24,9 +24,7 @@ export default {
           <input type="file" :id="'upload-' + milestone.id" @change="uploadDocument($event, milestone.id)" class="form-control" />
         </div>
 
-        <div class="button-group">
-          <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
-        </div>
+
       </div>
     </section>
 
