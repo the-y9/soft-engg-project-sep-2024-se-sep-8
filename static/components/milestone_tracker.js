@@ -57,7 +57,7 @@ export default {
       }
   },
 
-  async beforeCreate() {
+  async mounted() {
       try {
           const response = await fetch(`/projects/${this.$route.params.project_id}/teams`);
           const data = await response.json();
@@ -66,7 +66,7 @@ export default {
               throw new Error(data.message || "Failed to fetch team information.");
           }
 
-          this.teams = data;
+          this.teams = data.teams;
       } catch (error) {
           console.error("Error fetching team information:", error);
           alert("Failed to load team information.");
