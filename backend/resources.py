@@ -242,7 +242,7 @@ class Project_Manager(Resource):
 api.add_resource(Project_Manager, '/projects','/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
-    @roles_required('instructor')
+    # @roles_required('instructor')
     def get(self, id=None, user_id=None):
         if id:
             try:
