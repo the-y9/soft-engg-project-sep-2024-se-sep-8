@@ -72,13 +72,33 @@ export default {
   },
 
   methods: {
-      uploadDocument(event, milestoneId) {
-          const file = event.target.files[0];
-          if (file) {
-              alert(`Document uploaded for milestone ID: ${milestoneId}`);
-              // Logic for handling file upload can be added here
+
+    async uploadDocument(event, milestoneId) {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('milestoneId', milestoneId);
+
+        try {
+          const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to upload document.');
           }
-      },
+          const data = await response.json();
+          alert(`Document uploaded successfully for milestone ID: ${milestoneId}.`);
+        }
+         catch (error) {
+          console.error('Error uploading document:', error);
+          alert('Error uploading document. Please try again.');
+        }
+      }
+    },
 
       viewFeedback(milestoneId) {
           alert(`Viewing feedback for milestone ID: ${milestoneId}`);
@@ -134,4 +154,4 @@ export default {
           });
       }
   }
-}
+};
