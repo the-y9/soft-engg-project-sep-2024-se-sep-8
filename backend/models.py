@@ -118,7 +118,7 @@ class Team(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     members = db.relationship('User', secondary='team_members', backref=db.backref('teams', lazy='dynamic'))
     notifications = db.relationship('Notifications', backref='team', lazy='dynamic')  # Relationship to Notifications
-    repo_owner = db.Column(db.Integer, db.ForeignKey('git_user.id'))
+    repo_owner = db.Column(db.String(100))
     repo_name = db.Column(db.String(100))
 
     def __repr__(self):

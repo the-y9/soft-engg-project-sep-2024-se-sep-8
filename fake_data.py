@@ -1,5 +1,5 @@
 from main import app
-from backend.security import datastore 
+from backend.security import datastore
 from backend.models import db, Role, GitUser, Projects, Milestones, Notifications, User, Team, FileStorage, EvaluationCriteria, PeerReview, SystemLog, MilestoneTracker, NotificationUser, TeamMembers
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
@@ -7,7 +7,6 @@ from faker import Faker
 import random
 import string
 from sqlalchemy.exc import IntegrityError
-
 
 fake = Faker()
 
@@ -22,14 +21,14 @@ with app.app_context():
         {"category": "Secondary", "name": "ta", "description": "User who assists instructors"},
         {"category": "Tertiary", "name": "extEval", "description": "User who evaluates"}
     ]
-    
+
     # Create roles
     for role in roles_data:
         datastore.find_or_create_role(
             category=role["category"],
             name=role["name"],
             description=role["description"]
-        )   
+        )
     print(f"{len(roles_data)} roles created.")
     db.session.commit()
 
@@ -42,7 +41,7 @@ with app.app_context():
         {"email": "ee@g.com", "password": "ee", "roles": ["extEval"]},
         {"email": "rough@g.com", "password": "rough", "roles": ["student"]}
     ]
-    
+
     # Create users
     try:
         for user in users_data:
@@ -55,7 +54,7 @@ with app.app_context():
                 )
         print(f"{len(users_data)} users created.")
         db.session.commit()
-    
+
     except Exception as e:
         print(f"ERROR: {e}")
 
@@ -128,56 +127,61 @@ with app.app_context():
 
     # Helper function to generate unique team names
     def generate_unique_team_name(existing_names):
-        # Generate a random string to ensure uniqueness
         while True:
-            random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=5))  # Random suffix
+            random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
             team_name = f"Team-{random_suffix}"
-            
             if team_name not in existing_names:
-                existing_names.add(team_name)  # Add to the set of existing names
+                existing_names.add(team_name)
                 return team_name
 
-    # Assuming you have a list of existing team names from the database
+    # Create 100 random teams with valid `repo_owner` and `team_members`
     existing_team_names = set()
 
-    # Add 100 random teams
     try:
         for _ in range(100):
+            # Generate a unique team name
             team_name = generate_unique_team_name(existing_team_names)
             description = "Random team description"
             
-            # Assuming you have a list of projects and users in your database
-            project_id = random.choice([project.id for project in Projects.query.all()])
-            repo_owner = random.choice([user.id for user in User.query.all()])
-            repo_name = ''.join(random.choices(string.ascii_lowercase, k=8))  # Random repo name
+            # Ensure repo_owner is a valid string representing the owner (could be a GitHub username or another identifier)
+            repo_owner = fake.user_name()  # This could be any string representing the repository owner
 
-            # Create the team object
+            # Create the team with a valid `repo_owner`
             team = Team(
                 name=team_name,
                 description=description,
-                project_id=project_id,
-                repo_owner=repo_owner,
-                repo_name=repo_name
+                project_id=random.choice([project.id for project in Projects.query.all()]),
+                repo_owner=repo_owner,  # Set the repo_owner to a string (GitHub username, for example)
+                repo_name=''.join(random.choices(string.ascii_lowercase, k=8))  # Random repo name
             )
+            
+            db.session.add(team)
+            db.session.commit()
 
-            try:
-                # Add the team to the session and commit after each insertion
-                db.session.add(team)
-                db.session.commit()  # Commit each team after insertion
-                # print(f"Created team: {team_name}")
-            except IntegrityError as e:
-                # Handle the exception if a team with the same name already exists
-                db.session.rollback()
-                print(f"ERROR (Teams): IntegrityError - {e}")
-            except Exception as e:
-                # General exception handling
-                db.session.rollback()
-                print(f"ERROR (Teams): {e}")
+            # Create the team_members entry for the `repo_owner` (the user who is the repo owner must be added as a team member)
+            team_member = TeamMembers(
+                team_id=team.id,  # This associates the user with the created team
+                user_id=random.choice([user.id for user in User.query.all()])  # Random user ID from the User table
+            )
+            db.session.add(team_member)
 
-        print("100 random teams created successfully.")
+            # Now, we can add additional team members if needed (not necessarily the `repo_owner`)
+            for _ in range(random.randint(1, 5)):  # Add 1 to 5 other random team members
+                random_user = random.choice([user for user in User.query.all() if user.id != team_member.user_id])
+                team_member = TeamMembers(
+                    team_id=team.id,
+                    user_id=random_user.id
+                )
+                db.session.add(team_member)
+            
+            db.session.commit()
+        
+        print("100 random teams with team members created successfully.")
     except Exception as e:
-        print(f"ERROR (TEAM) at {_}: {e}")
-        db.session.rollback()  # Rollback in case of an overall error
+        print(f"ERROR (Teams & TeamMembers): {e}")
+        db.session.rollback()
+
+
 
 
     # Add 100 random file storage entries
@@ -254,7 +258,7 @@ with app.app_context():
         db.session.commit()
         print("100 random milestone trackers created.")
     except Exception as e:
-        print(f"ERROR (MilestoneTracker) at {_}: {e}")
+        print(f"ERROR (MilestoneTracker): {e}")
 
     # Add random team members
     try:
@@ -269,18 +273,16 @@ with app.app_context():
         db.session.commit()
         print("100 random team members created.")
     except Exception as e:
-        print(f"ERROR (TeamMembers) at {_}: {e}")
+        print(f"ERROR (TeamMembers): {e}")
 
     # Add 100 random notifications
     try:
-        user_ids = [user.id for user in datastore.user_model.query.all()]
+        user_ids = [user.id for user in User.query.all()]
         for _ in range(100):
             notification = Notifications(
-                title=fake.sentence(nb_words=6),
-                message=fake.paragraph(nb_sentences=3),
-                created_for=random.choice(user_ids) if user_ids else None,
-                created_by=random.choice(user_ids),
-                created_at=datetime.now()
+                message=fake.sentence(),
+                user_id=random.choice(user_ids),
+                timestamp=datetime.now()
             )
             db.session.add(notification)
         db.session.commit()
@@ -288,18 +290,16 @@ with app.app_context():
     except Exception as e:
         print(f"ERROR (Notifications): {e}")
 
-    # Add 100 random notification-user associations
+    # Add 100 random notification users
     try:
-        notification_ids = [notification.id for notification in Notifications.query.all()]
         user_ids = [user.id for user in User.query.all()]
         for _ in range(100):
             notification_user = NotificationUser(
-                notification_id=random.choice(notification_ids),
+                notification_id=random.choice([notification.id for notification in Notifications.query.all()]),
                 user_id=random.choice(user_ids)
             )
             db.session.add(notification_user)
         db.session.commit()
-        print("100 random notification-user associations created.")
+        print("100 random notification users created.")
     except Exception as e:
-        print(f"ERROR (NotificationUser) at {_}: {e}\n len(user_ids): {len(user_ids)}, len(notification_ids): {len(notification_ids)}")
-
+        print(f"ERROR (NotificationUser): {e}")
