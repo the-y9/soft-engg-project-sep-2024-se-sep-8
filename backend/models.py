@@ -68,9 +68,9 @@ class Notifications(db.Model):
 
 class NotificationUser(db.Model):
     __tablename__ = 'notification_user'
-    
-    notification_id = db.Column(db.Integer, db.ForeignKey('notifications.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    notification_id = db.Column(db.Integer, db.ForeignKey('notifications.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     notification = db.relationship('Notifications', backref=db.backref('users', lazy='dynamic'))
     user = db.relationship('User', backref=db.backref('notifications', lazy='dynamic'))
