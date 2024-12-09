@@ -24,11 +24,11 @@ export default {
             <input type="file" :id="'upload-' + milestone.id" @change="uploadDocument($event, milestone.id)" class="form-control" />
           </div>
 
-          <div class="button-group">
-            <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
-          </div>
+        <div class="button-group">
+          <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
         </div>
-      </section>
+      </div>
+    </section>
 
       <div class="chatbot-icon" @click="toggleChatbot">
         <img src="static/images/chatbot.png" alt="Chatbot" />
@@ -78,6 +78,7 @@ export default {
           const file = event.target.files[0];
           if (file) {
               alert(`Document uploaded for milestone ID: ${milestoneId}`);
+              // Logic for handling file upload can be added here
           }
       },
 
