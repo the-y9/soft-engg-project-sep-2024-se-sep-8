@@ -293,11 +293,11 @@ with app.app_context():
             db.session.add(notification)
 
         db.session.commit()
-        print({"message": "100  notifications created successfully"})
+        print("100  notifications created successfully")
 
     except Exception as e:
         db.session.rollback()  # Ensure rollback in case of error
-        print({f"ERROR (Notifications): {str(e)}"})
+        print(f"ERROR (Notifications): {str(e)}")
 
 
     # Add 100 random notification users
