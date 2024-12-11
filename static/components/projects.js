@@ -72,12 +72,7 @@ export default {
         };
     },
 
-    created() {
-        this.fetchProjects();
-    },
-
-    methods: {
-        async fetchProjects() {
+    async beforeCreate() {
             try {
                 const response = await fetch('/projects'); // Replace with your API endpoint
                 const data = await response.json();
@@ -93,6 +88,7 @@ export default {
             }
         },
 
+    methods: {
         editProject(projectId) {
             // Redirect to the edit page for the specific project
             this.$router.push(`/project/${projectId}`);

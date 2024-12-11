@@ -53,9 +53,8 @@ export default {
         })
         const data = await res.json()
         if(res.ok){
-            localStorage.setItem('auth-token', data.token)
-            localStorage.setItem('role', data.role)
-            this.$router.push({path:'/'})
+            console.log(data);
+            this.$router.push('/login');
         }
         else {
             this.error = data.message

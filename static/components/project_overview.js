@@ -102,7 +102,7 @@ export default {
       return {
         id : this.$route.params.id,
         project: {
-          name: "Project Alpha",
+          name: "Programmable client-driven synergy",
           description: "This is a synthetic project used for demo purposes.",
           startDate: "2024-01-01",
           endDate: "2024-12-31",

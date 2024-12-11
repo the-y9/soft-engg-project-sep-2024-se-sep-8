@@ -10,7 +10,7 @@ router.beforeEach((to, from, next) => {
     if (!authToken && to.name!=='Login' && to.name!=='Register' && to.name!=='Home') {
          next({name:'Login'})
     }
-    else if (requiresAuth && requiredRole !== role) {
+    else if (requiresAuth && requiredRole !== role && to.name!=='Login') {
         next('/unauthorized');
     }
     else{

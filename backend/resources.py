@@ -98,12 +98,16 @@ class Project_Manager(Resource):
             milestones = Milestones.query.filter_by(project_id=project_id).all()
             if milestones:
                 return jsonify({
-                    'project' : project.to_dict(),
+                    'id': project.id,
+                    'name': project.title,
+                    'description': project.description,
+                    'startDate': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
+                    'endDate': project.end_date.strftime('%Y-%m-%d') if project.end_date else None,
                     'milestones':
                     [{
                     'id': milestone.id,
                     'task_no': milestone.task_no,
-                    'task': milestone.task,
+                    'taskName': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
                 } for milestone in milestones]}), 200
@@ -239,7 +243,7 @@ class Project_Manager(Resource):
         return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
-api.add_resource(Project_Manager, '/projects','/project', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>' '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
     # @roles_required('instructor')
