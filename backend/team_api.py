@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from sqlalchemy.orm import joinedload
-from .models import Projects, Team, Milestones, MilestoneTracker, GitUser, FileStorage, db
+from .models import Projects, Team, Milestones, MilestoneTracker, GitUser, FileStorage, db, TeamMembers
 from flask_restful import Resource, Api,request
 from datetime import datetime
 import requests
@@ -201,5 +201,33 @@ def upload_file(team_id,user_id,milestone):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-# @team_api_bp.route()
+@team_api_bp.route('/get_user_details/<int:user_id>', methods=['GET'])
+def get_user_details(user_id):
+    try:
+        # Query all teams the user belongs to
+        team_memberships = TeamMembers.query.filter_by(user_id=user_id).all()
 
+        # If no teams found
+        if not team_memberships:
+            return jsonify({"error": "No teams found for the given user ID"}), 404
+
+        # Retrieve team IDs and corresponding project IDs
+        teams_and_projects = []
+        for membership in team_memberships:
+            team = Team.query.get(membership.team_id)
+            if team:
+                project = Projects.query.get(team.project_id)
+                teams_and_projects.append({
+                    "team_id": team.id,
+                    "team_name": team.name,
+                    "project_id": project.id if project else None,
+                    "project_title": project.title if project else None
+                })
+
+        return jsonify({
+            "user_id": user_id,
+            "teams_and_projects": teams_and_projects
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
