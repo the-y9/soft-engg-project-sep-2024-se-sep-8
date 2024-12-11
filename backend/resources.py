@@ -110,7 +110,7 @@ class Project_Manager(Resource):
                     'taskName': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
-                } for milestone in milestones]})
+                } for milestone in milestones]}
             return jsonify({'message': 'Milestones not found for the project'})
         
 
