@@ -72,15 +72,54 @@ export default {
           }
       }
   },
+  mounted() {
+    this.fetchMilestones();
+  },
 
   methods: {
-      uploadDocument(event, milestoneId) {
-          const file = event.target.files[0];
-          if (file) {
-              alert(`Document uploaded for milestone ID: ${milestoneId}`);
-              // Logic for handling file upload can be added here
+    async uploadDocument(event, milestoneId) {
+      const file = event.target.files[0];
+      if (file) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('filename', file.name);
+          formData.append('related_milestone', milestoneId);
+          formData.append('uploaded_by', this.getUserId()); // Replace this with your logic to fetch user ID
+          formData.append('team_id', this.getTeamId()); // Replace this with your logic to fetch team ID
+
+          try {
+              const response = await fetch('/upload', {
+                  method: 'POST',
+                  body: formData,
+              });
+
+              if (!response.ok) {
+                  throw new Error('Failed to upload file');
+              }
+
+              alert(`Document uploaded successfully for milestone ID: ${milestoneId}`);
+          } catch (error) {
+              console.error('Error uploading document:', error);
+              alert('Failed to upload document');
           }
-      },
+      }
+  },
+
+  async fetchMilestones() {
+    try {
+      const response = await fetch('/milestone',{
+        method: 'GET'
+      }); // Adjust endpoint as per your API
+      if (!response.ok) {
+        throw new Error('Failed to fetch milestones');
+      }
+      const data = await response.json();
+      this.milestones = data.milestones; // Update milestones with backend data
+    } catch (error) {
+      console.error('Error fetching milestones:', error);
+      alert('Failed to load milestones');
+    }
+  },
 
       viewFeedback(milestoneId) {
           alert(`Viewing feedback for milestone ID: ${milestoneId}`);

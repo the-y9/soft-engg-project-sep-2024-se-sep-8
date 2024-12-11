@@ -72,3 +72,25 @@ def user_login():
     else: 
         return jsonify({"message":"Wrong password"}),400
     
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.post('/upload')
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    milestone_id = request.form.get('milestoneId')
+
+    if not file:
+        return jsonify({'error': 'File is required'}), 400
+
+    try:
+        file.save(f'uploads/{milestone_id}_{file.filename}')
+        return jsonify({'message': 'File uploaded successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    
