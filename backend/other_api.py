@@ -563,6 +563,7 @@ class Chatbot(Resource):
             prompt = f"""
             You are a helpful, knowledgeable, and friendly AI assistant. Respond to the user's messages in a conversational tone. Be concise and polite.
             You have access to detailed information about projects, milestones, and teams. Use the following data to answer the student's questions accurately and specifically.
+            Always answer in the Markdown format only and strictly. Never use html tag in response.
 
             Projects Data:
             {projects_string}
@@ -600,3 +601,4 @@ class Chatbot(Resource):
             }
 
 api.add_resource(Chatbot, '/chatbot')
+
