@@ -97,7 +97,7 @@ class Project_Manager(Resource):
             project = Projects.query.filter_by(id=project_id).first()
             milestones = Milestones.query.filter_by(project_id=project_id).all()
             if milestones:
-                return {
+                return jsonify({
                     'id': project.id,
                     'name': project.title,
                     'description': project.description,
@@ -110,7 +110,7 @@ class Project_Manager(Resource):
                     'taskName': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
-                } for milestone in milestones]}
+                } for milestone in milestones]})
             return jsonify({'message': 'Milestones not found for the project'})
         
 
