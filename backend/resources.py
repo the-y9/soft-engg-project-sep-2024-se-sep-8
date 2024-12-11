@@ -97,7 +97,7 @@ class Project_Manager(Resource):
             project = Projects.query.filter_by(id=project_id).first()
             milestones = Milestones.query.filter_by(project_id=project_id).all()
             if milestones:
-                return jsonify({
+                return {
                     'id': project.id,
                     'name': project.title,
                     'description': project.description,
@@ -407,3 +407,43 @@ api.add_resource(
     '/notifications/user/<int:user_id>'  # For fetching all notifications for a specific user (GET)
 )
 
+class ProjectUpdate(Resource):
+    # Update a specific project
+    @roles_required('instructor')
+    def put(self, project_id=None):
+        data = request.get_json()
+
+        # Update a project
+        if project_id:
+            project = Projects.query.get(project_id)
+            if not project:
+                return jsonify({'message': 'Project not found'}), 404
+
+            # Update project fields
+            project.title = data.get('name', project.title)
+            project.description = data.get('description', project.description)
+            if 'startDate' in data:
+                try:
+                    project.start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
+                except ValueError:
+                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'}), 400
+
+            if 'endDate' in data:
+                try:
+                    project.end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
+                except ValueError:
+                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'}), 400
+
+            db.session.commit()
+            return {
+                'id': project.id,
+                'name': project.title,
+                'description': project.description,
+                'start_date': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
+                'end_date': project.end_date.strftime('%Y-%m-%d') if project.end_date else None
+            }, 200
+
+        # Invalid request
+        return jsonify({'message': 'Invalid request. Provide a project ID to update.'}), 400
+    
+api.add_resource(ProjectUpdate,'/projects/update/<int:project_id>')
