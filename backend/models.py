@@ -150,7 +150,8 @@ class FileStorage(db.Model):
     uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     related_milestone = db.Column(db.Integer, db.ForeignKey('milestones.id'))
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
-    
+    file_data = db.Column(db.LargeBinary)  # New column to store file data
+
     def __repr__(self):
         return f'<FileStorage(filename={self.filename}, uploaded_by={self.uploaded_by})>'
 

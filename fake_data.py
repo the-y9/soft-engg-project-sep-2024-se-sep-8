@@ -1,6 +1,6 @@
 from main import app
 from backend.security import datastore
-from backend.models import db, Role, GitUser, Projects, Milestones, Notifications, User, Team, FileStorage, EvaluationCriteria, PeerReview, SystemLog, MilestoneTracker, NotificationUser, TeamMembers
+from backend.models import db, Role, GitUser, Projects, Milestones, Notifications, User, Team, FileStorage, EvaluationCriteria, PeerReview, SystemLog, MilestoneTracker, NotificationUser, TeamMembers,RolesUsers
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 from faker import Faker
@@ -275,20 +275,30 @@ with app.app_context():
     except Exception as e:
         print(f"ERROR (TeamMembers): {e}")
 
-    # Add 100 random notifications
+
     try:
-        user_ids = [user.id for user in User.query.all()]
+        user_ids = [user.id for user in User.query.join(RolesUsers).join(Role)
+    .filter(Role.name == 'instructor')
+    .all()]
+        team_ids = [team.id for team in Team.query.all()]
+
         for _ in range(100):
             notification = Notifications(
-                message=fake.sentence(),
-                user_id=random.choice(user_ids),
-                timestamp=datetime.now()
+                title=fake.sentence(),
+                message=fake.text(),  # Random message
+                # created_for=random.choice(team_ids),
+                created_by=random.choice(user_ids),
+                created_at=datetime.now()  # Current timestamp
             )
             db.session.add(notification)
+
         db.session.commit()
-        print("100 random notifications created.")
+        print({"message": "100  notifications created successfully"})
+
     except Exception as e:
-        print(f"ERROR (Notifications): {e}")
+        db.session.rollback()  # Ensure rollback in case of error
+        print({f"ERROR (Notifications): {str(e)}"})
+
 
     # Add 100 random notification users
     try:

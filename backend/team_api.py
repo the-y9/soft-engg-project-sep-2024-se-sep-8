@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify
 from sqlalchemy.orm import joinedload
-from .models import Projects, Team, Milestones, MilestoneTracker, GitUser
-from flask_restful import Resource, Api
+from .models import Projects, Team, Milestones, MilestoneTracker, GitUser, FileStorage, db
+from flask_restful import Resource, Api,request
 from datetime import datetime
 import requests
 from .resources import GitHubRepo
+from werkzeug.utils import secure_filename
 
 # Create a blueprint for the API
 team_api_bp = Blueprint('team_api', __name__)
@@ -163,3 +164,39 @@ def get_team_repo(team_id):
         
     # Return the repo_owner and repo_name
     return commits
+
+# Route to upload file
+@team_api_bp.route('/upload/team_id/user_id/milestone', methods=['POST'])
+def upload_file(team_id,user_id,milestone):
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Secure filename to prevent directory traversal
+    filename = secure_filename(file.filename)
+
+    # Read file data as binary
+    file_data = file.read()
+
+    # Save file data in database
+    new_file = FileStorage(
+            filename=filename,
+            # file_url=file_url,
+            file_data=file_data,
+            uploaded_at=datetime.now(),
+            uploaded_by=user_id,
+            related_milestone=milestone,
+            team_id=team_id
+        )
+
+    try:
+        db.session.add(new_file)
+        db.session.commit()
+        return jsonify({"message": "File uploaded successfully", "file_id": new_file.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

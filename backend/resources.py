@@ -86,7 +86,7 @@ class Project_Manager(Resource):
                         'task': milestone.task,
                         'description': milestone.description,
                         'deadline': milestone.deadline
-                    }), 200
+                    })
                 return jsonify({'message': 'Milestone not found'})
             except Exception as e:
                 return jsonify({'ERROR': f'{e}'})
@@ -110,7 +110,7 @@ class Project_Manager(Resource):
                     'taskName': milestone.task,
                     'description': milestone.description,
                     'deadline': milestone.deadline
-                } for milestone in milestones]}), 200
+                } for milestone in milestones]})
             return jsonify({'message': 'Milestones not found for the project'})
         
 
@@ -185,7 +185,7 @@ class Project_Manager(Resource):
                 'description': new_project.description,
                 'start_date' : new_project.start_date.strftime('%Y-%m-%d %H:%M:%S') if new_project.start_date else None,
                 'end_date' : new_project.end_date.strftime('%Y-%m-%d %H:%M:%S') if new_project.end_date else None
-            }, 201
+            }
 
         # Case 2: Create a new milestone
         elif 'project_id' in data and 'milestones' in data:
@@ -219,7 +219,7 @@ class Project_Manager(Resource):
             return {
                 'project_id': project.id,
                 'milestones': serialized_milestones
-            }, 201
+            }
 
         # Case 3: Invalid request (missing required fields)
         return jsonify({'message': 'Invalid data for creating project or milestone'})
@@ -231,11 +231,11 @@ class Project_Manager(Resource):
         if id:
             milestone = Milestones.query.get(id)
             if not milestone:
-                return jsonify({'message': 'Milestone not found'}), 404
+                return jsonify({'message': 'Milestone not found'})
 
             db.session.delete(milestone)
             db.session.commit()
-            return jsonify({'message': 'Milestone deleted successfully'}), 200
+            return jsonify({'message': 'Milestone deleted successfully'})
         # return {'message': 'ID is required to delete a milestone'}, 400
     
     # Delete a project
@@ -248,9 +248,78 @@ class Project_Manager(Resource):
 
             db.session.delete(project)
             db.session.commit()
-            return jsonify({'message': 'project deleted successfully'}), 200
-        return {'message': 'ID is required to delete. '}, 404
+            return jsonify({'message': 'project deleted successfully'})
+        return {'message': 'ID is required to delete. '}
 
+    @roles_required('instructor')
+    def put(self, id=None):
+        data = request.get_json()
+
+        # Update a milestone
+        if id:
+            milestone = Milestones.query.get(id)
+            if not milestone:
+                return jsonify({'message': 'Milestone not found'})
+
+            # Update milestone fields
+            milestone.task_no = data.get('task_no', milestone.task_no)
+            milestone.task = data.get('task', milestone.task)
+            milestone.description = data.get('description', milestone.description)
+            if 'deadline' in data:
+                try:
+                    milestone.deadline = datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S')
+                except ValueError:
+                    return jsonify({'message': 'Invalid deadline format. Use YYYY-MM-DD HH:MM:SS'})
+
+            db.session.commit()
+            return jsonify({
+                'id': milestone.id,
+                'task_no': milestone.task_no,
+                'task': milestone.task,
+                'description': milestone.description,
+                'deadline': milestone.deadline.strftime('%Y-%m-%d %H:%M:%S') if milestone.deadline else None
+            })
+
+        # Invalid request
+        return jsonify({'message': 'Invalid request. Provide a milestone ID to update.'})
+
+    # Update a specific project
+    @roles_required('instructor')
+    def put(self, project_id=None):
+        data = request.get_json()
+
+        # Update a project
+        if project_id:
+            project = Projects.query.get(project_id)
+            if not project:
+                return jsonify({'message': 'Project not found'})
+
+            # Update project fields
+            project.title = data.get('title', project.title)
+            project.description = data.get('description', project.description)
+            if 'start_date' in data:
+                try:
+                    project.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+                except ValueError:
+                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'})
+
+            if 'end_date' in data:
+                try:
+                    project.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
+                except ValueError:
+                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'})
+
+            db.session.commit()
+            return jsonify({
+                'id': project.id,
+                'title': project.title,
+                'description': project.description,
+                'start_date': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
+                'end_date': project.end_date.strftime('%Y-%m-%d') if project.end_date else None
+            })
+
+        # Invalid request
+        return jsonify({'message': 'Invalid request. Provide a project ID to update.'})
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
@@ -269,7 +338,7 @@ class Notification_Manager(Resource):
                     }), 200
                 return jsonify({'message': 'Notification not found'})
             except Exception as e:
-                return jsonify({'ERROR': f'{e}'}), 400
+                return jsonify({'ERROR': f'{e}'})
         
         elif user_id:
             notifications = Notifications.query.filter_by(created_for=user_id).all()
