@@ -99,7 +99,9 @@ class Projects(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'description': self.description
+            'description': self.description,
+            'start_date': self.start_date,
+            'end_date' : self.end_date
         }
     
 class Milestones(db.Model):

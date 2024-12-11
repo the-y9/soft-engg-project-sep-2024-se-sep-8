@@ -32,13 +32,34 @@ export default {
           ></textarea>
         </div>
 
+        <div class="mb-4">
+              <label for="project-start-date" class="form-label fw-bold">Start Date</label>
+              <input 
+                type="date" 
+                id="project-start-date" 
+                v-model="projectStartDate" 
+                class="form-control" 
+                required 
+              />
+        </div>
+        <div class="mb-4">
+              <label for="project-end-date" class="form-label fw-bold">End Date</label>
+              <input 
+                type="date" 
+                id="project-end-date" 
+                v-model="projectEndDate" 
+                class="form-control" 
+                required 
+              />
+        </div>
+
         <div class="d-grid gap-2 mb-4">
           <button 
             type="button" 
             class="btn btn-outline-primary ai-button" 
             @click="fetchMilestonesFromAI"
           >
-            Generate AI
+            Generate AI suggested milestones
           </button>
           <div v-if="aiResponse.length != 0" class="alert alert-info mt-2">
             <strong>AI Response:</strong>
@@ -100,14 +121,14 @@ export default {
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-4">
+        <span class="text-muted">{{ milestones.length }} milestones added</span>
           <button 
             type="button" 
-            class="btn btn-outline-success add-milestone-button" 
+            class="btn btn-success add-milestone-button" 
             @click="addMilestone"
           >
             + Add Milestone
           </button>
-          <span class="text-muted">{{ milestones.length }} milestones added</span>
         </div>
 
         <div class="d-grid">
@@ -126,6 +147,8 @@ export default {
     return {
       projectHeading: '',
       projectDescription: '',
+      projectStartDate: '',
+      projectEndDate: '',
       milestones: [], // Start with an empty array
       aiResponse: [] // AI-generated milestones to display in the DOM
     };
@@ -179,17 +202,20 @@ export default {
           },
           body: JSON.stringify({
             title: this.projectHeading,
-            description: this.projectDescription
+            description: this.projectDescription,
+            start_date: this.projectStartDate,
+            end_date: this.projectEndDate
           })
         });
 
         const projectData = await projectResponse.json();
-
+        console.log(projectData);
         if (!projectResponse.ok) {
           throw new Error(projectData.message || 'Failed to create project.');
         }
 
-        const { projectId } = projectData;
+
+        const projectId = projectData.id;
 
         const milestonesResponse = await fetch('/milestone', {
           method: 'POST',
@@ -198,19 +224,20 @@ export default {
             'Authentication-Token': localStorage.getItem('auth-token')
           },
           body: JSON.stringify({
-            projectId: projectId,
-            milestones: this.milestones
-          })
+          project_id: projectId,
+          milestones: this.milestones
+        })
         });
 
         const milestonesData = await milestonesResponse.json();
+        console.log(milestonesData);
 
         if (!milestonesResponse.ok) {
           throw new Error(milestonesData.message || 'Failed to create milestones.');
         }
 
         alert('Project and milestones created successfully!');
-        this.$router.push(`/projects/${projectId}`);
+        this.$router.push(`/project/${projectId}`);
       } catch (error) {
         console.error('Error creating milestones:', error);
         alert('Failed to create milestones. Please try again.');

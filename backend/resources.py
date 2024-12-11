@@ -157,17 +157,12 @@ class Project_Manager(Resource):
 
         # Return message if no projects found
         return jsonify({'message': 'No projects found'})
-        
-        return {'message': 'Project ID is required to retrieve milestones'}, 404
 
     # Create a new
     @roles_required('instructor')
     def post(self):
         data = request.get_json()
 
-        # Case 1: Create a new project
-        # if 'title' not in data:
-        #     return jsonify({'message': 'Project title is required'}), 400
         if 'title' in data:
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()
@@ -177,40 +172,54 @@ class Project_Manager(Resource):
             # Create a new project
             new_project = Projects(
                 title=data['title'],
-                description=data.get('description', '')  # Default to empty string if description is not provided
+                description=data.get('description', ''),  # Default to empty string if description is not provided
+                start_date = datetime.strptime(data['start_date'], '%Y-%m-%d') if 'start_date' in data else None,
+                end_date = datetime.strptime(data['end_date'], '%Y-%m-%d') if 'end_date' in data else None
             )
             db.session.add(new_project)
             db.session.commit()
 
-            return jsonify({
+            return {
                 'id': new_project.id,
                 'title': new_project.title,
-                'description': new_project.description
-            }), 201
+                'description': new_project.description,
+                'start_date' : new_project.start_date.strftime('%Y-%m-%d %H:%M:%S') if new_project.start_date else None,
+                'end_date' : new_project.end_date.strftime('%Y-%m-%d %H:%M:%S') if new_project.end_date else None
+            }, 201
 
         # Case 2: Create a new milestone
-        elif 'project_id' in data and 'task_no' in data and 'task' in data:
+        elif 'project_id' in data and 'milestones' in data:
             project = Projects.query.get(data['project_id'])
             if not project:
                 return jsonify({'message': 'Project not found'}), 404
+            milestones = data["milestones"]
+            new_milestones = []
+            for index, milestone in enumerate(milestones):
+                new_milestone = Milestones(
+                    project_id=data['project_id'],
+                    task_no=index+1,
+                    task=milestone['task'],
+                    description=milestone.get('description', ''),
+                    deadline=datetime.strptime(milestone['deadline'], '%Y-%m-%d') if 'deadline' in milestone else None
+                )
+                db.session.add(new_milestone)
+                new_milestones.append(new_milestone)
 
-            new_milestone = Milestones(
-                project_id=data['project_id'],
-                task_no=data['task_no'],
-                task=data['task'],
-                description=data.get('description', ''),
-                deadline=datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S') if 'deadline' in data else None
-            )
-            db.session.add(new_milestone)
             db.session.commit()
 
-            return jsonify({
-                'id': new_milestone.id,
-                'task_no': new_milestone.task_no,
-                'task': new_milestone.task,
-                'description': new_milestone.description,
-                'deadline': new_milestone.deadline.strftime('%Y-%m-%d %H:%M:%S') if new_milestone.deadline else None
-            }), 201
+            serialized_milestones = [
+                        {
+                            'task_no': m.task_no,
+                            'task': m.task,
+                            'description': m.description,
+                            'deadline': m.deadline.strftime('%Y-%m-%d %H:%M:%S') if m.deadline else None
+                        }
+                        for m in new_milestones
+            ]
+            return {
+                'project_id': project.id,
+                'milestones': serialized_milestones
+            }, 201
 
         # Case 3: Invalid request (missing required fields)
         return jsonify({'message': 'Invalid data for creating project or milestone'})
@@ -243,7 +252,7 @@ class Project_Manager(Resource):
         return {'message': 'ID is required to delete. '}, 404
 
 # Add resources to the API with different routes
-api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>' '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
+api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
 class Notification_Manager(Resource):
     # @roles_required('instructor')
