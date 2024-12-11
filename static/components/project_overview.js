@@ -1,5 +1,5 @@
 export default {
-    template: `
+  template: `
 <div class="edit-project-page container my-5">
     <h1 class="mb-4 text-center">Project Overview</h1>
     <div class="card p-4 shadow">
@@ -97,182 +97,176 @@ export default {
     </div>
 </div>
     `,
-  
-    data() {
-      return {
-        id : this.$route.params.id,
-        project: {
-          name: "Project Alpha",
-          description: "This is a synthetic project used for demo purposes.",
-          startDate: "2024-01-01",
-          endDate: "2024-12-31",
-          milestones: [
-            { id: 5464, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31'},
-            { id: 5345, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31'},
-            { id: 5464354, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31'}
-            // ... other milestones ...
-          ]
-        },
-        editedProject: {}, // Holds editable values during edit mode
-        editedMilestone: {},
-        editing: false, // Toggles editing mode
-        progress: 0, // Tracks progress percentage
-      };
+
+  data() {
+    return {
+      id: this.$route.params.id,
+      project: {
+        name: "Programmable client-driven synergy",
+        description: "This is a synthetic project used for demo purposes.",
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
+        milestones: [
+          { id: 5464, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31' },
+          { id: 5345, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31' },
+          { id: 5464354, taskName: 'Milestone 1', description: 'Description 1', deadline: '2024-12-31' }
+          // ... other milestones ...
+        ]
+      },
+      editedProject: {}, // Holds editable values during edit mode
+      editedMilestone: {},
+      editing: false, // Toggles editing mode
+      progress: 0, // Tracks progress percentage
+    };
+  },
+
+  async beforeCreate() {
+    try {
+      const response = await fetch(`/projects/${this.$route.params.id}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch project details.");
+      }
+
+      this.project = data;
+
+      this.editedProject = {
+        name: this.project.name,
+        description: this.project.description,
+        startDate: this.project.startDate,
+        endDate: this.project.endDate
+      }; // Clone project for editing
+
+      this.editedMilestone = this.project.milestones.map(milestone => ({ ...milestone, editing: false }));
+      this.calculateProgress();
+
+    } catch (error) {
+      console.error("Error fetching project details:", error);
+      alert("Failed to load project details.");
+    }
+  },
+
+  watch: {
+    // Recalculate progress whenever startDate or endDate changes
+    "project.startDate": "calculateProgress",
+    "project.endDate": "calculateProgress",
+  },
+  computed: {
+    maxStartDate() {
+      return this.editedProject.endDate ? this.editedProject.endDate : '';
     },
-    
-    async beforeCreate(){
-      try {
-        const response = await fetch(`/projects/${this.$route.params.id}`);
-        const data = await response.json();
+    minEndDate() {
+      return this.editedProject.startDate ? this.editedProject.startDate : '';
+    },
+  },
 
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch project details.");
-        }
+  methods: {
 
-        this.project = data;
-      } catch (error) {
-        console.error("Error fetching project details:", error);
-        alert("Failed to load project details.");
+    toggleEdit() {
+      this.editing = true;
+    },
+
+    saveChanges() {
+      this.project.name = this.editedProject.name;
+      this.project.description = this.editedProject.description;
+      this.project.startDate = this.editedProject.startDate;
+      this.project.endDate = this.editedProject.endDate;
+      this.editing = false;
+      this.calculateProgress(); // Recalculate progress after saving
+
+      this.updateProject();
+    },
+
+    cancelChanges() {
+      this.editedProject = {
+        name: this.project.name,
+        description: this.project.description,
+        startDate: this.project.startDate,
+        endDate: this.project.endDate
+      }; // Revert to original project data
+      this.editing = false;
+    },
+    editMilestone(milestone) {
+      const index = this.editedMilestone.findIndex(item => item.id === milestone.id);
+      if (index !== -1) {
+        this.$set(this.editedMilestone, index, { ...milestone, editing: true });
       }
     },
-    created(){
-      this.editedProject = {name: this.project.name,
-                            description: this.project.description,
-                            startDate: this.project.startDate,
-                            endDate: this.project.endDate
-                          }; // Clone project for editing
-      this.editedMilestone = this.project.milestones.map(milestone => ({ 
-                                                                        ...milestone,
-                                                                         editing: false }));
-      console.log(this.editedMilestone)
-      this.calculateProgress();
-    },
 
-    watch: {
-      // Recalculate progress whenever startDate or endDate changes
-      "project.startDate": "calculateProgress",
-      "project.endDate": "calculateProgress",
-    },
-    computed: {
-        maxStartDate() {
-          return this.editedProject.endDate ? this.editedProject.endDate : '';
-        },
-        minEndDate() {
-          return this.editedProject.startDate ? this.editedProject.startDate : '';
-        },
-      },
-  
-    methods: {
-  
-      toggleEdit() {
-        this.editing = true;
-      },
-  
-      saveChanges() {
-        this.project.name = this.editedProject.name;
-        this.project.description = this.editedProject.description;
-        this.project.startDate = this.editedProject.startDate;
-        this.project.endDate = this.editedProject.endDate;
-        this.editing = false;
-        this.calculateProgress(); // Recalculate progress after saving
-  
-        // Optional: Update project via API
-        this.updateProject();
-      },
-  
-      cancelChanges() {
-        this.editedProject = {name: this.project.name,
-          description: this.project.description,
-          startDate: this.project.startDate,
-          endDate: this.project.endDate
-          }; // Revert to original project data
-        this.editing = false;
-      },
-      editMilestone(milestone) {
-        const index = this.editedMilestone.findIndex(item => item.id === milestone.id);
-        if (index !== -1) {
-            this.$set(this.editedMilestone, index, { ...milestone, editing: true });
-        }
-        console.log(this.editedMilestone);
-    },
-    
-  
+
     saveMilestone(milestone) {
       const index = this.editedMilestone.findIndex(item => item.id === milestone.id);
       if (index !== -1) {
-          this.$set(this.editedMilestone, index, { ...milestone, editing: false });
+        this.$set(this.editedMilestone, index, { ...milestone, editing: false });
       }
       this.updateMilestone(milestone);
-  },
-  
-  cancelMilestoneEdit(milestone) {
-    this.editedMilestone = this.project.milestones.map(m => ({
-        ...m,
-        editing: false
-    }));
-},
-
-
-      async updateProject() {
-        try {
-          const response = await fetch(`/projects/${this.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              'Authentication-Token': localStorage.getItem('auth-token')
-            },
-            body: JSON.stringify(this.editedProject),
-          });
-  
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Failed to update project.");
-          }
-  
-          alert("Project updated successfully!");
-        } catch (error) {
-          console.error("Error updating project:", error);
-          alert("Failed to update project. Please try again.");
-        }
-      },
-      async updateMilestone(milestone) {
-        delete milestone.editing;
-        try {
-          const response = await fetch(`/milestone/${milestone.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              'Authentication-Token': localStorage.getItem('auth-token')
-            },
-            body: JSON.stringify(milestone),
-          });
-  
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Failed to update project.");
-          }
-  
-          alert("Milestone updated successfully!");
-        } catch (error) {
-          console.error("Error updating milestone:", error);
-          alert("Failed to update milestone. Please try again.");
-        }
-      },
-  
-      calculateProgress() {
-        const startDate = new Date(this.project.startDate);
-        const endDate = new Date(this.project.endDate);
-        const today = new Date();
-  
-        if (isNaN(startDate) || isNaN(endDate) || startDate >= endDate) {
-          this.progress = 0; // Default to 0% for invalid dates
-          return;
-        }
-  
-        const totalDuration = endDate - startDate;
-        const elapsedDuration = today - startDate;
-        this.progress = Math.min(100, Math.max(0, Math.floor((elapsedDuration / totalDuration) * 100)));
-      },
     },
-  };
-  
+
+    cancelMilestoneEdit(milestone) {
+      this.editedMilestone = this.project.milestones.map(m => ({...m,editing: false}));
+    },
+
+
+    async updateProject() {
+      try {
+        const response = await fetch(`/projects/update/${this.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            'Authentication-Token': localStorage.getItem('auth-token')
+          },
+          body: JSON.stringify(this.editedProject),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update project.");
+        }
+        alert("Project updated successfully!");
+      } catch (error) {
+        console.error("Error updating project:", error);
+        alert("Failed to update project. Please try again.");
+      }
+    },
+    async updateMilestone(milestone) {
+      delete milestone.editing;
+      console.log(milestone);
+      try {
+        const response = await fetch(`/milestone/${milestone.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            'Authentication-Token': localStorage.getItem('auth-token')
+          },
+          body: JSON.stringify(milestone),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update project.");
+        }
+
+        alert("Milestone updated successfully!");
+      } catch (error) {
+        console.error("Error updating milestone:", error);
+        alert("Failed to update milestone. Please try again.");
+      }
+    },
+
+    calculateProgress() {
+      const startDate = new Date(this.project.startDate);
+      const endDate = new Date(this.project.endDate);
+      const today = new Date();
+
+      if (isNaN(startDate) || isNaN(endDate) || startDate >= endDate) {
+        this.progress = 0; // Default to 0% for invalid dates
+        return;
+      }
+
+      const totalDuration = endDate - startDate;
+      const elapsedDuration = today - startDate;
+      this.progress = Math.min(100, Math.max(0, Math.floor((elapsedDuration / totalDuration) * 100)));
+    },
+  },
+};
