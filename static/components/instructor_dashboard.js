@@ -27,6 +27,11 @@ export default {
             <h3 class="dashboard-card-title">Team Tracker</h3>
             <p class="dashboard-card-description">Track and monitor the progress of your teams.</p>
         </div>
+        <div class="dashboard-card" @click="gotostudentperformance">
+          <img src="static/images/milestone.webp" alt="Create Milestone" class="dashboard-image" />
+          <h3 class="dashboard-card-title">Student performance</h3>
+          <p class="dashboard-card-description">Predict the performance of your students</p>
+        </div>
       </div>
       </center>
     </section>
@@ -139,6 +144,9 @@ export default {
   methods: {
       goToCreateProject() {
           this.$router.push('/project/create');
+      },
+      gotostudentperformance() {
+          this.$router.push('/student_performance');
       },
       goToMilestoneTracker() {
           if (this.selectedProjectId) {

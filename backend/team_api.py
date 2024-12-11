@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from sqlalchemy.orm import joinedload
-from .models import Projects, Team, Milestones, MilestoneTracker, GitUser, FileStorage, db
+from .models import Projects, Team, Milestones, MilestoneTracker, GitUser, FileStorage, db, TeamMembers
 from flask_restful import Resource, Api,request
 from datetime import datetime
 import requests
@@ -208,3 +208,4 @@ def upload_file(team_id,user_id,milestone):
         return jsonify({"error": str(e)}), 500
 
 # @team_api_bp.route()
+
