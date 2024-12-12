@@ -23,9 +23,9 @@ def admin():
 def signup():
     data = request.get_json()
     if datastore.find_user(email=data.get('email')): # or datastore.find_user(username=data.get('email')):
-        return jsonify({'message': 'Email already registered'}), 400 
+        return jsonify({'message': 'Email already registered'})
     if not data.get("password"):
-        return jsonify({"message":"Password not provided"}),400
+        return jsonify({"message":"Password not provided"})
        
     try:
         datastore.create_user(
@@ -36,10 +36,10 @@ def signup():
             active=True
         )
         db.session.commit()
-        return jsonify({'message': 'Successfully registered as student.'}), 201
+        return jsonify({'message': 'Successfully registered as student.'})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': 'Error occurred while creating the user account - ' + str(e)}), 500
+        return jsonify({'message': 'Error occurred while creating the user account - ' + str(e)})
     
 
 
@@ -49,9 +49,9 @@ def user_login():
     email = data.get('email')
     print(email)
     if not email:
-        return jsonify({"message":"Email or Username not provided"}),400
+        return jsonify({"message":"Email or Username not provided"})
     if not data.get("password"):
-        return jsonify({"message":"Password not provided"}),400
+        return jsonify({"message":"Password not provided"})
     
     if '@' in email:
         user = datastore.find_user(email=email)
@@ -61,7 +61,7 @@ def user_login():
         user = datastore.find_user(username=email)
     
     if not user:
-        return jsonify({"message":"Email or Username not found."}),404
+        return jsonify({"message":"Email or Username not found."})
     
     if check_password_hash(user.password, data.get("password")):
         if user.active:
@@ -69,29 +69,28 @@ def user_login():
             team_member = TeamMembers.query.filter_by(user_id=user.id).first()
             team_id = team_member.team_id if team_member else None
             
-            return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name,  "team_id": team_id}),200
+            return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name,  "team_id": team_id})
         else:
-            return jsonify({"message":"User not activated"}),403
+            return jsonify({"message":"User not activated"})
     
     else: 
-        return jsonify({"message":"Wrong password"}),400
+        return jsonify({"message":"Wrong password"})
 
 
 @app.post('/upload')
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
+        return jsonify({'error': 'No file uploaded'})
 
     file = request.files['file']
     milestone_id = request.form.get('milestoneId')
 
     if not file:
-        return jsonify({'error': 'File is required'}), 400
-
+        return jsonify({'error': 'File is required'})
     try:
         file.save(f'uploads/{milestone_id}_{file.filename}')
-        return jsonify({'message': 'File uploaded successfully'}), 200
+        return jsonify({'message': 'File uploaded successfully'})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)})
 
     

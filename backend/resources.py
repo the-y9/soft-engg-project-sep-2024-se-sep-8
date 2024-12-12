@@ -173,7 +173,7 @@ class Project_Manager(Resource):
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()
             if existing_project:
-                return jsonify({'message': 'Project with this title already exists'}), 400
+                return jsonify({'message': 'Project with this title already exists'})
 
             # Create a new project
             new_project = Projects(
@@ -322,9 +322,9 @@ class Notification_Manager(Resource):
                     'message': notification.message
                 } for notification in notifications]
                 return notification_list, 200
-            return jsonify({'message': 'No notifications found for this team'}), 404
+            return jsonify({'message': 'No notifications found for this team'})
 
-        return {'message': 'Team ID or Notification ID is required'}, 400
+        return {'message': 'Team ID or Notification ID is required'}
     
     def post(self):
         data = request.get_json()
@@ -400,13 +400,13 @@ class Notification_Manager(Resource):
         if id:
             notification = Notifications.query.get(id)
             if not notification:
-                return jsonify({'message': 'Notification not found'}), 404
+                return jsonify({'message': 'Notification not found'})
 
             db.session.delete(notification)
             db.session.commit()
-            return jsonify({'message': 'Notification deleted successfully'}), 200
+            return jsonify({'message': 'Notification deleted successfully'})
 
-        return jsonify({'message': 'Notification ID is required to delete a notification'}), 404
+        return jsonify({'message': 'Notification ID is required to delete a notification'})
 
 api.add_resource(
     Notification_Manager,
@@ -425,7 +425,7 @@ class ProjectUpdate(Resource):
         if project_id:
             project = Projects.query.get(project_id)
             if not project:
-                return jsonify({'message': 'Project not found'}), 404
+                return jsonify({'message': 'Project not found'})
 
             # Update project fields
             project.title = data.get('name', project.title)
@@ -434,13 +434,13 @@ class ProjectUpdate(Resource):
                 try:
                     project.start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
                 except ValueError:
-                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'}), 400
+                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'})
 
             if 'endDate' in data:
                 try:
                     project.end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
                 except ValueError:
-                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'}), 400
+                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'})
 
             db.session.commit()
             return {
@@ -452,7 +452,7 @@ class ProjectUpdate(Resource):
             }, 200
 
         # Invalid request
-        return jsonify({'message': 'Invalid request. Provide a project ID to update.'}), 400
+        return jsonify({'message': 'Invalid request. Provide a project ID to update.'})
     
 api.add_resource(ProjectUpdate,'/projects/update/<int:project_id>')
 
