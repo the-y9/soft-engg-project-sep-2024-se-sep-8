@@ -470,7 +470,7 @@ class StudPerfom(Resource):
         repo_owner = data['repoOwner']
         repo_name = data['repoName']
         team_id = data['teamId']
-
+        print(repo_name,repo_owner, team_id)
         # Fetch team and commit data (simulate or fetch from database)
         team = Team.query.filter_by(id=team_id).first()
         if not team:
@@ -492,8 +492,8 @@ class StudPerfom(Resource):
             return mock_commits
 
         team_members = team.members
-        if not team_members:
-            return jsonify({"message": "No team members found."}), 404
+        # if not team_members:
+        #     return jsonify({"message": "No team members found."})
 
         # Try to fetch commit history from GitHub
         github_repo = GitHubRepo()
