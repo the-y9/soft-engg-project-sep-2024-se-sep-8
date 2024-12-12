@@ -6,6 +6,12 @@ from datetime import datetime
 import requests
 from .resources import GitHubRepo
 from werkzeug.utils import secure_filename
+import google.generativeai as genai
+import pandas as pd
+import json
+import re
+GOOGLE_API_KEY = 'AIzaSyBXWPw2U4D1DuOtEDRLrCBcNxnb1qlBh30'
+genai.configure(api_key=GOOGLE_API_KEY)
 
 # Create a blueprint for the API
 team_api_bp = Blueprint('team_api', __name__)

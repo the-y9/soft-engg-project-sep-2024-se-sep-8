@@ -48,7 +48,7 @@ class ReminderManager(Resource):
     def post(self):
         try:
             send_reminder_notifications.apply_async()
-            return jsonify({'message': 'Reminder notifications sent successfully'}), 200
+            return jsonify({'message': 'Reminder notifications sent successfully'})
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
 
@@ -84,7 +84,7 @@ class SubmissionValidation(Resource):
                 }), 200
             return jsonify({'message': 'Error from GenAI model'}), response.status_code
         except Exception as e:
-            return jsonify({'ERROR': f'{e}'}), 500
+            return jsonify({'ERROR': f'{e}'})
 
 api.add_resource(SubmissionValidation, '/submission/validate')
 
@@ -93,7 +93,7 @@ class PerformancePrediction(Resource):
     def post(self):
         data = request.get_json()
         if 'students_data' not in data:
-            return jsonify({'message': 'Missing students data'}), 400
+            return jsonify({'message': 'Missing students data'})
 
         # Call GenAI model to analyze performance
         genai_url = "https://genai-model.example.com/predict"
@@ -101,8 +101,8 @@ class PerformancePrediction(Resource):
             response = requests.post(genai_url, json=data)
             if response.status_code == 200:
                 prediction_results = response.json()
-                return jsonify({'students_needing_support': prediction_results}), 200
-            return jsonify({'message': 'Error from GenAI model'}), response.status_code, 500
+                return jsonify({'students_needing_support': prediction_results})
+            return jsonify({'message': 'Error from GenAI model'})
         except Exception as e:
             return jsonify({'ERROR': f'{e}'}), 500
 
@@ -113,7 +113,7 @@ class DocumentationChatbot(Resource):
         data = request.get_json()
 
         if 'question' not in data or 'api_key' not in data:
-            return jsonify({'message': 'Missing question or api_key field'}), 400
+            return jsonify({'message': 'Missing question or api_key field'})
 
         question = data['question']
         api_key = data['api_key']
@@ -126,7 +126,7 @@ class DocumentationChatbot(Resource):
             return ({'response': answer}), 200
         
         except Exception as e:
-            return jsonify({'ERROR': str(e)}), 500
+            return jsonify({'ERROR': str(e)})
         
 api.add_resource(DocumentationChatbot, '/chatbot/ask')
 
@@ -194,7 +194,7 @@ class AddEvaluationCriteria(Resource):
     def post(self, projectId):
         data = request.get_json()
         if 'criteriaList' not in data:
-            return jsonify({'message': 'Invalid data format. Please provide a valid criteria list.'}), 400
+            return jsonify({'message': 'Invalid data format. Please provide a valid criteria list.'})
 
         try:
             project = Projects.query.get(projectId)
@@ -242,11 +242,11 @@ class SubmitPeerReview(Resource):
             db.session.add(peer_review)
             db.session.commit()
 
-            return jsonify({'message': 'Peer review submitted successfully.', 'reviewId': peer_review.id}), 201
+            return jsonify({'message': 'Peer review submitted successfully.', 'reviewId': peer_review.id})
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(SubmitPeerReview, '/peer-review')
 
@@ -256,7 +256,7 @@ class RetrievePeerReviews(Resource):
         try:
             reviews = PeerReview.query.filter_by(project_id=projectId).all()
             if not reviews:
-                return jsonify({'message': f'No peer reviews found for project ID {projectId}.'}), 404
+                return jsonify({'message': f'No peer reviews found for project ID {projectId}.'})
 
             return jsonify({
                 'projectId': projectId,
@@ -267,10 +267,10 @@ class RetrievePeerReviews(Resource):
                         'created_at': review.created_at
                     } for review in reviews
                 ]
-            }), 200
+            })
 
         except Exception as e:
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(RetrievePeerReviews, '/peer-review/project/<int:projectId>')
 
@@ -279,21 +279,21 @@ class EditPeerReview(Resource):
     def put(self, reviewId):
         data = request.get_json()
         if 'criteria' not in data:
-            return jsonify({'message': 'Invalid request data.'}), 400
+            return jsonify({'message': 'Invalid request data.'})
 
         try:
             review = PeerReview.query.get(reviewId)
             if not review:
-                return jsonify({'message': 'Peer review not found.'}), 404
+                return jsonify({'message': 'Peer review not found.'})
 
             review.criteria = data['criteria']
             db.session.commit()
 
-            return jsonify({'message': 'Peer review updated successfully.'}), 200
+            return jsonify({'message': 'Peer review updated successfully.'})
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(EditPeerReview, '/peer-review/<int:reviewId>')
 
@@ -303,16 +303,16 @@ class DeletePeerReview(Resource):
         try:
             review = PeerReview.query.get(reviewId)
             if not review:
-                return jsonify({'message': 'Peer review not found.'}), 404
+                return jsonify({'message': 'Peer review not found.'})
 
             db.session.delete(review)
             db.session.commit()
 
-            return jsonify({'message': 'Peer review deleted successfully.'}), 200
+            return jsonify({'message': 'Peer review deleted successfully.'})
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'message': f'An error occurred: {str(e)}'}), 500
+            return jsonify({'message': f'An error occurred: {str(e)}'})
 
 api.add_resource(DeletePeerReview, '/peer-review/<int:reviewId>')
 
@@ -348,10 +348,10 @@ class RetrieveLogs(Resource):
                 for log in logs
             ]
 
-            return jsonify(log_data), 200
+            return jsonify(log_data)
 
         except Exception as e:
-            return jsonify({'ERROR': str(e)}), 500
+            return jsonify({'ERROR': str(e)})
 
 api.add_resource(RetrieveLogs, '/logs')
 
@@ -362,7 +362,7 @@ class SearchLogs(Resource):
             data = request.get_json()
 
             if not data or 'keyword' not in data:
-                return jsonify({'message': 'Keyword is required for searching logs.'}), 400
+                return jsonify({'message': 'Keyword is required for searching logs.'})
 
             keyword = data['keyword']
 
@@ -379,10 +379,10 @@ class SearchLogs(Resource):
                 for log in logs
             ]
 
-            return jsonify(search_results), 200
+            return jsonify(search_results)
 
         except Exception as e:
-            return jsonify({'ERROR': str(e)}), 500
+            return jsonify({'ERROR': str(e)})
 
 api.add_resource(SearchLogs, '/logs/search')
 
@@ -396,10 +396,10 @@ class MilestoneDocument(Resource):
             return send_from_directory(PDF_DIRECTORY, filename, as_attachment=True)
 
         except FileNotFoundError:
-            return {"message": "Document not found"}, 404
+            return {"message": "Document not found"}
 
         except Exception as e:
-            return {"message": str(e)}, 500
+            return {"message": str(e)}
 
 
 api.add_resource(MilestoneDocument, '/teams/<int:team_id>/milestones/<int:milestone_id>/document')
@@ -413,7 +413,7 @@ class GenerateMilestones(Resource):
 
         # Validate input
         if 'projectHeading' not in data or 'projectDescription' not in data:
-            return {'message': 'Missing projectHeading or projectDescription'}, 400
+            return {'message': 'Missing projectHeading or projectDescription'}
 
         project_heading = data['projectHeading']
         project_description = data['projectDescription']
@@ -477,7 +477,7 @@ class GenerateMilestones(Resource):
                 return {
                     'ERROR': f'Invalid milestone format: {str(e)}',
                     'raw_output': ai_output
-                }, 500
+                }
 
         except Exception as e:
             return {
@@ -491,12 +491,13 @@ api.add_resource(GenerateMilestones, '/generate-milestones')
 class Chatbot(Resource):
     def post(self):
         try:
-
             # Query each table separately
             projects = db.session.query(
                 Projects.id.label('project_id'),
                 Projects.title.label('project_title'),
-                Projects.description.label('project_description')
+                Projects.description.label('project_description'),
+                Projects.start_date.label('start_date'),
+                Projects.end_date.label('end_date')
             ).all()
 
             milestones = db.session.query(
@@ -508,18 +509,16 @@ class Chatbot(Resource):
                 Milestones.deadline.label('milestone_deadline')
             ).all()
 
-            teams = db.session.query(
-                Team.id.label('team_id'),
-                Team.name.label('team_name'),
-                Team.description.label('team_description'),
-                Team.project_id.label('project_id')
-            ).all()
 
+    
             # Convert query results into DataFrames
             projects_df = pd.DataFrame([{
                 'project_id': p.project_id,
                 'project_title': p.project_title,
-                'project_description': p.project_description
+                'project_description': p.project_description,
+                'start_date': p.start_date,
+                'end_date': p.end_date
+
             } for p in projects])
 
             milestones_df = pd.DataFrame([{
@@ -531,17 +530,12 @@ class Chatbot(Resource):
                 'milestone_deadline': m.milestone_deadline
             } for m in milestones])
 
-            teams_df = pd.DataFrame([{
-                'team_id': t.team_id,
-                'team_name': t.team_name,
-                'team_description': t.team_description,
-                'project_id': t.project_id
-            } for t in teams])
+
 
             # Combine the DataFrames into strings for the prompt
             projects_string = projects_df.to_string(index=False)
             milestones_string = milestones_df.to_string(index=False)
-            teams_string = teams_df.to_string(index=False)
+
 
             # Fetch the chat data
             try:
@@ -551,34 +545,35 @@ class Chatbot(Resource):
                 return {'message': 'Invalid JSON payload.'}
 
             if not data or 'Chat_History' not in data or 'current_message' not in data:
-                return {'message': 'Invalid request format. Include Chat_History and current_message.'}, 400
+                return {'message': 'Invalid request format. Include Chat_History and current_message.'}
 
             chat_history = data.get('Chat_History', [])
             current_message = data['current_message'].strip()
 
             if not current_message:
-                return {'message': 'Current message is empty.'}, 400
+                return {'message': 'Current message is empty.'}
 
             # Construct the AI prompt
             prompt = f"""
             You are a helpful, knowledgeable, and friendly AI assistant. Respond to the user's messages in a conversational tone. Be concise and polite.
-            You have access to detailed information about projects, milestones, and teams. Use the following data to answer the student's questions accurately and specifically.
+            You have access to detailed information about projects, milestones. Use the following data to answer the student's questions accurately and specifically.
+            Always answer in the Markdown format only and strictly. Never use html tags in responses.
 
             Projects Data:
+            Always check project start and end date from here.
             {projects_string}
 
-            Milestones Data:
-            {milestones_string}
 
-            Teams Data:
-            {teams_string}
+
+            Milestones Data:
+            Always check milestones deadline from here.
+            {milestones_string}
 
             Here is the conversation so far:
             """
             for chat in chat_history:
                 prompt += f"User: {chat['User']}\nBot: {chat['bot']}\n"
             prompt += f"User: {current_message}\nBot:"
-
 
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)

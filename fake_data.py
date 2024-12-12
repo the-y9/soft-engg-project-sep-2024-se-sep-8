@@ -36,10 +36,10 @@ with app.app_context():
     users_data = [
         {"email": "admin@g.com", "password": "admin", "roles": ["admin"]},
         {"email": "ins@g.com", "username":"ins", "password": "ins", "roles": ["instructor"]},
-        {"email": "stud@g.com", "password": "stud", "roles": ["student"]},
-        {"email": "ta@g.com", "password": "ta", "roles": ["ta"]},
-        {"email": "ee@g.com", "password": "ee", "roles": ["extEval"]},
-        {"email": "rough@g.com", "password": "rough", "roles": ["student"]}
+        {"email": "stud@g.com", "username":"stud", "password": "stud", "roles": ["student"]},
+        {"email": "ta@g.com", "username":"ta", "password": "ta", "roles": ["ta"]},
+        {"email": "ee@g.com", "username":"ee", "password": "ee", "roles": ["extEval"]},
+        {"email": "rough@g.com","username":"rough", "password": "rough", "roles": ["student"]}
     ]
 
     # Create users
@@ -93,7 +93,31 @@ with app.app_context():
     except Exception as e:
         print(f"ERROR (GitUser): {e}")
 
-    # Add 10 random projects with start and end dates
+    # Add 11 projects with start and end dates
+    try:
+        # Create a new project instance
+        new_project = Projects(
+            id=1,
+            title="A1 APP Redesign",
+            description="Revamp the company website for a modern look and better user experience.",
+            start_date=datetime(2024, 12, 15, 9, 0),  # Year, Month, Day, Hour, Minute
+            end_date=datetime(2025, 1, 15, 17, 0)    # Year, Month, Day, Hour, Minute
+        )
+
+        # Add and commit the record to the database
+        db.session.add(new_project)
+        db.session.commit()
+        print(f"Project '{new_project.title}' added to the database successfully.")
+
+    except Exception as e:
+        # Rollback in case of an error
+        db.session.rollback()
+        print(f"An error occurred while adding the project: {e}")
+
+    finally:
+        # Close the session if necessary
+        db.session.close()
+
     try:
         for _ in range(10):
             project = Projects(
@@ -134,7 +158,31 @@ with app.app_context():
                 existing_names.add(team_name)
                 return team_name
 
-    # Create 100 random teams with valid `repo_owner` and `team_members`
+    # Create 101 teams with valid `repo_owner` and `team_members`
+
+    try:
+        # Create a new team instance
+        new_team = Team(
+            name="Development Squad",
+            description="Handles repo aspects of application development.",
+            project_id=1, 
+            repo_owner="githubtraining",
+            repo_name="github-slideshow-demo"
+        )
+
+        # Add and commit the record to the database
+        db.session.add(new_team)
+        db.session.commit()
+        print(f"Team '{new_team.name}' added to the database successfully.")
+
+    except Exception as e:
+        # Rollback in case of an error
+        db.session.rollback()
+        print(f"An error occurred while adding the team: {e}")
+
+    finally:
+        # Close the session if necessary
+        db.session.close()
     existing_team_names = set()
 
     try:

@@ -75,10 +75,7 @@ def user_login():
     
     else: 
         return jsonify({"message":"Wrong password"}),400
-    
-from flask import Flask, request, jsonify
 
-app = Flask(__name__)
 
 @app.post('/upload')
 def upload_file():

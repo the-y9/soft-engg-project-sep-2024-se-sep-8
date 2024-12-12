@@ -8,6 +8,12 @@ from .models import User, GitUser, Projects, Milestones, Notifications, Team
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
+import google.generativeai as genai
+import pandas as pd
+import json
+import re
+GOOGLE_API_KEY = 'AIzaSyBXWPw2U4D1DuOtEDRLrCBcNxnb1qlBh30'
+genai.configure(api_key=GOOGLE_API_KEY)
 
 
 api = Api()
@@ -447,3 +453,137 @@ class ProjectUpdate(Resource):
         return jsonify({'message': 'Invalid request. Provide a project ID to update.'}), 400
     
 api.add_resource(ProjectUpdate,'/projects/update/<int:project_id>')
+
+
+import random
+from datetime import datetime, timedelta
+
+class StudPerfom(Resource):
+    def post(self):
+        data = request.get_json()
+
+        if 'repoOwner' not in data or 'repoName' not in data or 'teamId' not in data:
+            return {'message': 'Missing repoOwner, repoName, or teamId'}
+
+        repo_owner = data['repoOwner']
+        repo_name = data['repoName']
+        team_id = data['teamId']
+
+        # Fetch team and commit data (simulate or fetch from database)
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            return jsonify({"message": f"Team with id {team_id} not found."})
+
+        def generate_mock_commits(team_members, num_commits=10):
+            """Generate synthetic commit history."""
+            mock_commits = []
+            for _ in range(num_commits):
+                member = random.choice(team_members)
+                commit_date = datetime.now() - timedelta(days=random.randint(1, 90))
+                mock_commits.append({
+                    "sha": f"mock-{random.randint(1000, 9999)}",
+                    "commit_date": commit_date.isoformat(),
+                    "author": member.username,
+                    "message": f"Mock commit by {member.username} on {repo_name}"
+                })
+            return mock_commits
+
+        team_members = team.members
+        # if not team_members:
+        #     return jsonify({"message": "No team members found."})
+
+        github_repo = GitHubRepo()
+        try:
+            if not github_repo.check_owner_exists(repo_owner):
+                raise Exception("GitHub owner not found.")
+            commit_response = github_repo.get(repo_owner, repo_name)
+            commits = commit_response.get_json().get('commit_data', [])
+        except Exception:
+            commits = []
+
+        if not commits:
+            commits = generate_mock_commits(team_members)
+
+        if commits:
+            prompt = f"""
+            Analyze the commit history of a GitHub repository to evaluate team members' performance.
+            Repository Owner: {repo_owner}
+            Repository Name: {repo_name}
+            Commits:
+            {json.dumps(commits, indent=4)}
+
+            Output requirements:
+            - Provide a JSON-formatted report of each team member's performance
+            - Include fields: 'name', 'contributionScore', 'details'
+            - Assess the quality and frequency of commits
+
+            Example Output:
+            [
+                {{
+                    "name": "John Doe",
+                    "contributionScore": 85,
+                    "details": "Consistent and meaningful commits."
+                }},
+                {{
+                    "name": "Jane Smith",
+                    "contributionScore": 70,
+                    "details": "Frequent commits but requires more depth."
+                }}
+            ]
+            """
+        else:
+            prompt = """
+            The provided commit history is empty, so no data is available for analysis.
+            Generate a JSON-formatted placeholder report for team members, noting the absence of activity.
+
+            Example Output:
+            [
+                {
+                    "name": "John Doe",
+                    "contributionScore": 0,
+                    "details": "No commits found in the provided history."
+                },
+                {
+                    "name": "Jane Smith",
+                    "contributionScore": 0,
+                    "details": "No commits found in the provided history."
+                }
+            ]
+            """
+
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+            ai_output = response.text.strip()
+
+            json_match = re.search(r'\[\s*{.*?}\s*(?:,\s*{.*?}\s*)*\]', ai_output, re.DOTALL)
+
+            if not json_match:
+                return {
+                    'ERROR': 'Could not extract JSON content',
+                    'raw_output': ai_output
+                }
+
+            try:
+                performance_report = json.loads(json_match.group(0))
+
+                if not isinstance(performance_report, list):
+                    raise ValueError("Extracted content is not a list of performance reports")
+
+                for member in performance_report:
+                    if not all(key in member for key in ['name', 'contributionScore', 'details']):
+                        raise ValueError("Performance report is missing required fields")
+
+                return {'performanceReport': performance_report}
+
+            except (json.JSONDecodeError, ValueError) as e:
+                return {
+                    'ERROR': f'Invalid performance report format: {str(e)}',
+                    'raw_output': ai_output
+                }
+
+        except Exception as e:
+            return {
+                'ERROR': f'Failed to evaluate performance: {str(e)}'
+            }
+api.add_resource(StudPerfom, '/evaluate-performance')
