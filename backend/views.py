@@ -55,9 +55,9 @@ def user_login():
     
     if '@' in email:
         user = datastore.find_user(email=email)
-        print(1)
+        
     else:
-        print(2)
+        
         user = datastore.find_user(username=email)
     
     if not user:
@@ -67,7 +67,7 @@ def user_login():
         if user.active:
             team_member = TeamMembers.query.filter_by(user_id=user.id).first()
             team_id = team_member.team_id if team_member else None
-            
+           
             return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name,  "team_id": team_id}),200
         else:
             return jsonify({"message":"User not activated"}),403
