@@ -260,26 +260,26 @@ class Project_Manager(Resource):
     @roles_required('instructor')
     def put(self, id=None):
         data = request.get_json()
-        print(1)
-        print(id)
-        print(data)
+
         # Update a milestone
         if id:
             milestone = Milestones.query.get(id)
             if not milestone:
                 return jsonify({'message': 'Milestone not found'})
-
+            print(4, id, data, milestone)
             # Update milestone fields
             milestone.task_no = data.get('task_no', milestone.task_no)
             milestone.task = data.get('taskName', milestone.task)
             milestone.description = data.get('description', milestone.description)
             if 'deadline' in data:
                 try:
-                    milestone.deadline = datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S')
+                    print(5, id, data, datetime.strptime(data['deadline'], '%a, %d %b %Y %H:%M:%S %Z'))
+                    milestone.deadline = datetime.strptime(data['deadline'], '%a, %d %b %Y %H:%M:%S %Z')
+                    print(7)
                 except ValueError:
                     return jsonify({'message': 'Invalid deadline format. Use YYYY-MM-DD HH:MM:SS'})
             
-            print(2, data)
+            print(6, milestone.deadline)
             db.session.commit()
             return jsonify({
                 'id': milestone.id,
