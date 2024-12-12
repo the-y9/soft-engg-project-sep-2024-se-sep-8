@@ -460,10 +460,8 @@ from datetime import datetime, timedelta
 
 class StudPerfom(Resource):
     def post(self):
-        # Parse the input data
         data = request.get_json()
 
-        # Validate input
         if 'repoOwner' not in data or 'repoName' not in data or 'teamId' not in data:
             return {'message': 'Missing repoOwner, repoName, or teamId'}
 
@@ -471,12 +469,10 @@ class StudPerfom(Resource):
         repo_name = data['repoName']
         team_id = data['teamId']
 
-        # Fetch team and commit data (simulate or fetch from database)
         team = Team.query.filter_by(id=team_id).first()
         if not team:
             return jsonify({"message": f"Team with id {team_id} not found."})
 
-        # Fallback mechanism to generate mock commit history if data is unavailable
         def generate_mock_commits(team_members, num_commits=10):
             """Generate synthetic commit history."""
             mock_commits = []
@@ -492,10 +488,9 @@ class StudPerfom(Resource):
             return mock_commits
 
         team_members = team.members
-        if not team_members:
-            return jsonify({"message": "No team members found."}), 404
+        # if not team_members:
+        #     return jsonify({"message": "No team members found."})
 
-        # Try to fetch commit history from GitHub
         github_repo = GitHubRepo()
         try:
             if not github_repo.check_owner_exists(repo_owner):
@@ -505,11 +500,9 @@ class StudPerfom(Resource):
         except Exception:
             commits = []
 
-        # If commits are empty, generate mock commits
         if not commits:
             commits = generate_mock_commits(team_members)
 
-        # Prepare AI prompt
         if commits:
             prompt = f"""
             Analyze the commit history of a GitHub repository to evaluate team members' performance.
@@ -558,12 +551,10 @@ class StudPerfom(Resource):
             """
 
         try:
-            # Call Generative AI
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)
             ai_output = response.text.strip()
 
-            # Use regex to extract JSON-like content
             json_match = re.search(r'\[\s*{.*?}\s*(?:,\s*{.*?}\s*)*\]', ai_output, re.DOTALL)
 
             if not json_match:
@@ -573,10 +564,8 @@ class StudPerfom(Resource):
                 }
 
             try:
-                # Attempt to parse the extracted JSON
                 performance_report = json.loads(json_match.group(0))
 
-                # Validate performance report structure
                 if not isinstance(performance_report, list):
                     raise ValueError("Extracted content is not a list of performance reports")
 
@@ -596,6 +585,4 @@ class StudPerfom(Resource):
             return {
                 'ERROR': f'Failed to evaluate performance: {str(e)}'
             }
-
-# Add resource to API
 api.add_resource(StudPerfom, '/evaluate-performance')
