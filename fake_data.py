@@ -36,10 +36,10 @@ with app.app_context():
     users_data = [
         {"email": "admin@g.com", "password": "admin", "roles": ["admin"]},
         {"email": "ins@g.com", "username":"ins", "password": "ins", "roles": ["instructor"]},
-        {"email": "stud@g.com", "password": "stud", "roles": ["student"]},
-        {"email": "ta@g.com", "password": "ta", "roles": ["ta"]},
-        {"email": "ee@g.com", "password": "ee", "roles": ["extEval"]},
-        {"email": "rough@g.com", "password": "rough", "roles": ["student"]}
+        {"email": "stud@g.com", "username":"stud", "password": "stud", "roles": ["student"]},
+        {"email": "ta@g.com", "username":"ta", "password": "ta", "roles": ["ta"]},
+        {"email": "ee@g.com", "username":"ee", "password": "ee", "roles": ["extEval"]},
+        {"email": "rough@g.com","username":"rough", "password": "rough", "roles": ["student"]}
     ]
 
     # Create users
