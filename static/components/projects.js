@@ -81,7 +81,7 @@ export default {
                     throw new Error(data.message || 'Failed to fetch projects.');
                 }
 
-                this.projects = data.projects; // Assumes the API returns { projects: [...] }
+                this.projects = data; // Assumes the API returns { projects: [...] }
             } catch (error) {
                 console.error('Error fetching projects:', error);
                 alert('Failed to load projects. Please try again later.');

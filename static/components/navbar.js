@@ -6,13 +6,16 @@ export default {
       <a href="#" class="navbar-brand">Project Tracker</a>
       <div class="nav-links">
         <!-- Notifications Button -->
-        <button v-if="is_login" class="nav-link" @click="toggleNotifications">
+        <button v-if="is_login & role === 'student'" class="nav-link" @click="toggleNotifications">
           <i class="fa fa-bell"></i> Notifications
         </button>
         
         <router-link v-if="!is_login" class="nav-link" to="/login">Login</router-link>
         <router-link v-if="!is_login" class="nav-link" to="/register">Register</router-link>
-        <router-link v-if="is_login" class="nav-link" to="/commit_history">Commit History</router-link>
+        <router-link v-if="is_login & role === 'student' & $route.path != '/student_dashboard'" class="nav-link" to="/student_dashboard">Dashboard</router-link>
+        <router-link v-if="is_login & role != 'student' & $route.path != '/instructor_dashboard'" class="nav-link" to="/instructor_dashboard">Dashboard</router-link>
+        <router-link v-if="is_login & role === 'student'" class="nav-link" to="/commit_history">Commit History</router-link>
+        <router-link v-if="is_login & role != 'student' & $route.path != '/project'" class="nav-link" to="/project">Projects</router-link>
         <button v-if="is_login" class="nav-link" @click="logout">Logout</button>
       </div>
     </nav>

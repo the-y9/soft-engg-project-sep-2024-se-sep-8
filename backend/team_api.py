@@ -175,7 +175,7 @@ def get_team_repo(team_id):
 # Route to upload file
 @team_api_bp.route('/upload/<int:team_id>/<int:user_id>/<int:milestone>', methods=['POST'])
 def upload_file(team_id,user_id,milestone):
-   if 'file' not in request.files:
+    if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"})
 
     file = request.files['file']
