@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones, Notifications, Team
+from .models import User, GitUser, Projects, Milestones, Notifications, Team, TeamMembers
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
@@ -364,32 +364,68 @@ class Notification_Manager(Resource):
         data = request.get_json()
 
         # Ensure required fields are present
-        if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
-            return jsonify({'message': 'Missing required fields'}), 400
+        if not all(key in data for key in ['notificationTitle', 'notificationMessage']):
+            return jsonify({'message': 'Missing required fields'})
 
         try:
-            # Create a new notification
-            new_notification = Notifications(
-                title=data['title'],
-                message=data['message'],
-                created_for=data['created_for'],
-                created_by=data['created_by']
-            )
-            db.session.add(new_notification)
-            db.session.commit()
+            if 'teamId' in data and data['teamId']:
+                # Add notification for all team members
+                team_members = TeamMembers.query.filter_by(team_id=data['teamId']).all() 
+                if not team_members:
+                    return jsonify({'message': 'No members found for the specified team.'})
 
-            # Convert the SQLAlchemy object into a dictionary
-            notification_data = {
-                'id': new_notification.id,
-                'title': new_notification.title,
-                'message': new_notification.message,
-                'created_for': new_notification.created_for,
-                'created_by': new_notification.created_by,
-                'created_at': new_notification.created_at
-            }
+                notifications = []
+                for member in team_members:
+                    notification = Notifications(
+                        title=data['notificationTitle'],
+                        message=data['notificationMessage'],
+                        created_for=member.user_id,
+                        created_by=data['instructorId']
+                    )
+                    db.session.add(notification)
+                    notifications.append(notification)
 
-            # return jsonify(notification_data)  # Return serialized data
-            return jsonify({'message': 'Notification created successfully.'}), 200
+                db.session.commit()
+
+                notification_data = [
+                    {
+                        'id': notification.id,
+                        'title': notification.title,
+                        'message': notification.message,
+                        'created_for': notification.created_for,
+                        'created_by': notification.created_by,
+                        'created_at': notification.created_at
+                    }
+                    for notification in notifications
+                ]
+
+                return jsonify({'message': 'Notifications created successfully for all team members.', 'data': notification_data})
+
+            elif 'memberId' in data and data['memberId']:
+                # Add notification for a specific member
+                new_notification = Notifications(
+                    title=data['notificationTitle'],
+                    message=data['notificationMessage'],
+                    created_for=data['memberId'],  # No team ID if it's specific to a member
+                    created_by=data['instructorId']
+                )
+                db.session.add(new_notification)
+                db.session.commit()
+
+                notification_data = {
+                    'id': new_notification.id,
+                    'title': new_notification.title,
+                    'message': new_notification.message,
+                    'created_for': new_notification.created_for,
+                    'created_by': new_notification.created_by,
+                    'created_at': new_notification.created_at
+                }
+
+                return jsonify({'message': 'Notification created successfully for the member.', 'data': notification_data})
+
+            else:
+                return jsonify({'message': 'Either teamId or memberId must be provided.'})
+
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
         
