@@ -73,7 +73,7 @@ export default {
       }
   },
   mounted() {
-    this.fetchMilestones();
+    // this.fetchMilestones();
   },
 
   methods: {

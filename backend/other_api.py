@@ -491,7 +491,6 @@ api.add_resource(GenerateMilestones, '/generate-milestones')
 class Chatbot(Resource):
     def post(self):
         try:
-
             # Query each table separately
             projects = db.session.query(
                 Projects.id.label('project_id'),
@@ -513,6 +512,18 @@ class Chatbot(Resource):
                 Team.name.label('team_name'),
                 Team.description.label('team_description'),
                 Team.project_id.label('project_id')
+            ).all()
+
+            users = db.session.query(
+                User.id.label('user_id'),
+                User.email.label('user_email'),
+                User.username.label('user_name')
+            ).all()
+
+            team_members = db.session.query(
+                TeamMembers.id.label('team_member_id'),
+                TeamMembers.team_id.label('team_id'),
+                TeamMembers.user_id.label('user_id')
             ).all()
 
             # Convert query results into DataFrames
@@ -538,10 +549,24 @@ class Chatbot(Resource):
                 'project_id': t.project_id
             } for t in teams])
 
+            users_df = pd.DataFrame([{
+                'user_id': u.user_id,
+                'user_email': u.user_email,
+                'user_name': u.user_name
+            } for u in users])
+
+            team_members_df = pd.DataFrame([{
+                'team_member_id': tm.team_member_id,
+                'team_id': tm.team_id,
+                'user_id': tm.user_id
+            } for tm in team_members])
+
             # Combine the DataFrames into strings for the prompt
             projects_string = projects_df.to_string(index=False)
             milestones_string = milestones_df.to_string(index=False)
             teams_string = teams_df.to_string(index=False)
+            users_string = users_df.to_string(index=False)
+            team_members_string = team_members_df.to_string(index=False)
 
             # Fetch the chat data
             try:
@@ -562,7 +587,8 @@ class Chatbot(Resource):
             # Construct the AI prompt
             prompt = f"""
             You are a helpful, knowledgeable, and friendly AI assistant. Respond to the user's messages in a conversational tone. Be concise and polite.
-            You have access to detailed information about projects, milestones, and teams. Use the following data to answer the student's questions accurately and specifically.
+            You have access to detailed information about projects, milestones, teams, users, and team members. Use the following data to answer the student's questions accurately and specifically.
+            Always answer in the Markdown format only and strictly. Never use html tags in responses.
 
             Projects Data:
             {projects_string}
@@ -573,12 +599,17 @@ class Chatbot(Resource):
             Teams Data:
             {teams_string}
 
+            Users Data:
+            {users_string}
+
+            Team Members Data:
+            {team_members_string}
+
             Here is the conversation so far:
             """
             for chat in chat_history:
                 prompt += f"User: {chat['User']}\nBot: {chat['bot']}\n"
             prompt += f"User: {current_message}\nBot:"
-
 
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)

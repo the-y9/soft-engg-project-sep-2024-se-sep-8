@@ -28,20 +28,16 @@ export default {
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>Student ID</th>
-            <th>Task Completion (%)</th>
-            <th>Coding Activity (Hours)</th>
-            <th>Predicted Performance</th>
-            <th>Support Recommendation</th>
+            <th>Name</th>
+            <th>Contribution Score</th>
+            <th>Details</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{{ result.studentId }}</td>
-            <td>{{ result.taskCompletion }}</td>
-            <td>{{ result.codingActivity }}</td>
-            <td>{{ result.predictedPerformance }}</td>
-            <td>{{ result.supportRecommendation }}</td>
+          <tr v-for="member in result" :key="member.name">
+            <td>{{ member.name }}</td>
+            <td>{{ member.contributionScore }}</td>
+            <td>{{ member.details }}</td>
           </tr>
         </tbody>
       </table>
@@ -55,11 +51,6 @@ export default {
           selectedTeamId: '',
           projects: [],
           availableTeams: [],
-          students: [
-              { id: '21fx' },
-              { id: '22fx' },
-              { id: '23fx' }
-          ],
           result: null
       };
   },
@@ -72,10 +63,10 @@ export default {
           throw new Error(data.message || "Failed to fetch projects.");
       }
       this.projects = data;
-  } catch (error) {
+    } catch (error) {
       console.error("Error fetching projects:", error);
       alert("Failed to load projects.");
-  }
+    }
   },
 
   methods: {
@@ -90,15 +81,16 @@ export default {
           const selectedTeam = this.availableTeams.find(team => team.id === this.selectedTeamId);
           if (selectedTeam) {
               try {
-                  const response = await fetch('/predict_performance', {
+                  const response = await fetch('/evaluate-performance', {
                       method: 'POST',
                       headers: {
                           'Content-Type': 'application/json',
                           'Authentication-Token': localStorage.getItem('auth-token')
                       },
                       body: JSON.stringify({
-                          owner: selectedTeam.repo_owner,
-                          repo: selectedTeam.repo_name
+                          repoOwner: selectedTeam.repo_owner,
+                          repoName: selectedTeam.repo_name,
+                          teamId: selectedTeam.id
                       })
                   });
 
@@ -106,13 +98,7 @@ export default {
                   if (!response.ok) {
                       throw new Error(data.message || 'Failed to predict performance.');
                   }
-                  console.log(data);
-                  // this.result = {
-                  //     taskCompletion: data.taskCompletion,
-                  //     codingActivity: data.codingActivity,
-                  //     predictedPerformance: data.predictedPerformance,
-                  //     supportRecommendation: data.supportRecommendation
-                  // };
+                  this.result = data.performanceReport;
               } catch (error) {
                   console.error('Error predicting performance:', error);
                   alert('Failed to predict performance. Please try again.');
