@@ -103,7 +103,7 @@ export default {
         },
         notifyMember(memberId) {
             const member = this.team.members.find(m => m.id === memberId);
-            this.$router.push(`/notification?team_id=${this.team_id}&team_name=${this.team.name}&member_id=${memberId}&member_name=${member.name}`);
+            this.$router.push(`/notification?team_name=${this.team.name}&member_id=${memberId}&member_name=${member.name}`);
         }
     }
 };

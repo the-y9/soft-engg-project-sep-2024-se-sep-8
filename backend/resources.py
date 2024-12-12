@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones, Notifications, Team, TeamMembers
+from .models import User, GitUser, Projects, Milestones, Notifications, Team, TeamMembers, NotificationUser
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
@@ -351,6 +351,23 @@ class Notification_Manager(Resource):
                     db.session.add(notification)
                     notifications.append(notification)
 
+                db.session.commit()
+
+                notification_users = []
+                for notification in notifications:
+                    notification_user = NotificationUser(
+                        notification_id=notification.id,
+                        user_id=notification.created_for
+                    )
+                    db.session.add(notification_user)
+                    notification_users.append(notification_user)
+
+                db.session.commit()
+                notification_user = NotificationUser(
+                                notification_id=new_notification.id,
+                                user_id=new_notification.created_for
+                            )
+                db.session.add(notification_user)
                 db.session.commit()
 
                 notification_data = [
