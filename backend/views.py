@@ -91,6 +91,6 @@ def upload_file():
         file.save(f'uploads/{milestone_id}_{file.filename}')
         return jsonify({'message': 'File uploaded successfully'})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)})
 
     
