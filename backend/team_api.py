@@ -10,6 +10,7 @@ import google.generativeai as genai
 import pandas as pd
 import json
 import re
+from werkzeug.utils import secure_filename
 GOOGLE_API_KEY = 'AIzaSyBXWPw2U4D1DuOtEDRLrCBcNxnb1qlBh30'
 genai.configure(api_key=GOOGLE_API_KEY)
 
@@ -174,40 +175,44 @@ def get_team_repo(team_id):
 # Route to upload file
 @team_api_bp.route('/upload/<int:team_id>/<int:user_id>/<int:milestone>', methods=['POST'])
 def upload_file(team_id,user_id,milestone):
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
+   if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"})
 
     file = request.files['file']
 
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No selected file"})
 
-    # Secure filename to prevent directory traversal
+    # Secure the filename to prevent directory traversal
     filename = secure_filename(file.filename)
 
     # Read file data as binary
     file_data = file.read()
-    print(file_data)
+    print(f"Received file: {filename}, Size: {len(file_data)} bytes")
+
+    # Placeholder for file_url (e.g., set a default or generate one)
+    file_url = f"/uploaded_files/{filename}"
 
     # Save file data in database
     new_file = FileStorage(
-            filename=filename,
-            # file_url=file_url,
-            file_data=file_data,
-            uploaded_at=datetime.now(),
-            uploaded_by=user_id,
-            related_milestone=milestone,
-            team_id=team_id
-        )
+        filename=filename,
+        file_url=file_url,  # Use the placeholder or generate an actual URL
+        file_data=file_data,
+        uploaded_at=datetime.now(),
+        uploaded_by=user_id,
+        related_milestone=milestone,
+        team_id=team_id
+    )
 
     try:
         db.session.add(new_file)
         db.session.commit()
-        return jsonify({"message": "File uploaded successfully", "file_id": new_file.id}), 201
+        return jsonify({"message": "File uploaded successfully", "file_id": new_file.id})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)})
+        
 @team_api_bp.route('/get_user_details/<int:user_id>', methods=['GET'])
 def get_user_details(user_id):
     try:
