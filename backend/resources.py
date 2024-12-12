@@ -260,7 +260,9 @@ class Project_Manager(Resource):
     @roles_required('instructor')
     def put(self, id=None):
         data = request.get_json()
-
+        print(1)
+        print(id)
+        print(data)
         # Update a milestone
         if id:
             milestone = Milestones.query.get(id)
@@ -269,14 +271,15 @@ class Project_Manager(Resource):
 
             # Update milestone fields
             milestone.task_no = data.get('task_no', milestone.task_no)
-            milestone.task = data.get('task', milestone.task)
+            milestone.task = data.get('taskName', milestone.task)
             milestone.description = data.get('description', milestone.description)
             if 'deadline' in data:
                 try:
                     milestone.deadline = datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S')
                 except ValueError:
                     return jsonify({'message': 'Invalid deadline format. Use YYYY-MM-DD HH:MM:SS'})
-
+            
+            print(2, data)
             db.session.commit()
             return jsonify({
                 'id': milestone.id,
@@ -289,43 +292,6 @@ class Project_Manager(Resource):
         # Invalid request
         return jsonify({'message': 'Invalid request. Provide a milestone ID to update.'})
 
-    # Update a specific project
-    @roles_required('instructor')
-    def put(self, project_id=None):
-        data = request.get_json()
-
-        # Update a project
-        if project_id:
-            project = Projects.query.get(project_id)
-            if not project:
-                return jsonify({'message': 'Project not found'})
-
-            # Update project fields
-            project.title = data.get('title', project.title)
-            project.description = data.get('description', project.description)
-            if 'start_date' in data:
-                try:
-                    project.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-                except ValueError:
-                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'})
-
-            if 'end_date' in data:
-                try:
-                    project.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
-                except ValueError:
-                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'})
-
-            db.session.commit()
-            return jsonify({
-                'id': project.id,
-                'title': project.title,
-                'description': project.description,
-                'start_date': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
-                'end_date': project.end_date.strftime('%Y-%m-%d') if project.end_date else None
-            })
-
-        # Invalid request
-        return jsonify({'message': 'Invalid request. Provide a project ID to update.'})
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
