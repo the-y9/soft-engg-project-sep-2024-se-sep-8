@@ -469,6 +469,7 @@ class StudPerfom(Resource):
         repo_name = data['repoName']
         team_id = data['teamId']
 
+        # Fetch team and commit data (simulate or fetch from database)
         team = Team.query.filter_by(id=team_id).first()
         if not team:
             return jsonify({"message": f"Team with id {team_id} not found."})
