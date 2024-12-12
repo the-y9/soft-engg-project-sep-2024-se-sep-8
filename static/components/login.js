@@ -53,6 +53,7 @@ export default {
             localStorage.setItem('role', data.role)
             localStorage.setItem('email', data.email)
             localStorage.setItem('user_id', data.id)
+            localStorage.setItem('team_id', data.team_id)
             if (data.role == "student"){
             this.$router.push({ path: '/student_dashboard' })
             }

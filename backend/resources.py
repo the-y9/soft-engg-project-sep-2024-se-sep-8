@@ -4,7 +4,7 @@ from backend.models import db
 from sqlalchemy import func
 from flask import jsonify, request
 from .instance import cache
-from .models import User, GitUser, Projects, Milestones, Notifications, Team
+from .models import User, GitUser, Projects, Milestones, Notifications, Team, TeamMembers
 import requests
 from datetime import datetime
 from .other_api import other_api_bp
@@ -173,7 +173,7 @@ class Project_Manager(Resource):
             # Check if the project already exists
             existing_project = Projects.query.filter_by(title=data['title']).first()
             if existing_project:
-                return jsonify({'message': 'Project with this title already exists'}), 400
+                return jsonify({'message': 'Project with this title already exists'})
 
             # Create a new project
             new_project = Projects(
@@ -260,7 +260,9 @@ class Project_Manager(Resource):
     @roles_required('instructor')
     def put(self, id=None):
         data = request.get_json()
-
+        print(1)
+        print(id)
+        print(data)
         # Update a milestone
         if id:
             milestone = Milestones.query.get(id)
@@ -269,14 +271,15 @@ class Project_Manager(Resource):
 
             # Update milestone fields
             milestone.task_no = data.get('task_no', milestone.task_no)
-            milestone.task = data.get('task', milestone.task)
+            milestone.task = data.get('taskName', milestone.task)
             milestone.description = data.get('description', milestone.description)
             if 'deadline' in data:
                 try:
                     milestone.deadline = datetime.strptime(data['deadline'], '%Y-%m-%d %H:%M:%S')
                 except ValueError:
                     return jsonify({'message': 'Invalid deadline format. Use YYYY-MM-DD HH:MM:SS'})
-
+            
+            print(2, data)
             db.session.commit()
             return jsonify({
                 'id': milestone.id,
@@ -289,43 +292,6 @@ class Project_Manager(Resource):
         # Invalid request
         return jsonify({'message': 'Invalid request. Provide a milestone ID to update.'})
 
-    # Update a specific project
-    @roles_required('instructor')
-    def put(self, project_id=None):
-        data = request.get_json()
-
-        # Update a project
-        if project_id:
-            project = Projects.query.get(project_id)
-            if not project:
-                return jsonify({'message': 'Project not found'})
-
-            # Update project fields
-            project.title = data.get('title', project.title)
-            project.description = data.get('description', project.description)
-            if 'start_date' in data:
-                try:
-                    project.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-                except ValueError:
-                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'})
-
-            if 'end_date' in data:
-                try:
-                    project.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
-                except ValueError:
-                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'})
-
-            db.session.commit()
-            return jsonify({
-                'id': project.id,
-                'title': project.title,
-                'description': project.description,
-                'start_date': project.start_date.strftime('%Y-%m-%d') if project.start_date else None,
-                'end_date': project.end_date.strftime('%Y-%m-%d') if project.end_date else None
-            })
-
-        # Invalid request
-        return jsonify({'message': 'Invalid request. Provide a project ID to update.'})
 # Add resources to the API with different routes
 api.add_resource(Project_Manager, '/projects','/project','/projects/<int:project_id>', '/milestone', '/milestone/<int:id>', '/project/<int:project_id>/milestones')
 
@@ -356,40 +322,76 @@ class Notification_Manager(Resource):
                     'message': notification.message
                 } for notification in notifications]
                 return notification_list, 200
-            return jsonify({'message': 'No notifications found for this team'}), 404
+            return jsonify({'message': 'No notifications found for this team'})
 
-        return {'message': 'Team ID or Notification ID is required'}, 400
+        return {'message': 'Team ID or Notification ID is required'}
     
     def post(self):
         data = request.get_json()
 
         # Ensure required fields are present
-        if not all(key in data for key in ['title', 'message', 'created_for', 'created_by']):
-            return jsonify({'message': 'Missing required fields'}), 400
+        if not all(key in data for key in ['notificationTitle', 'notificationMessage']):
+            return jsonify({'message': 'Missing required fields'})
 
         try:
-            # Create a new notification
-            new_notification = Notifications(
-                title=data['title'],
-                message=data['message'],
-                created_for=data['created_for'],
-                created_by=data['created_by']
-            )
-            db.session.add(new_notification)
-            db.session.commit()
+            if 'teamId' in data and data['teamId']:
+                # Add notification for all team members
+                team_members = TeamMembers.query.filter_by(team_id=data['teamId']).all() 
+                if not team_members:
+                    return jsonify({'message': 'No members found for the specified team.'})
 
-            # Convert the SQLAlchemy object into a dictionary
-            notification_data = {
-                'id': new_notification.id,
-                'title': new_notification.title,
-                'message': new_notification.message,
-                'created_for': new_notification.created_for,
-                'created_by': new_notification.created_by,
-                'created_at': new_notification.created_at
-            }
+                notifications = []
+                for member in team_members:
+                    notification = Notifications(
+                        title=data['notificationTitle'],
+                        message=data['notificationMessage'],
+                        created_for=member.user_id,
+                        created_by=data['instructorId']
+                    )
+                    db.session.add(notification)
+                    notifications.append(notification)
 
-            # return jsonify(notification_data)  # Return serialized data
-            return jsonify({'message': 'Notification created successfully.'}), 200
+                db.session.commit()
+
+                notification_data = [
+                    {
+                        'id': notification.id,
+                        'title': notification.title,
+                        'message': notification.message,
+                        'created_for': notification.created_for,
+                        'created_by': notification.created_by,
+                        'created_at': notification.created_at
+                    }
+                    for notification in notifications
+                ]
+
+                return jsonify({'message': 'Notifications created successfully for all team members.', 'data': notification_data})
+
+            elif 'memberId' in data and data['memberId']:
+                # Add notification for a specific member
+                new_notification = Notifications(
+                    title=data['notificationTitle'],
+                    message=data['notificationMessage'],
+                    created_for=data['memberId'],  # No team ID if it's specific to a member
+                    created_by=data['instructorId']
+                )
+                db.session.add(new_notification)
+                db.session.commit()
+
+                notification_data = {
+                    'id': new_notification.id,
+                    'title': new_notification.title,
+                    'message': new_notification.message,
+                    'created_for': new_notification.created_for,
+                    'created_by': new_notification.created_by,
+                    'created_at': new_notification.created_at
+                }
+
+                return jsonify({'message': 'Notification created successfully for the member.', 'data': notification_data})
+
+            else:
+                return jsonify({'message': 'Either teamId or memberId must be provided.'})
+
         except Exception as e:
             return jsonify({'ERROR': f'{e}'})
         
@@ -398,13 +400,13 @@ class Notification_Manager(Resource):
         if id:
             notification = Notifications.query.get(id)
             if not notification:
-                return jsonify({'message': 'Notification not found'}), 404
+                return jsonify({'message': 'Notification not found'})
 
             db.session.delete(notification)
             db.session.commit()
-            return jsonify({'message': 'Notification deleted successfully'}), 200
+            return jsonify({'message': 'Notification deleted successfully'})
 
-        return jsonify({'message': 'Notification ID is required to delete a notification'}), 404
+        return jsonify({'message': 'Notification ID is required to delete a notification'})
 
 api.add_resource(
     Notification_Manager,
@@ -423,7 +425,7 @@ class ProjectUpdate(Resource):
         if project_id:
             project = Projects.query.get(project_id)
             if not project:
-                return jsonify({'message': 'Project not found'}), 404
+                return jsonify({'message': 'Project not found'})
 
             # Update project fields
             project.title = data.get('name', project.title)
@@ -432,13 +434,13 @@ class ProjectUpdate(Resource):
                 try:
                     project.start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
                 except ValueError:
-                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'}), 400
+                    return jsonify({'message': 'Invalid start_date format. Use YYYY-MM-DD'})
 
             if 'endDate' in data:
                 try:
                     project.end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
                 except ValueError:
-                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'}), 400
+                    return jsonify({'message': 'Invalid end_date format. Use YYYY-MM-DD'})
 
             db.session.commit()
             return {
@@ -450,7 +452,7 @@ class ProjectUpdate(Resource):
             }, 200
 
         # Invalid request
-        return jsonify({'message': 'Invalid request. Provide a project ID to update.'}), 400
+        return jsonify({'message': 'Invalid request. Provide a project ID to update.'})
     
 api.add_resource(ProjectUpdate,'/projects/update/<int:project_id>')
 
@@ -460,23 +462,20 @@ from datetime import datetime, timedelta
 
 class StudPerfom(Resource):
     def post(self):
-        # Parse the input data
         data = request.get_json()
 
-        # Validate input
         if 'repoOwner' not in data or 'repoName' not in data or 'teamId' not in data:
             return {'message': 'Missing repoOwner, repoName, or teamId'}
 
         repo_owner = data['repoOwner']
         repo_name = data['repoName']
         team_id = data['teamId']
-        print(repo_name,repo_owner, team_id)
+
         # Fetch team and commit data (simulate or fetch from database)
         team = Team.query.filter_by(id=team_id).first()
         if not team:
             return jsonify({"message": f"Team with id {team_id} not found."})
 
-        # Fallback mechanism to generate mock commit history if data is unavailable
         def generate_mock_commits(team_members, num_commits=10):
             """Generate synthetic commit history."""
             mock_commits = []
@@ -495,7 +494,6 @@ class StudPerfom(Resource):
         # if not team_members:
         #     return jsonify({"message": "No team members found."})
 
-        # Try to fetch commit history from GitHub
         github_repo = GitHubRepo()
         try:
             if not github_repo.check_owner_exists(repo_owner):
@@ -505,11 +503,9 @@ class StudPerfom(Resource):
         except Exception:
             commits = []
 
-        # If commits are empty, generate mock commits
         if not commits:
             commits = generate_mock_commits(team_members)
 
-        # Prepare AI prompt
         if commits:
             prompt = f"""
             Analyze the commit history of a GitHub repository to evaluate team members' performance.
@@ -558,12 +554,10 @@ class StudPerfom(Resource):
             """
 
         try:
-            # Call Generative AI
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)
             ai_output = response.text.strip()
 
-            # Use regex to extract JSON-like content
             json_match = re.search(r'\[\s*{.*?}\s*(?:,\s*{.*?}\s*)*\]', ai_output, re.DOTALL)
 
             if not json_match:
@@ -573,10 +567,8 @@ class StudPerfom(Resource):
                 }
 
             try:
-                # Attempt to parse the extracted JSON
                 performance_report = json.loads(json_match.group(0))
 
-                # Validate performance report structure
                 if not isinstance(performance_report, list):
                     raise ValueError("Extracted content is not a list of performance reports")
 
@@ -596,6 +588,4 @@ class StudPerfom(Resource):
             return {
                 'ERROR': f'Failed to evaluate performance: {str(e)}'
             }
-
-# Add resource to API
 api.add_resource(StudPerfom, '/evaluate-performance')

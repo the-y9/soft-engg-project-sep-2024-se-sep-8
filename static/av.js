@@ -7,6 +7,7 @@ import create_project from './components/create_project.js'
 import milestone_tracker from './components/milestone_tracker.js'  
 import notification from './components/notification.js'
 import student_dashboard from './components/student_dashboard.js'
+import commit_history from './components/commit_history.js' 
 
 export default [
     { path:'/' , component : home , name:'Home'},
@@ -18,4 +19,5 @@ export default [
     { path:'/milestone_tracker/:project_id', component: milestone_tracker, name:'Milestone Tracker'},
     { path:'/notification', component: notification, name:'Notification'},
     { path:'/student_dashboard', component: student_dashboard, name:'Student Dashboard'},   
+    { path:'/commit_history', component: commit_history, name:'Commit History'},
 ]

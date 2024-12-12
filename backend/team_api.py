@@ -10,6 +10,7 @@ import google.generativeai as genai
 import pandas as pd
 import json
 import re
+from werkzeug.utils import secure_filename
 GOOGLE_API_KEY = 'AIzaSyBXWPw2U4D1DuOtEDRLrCBcNxnb1qlBh30'
 genai.configure(api_key=GOOGLE_API_KEY)
 
@@ -71,7 +72,7 @@ def get_team_with_commits(project_id, team_id):
     team = Team.query.options(joinedload(Team.members)).filter_by(id=team_id, project_id=project_id).first()
     
     if not team:
-        return jsonify({"error": "Team not found"}), 404
+        return jsonify({"error": "Team not found"})
 
     print(101, [i.id for i in team.members])
     response = {
@@ -129,7 +130,7 @@ def get_team_info(team_id):
 
     if not team:
         # If the team is not found, return a 404 error
-        return jsonify({"error": "Team not found"}), 404
+        return jsonify({"error": "Team not found"})
 
     # Prepare the response data for the team
     team_info = {
@@ -154,7 +155,7 @@ def get_team_repo(team_id):
     
     # If team is not found, return an error
     if not team:
-        return jsonify({"message": f"Team with id {team_id} not found."}), 404
+        return jsonify({"message": f"Team with id {team_id} not found."})
     
     # Extract repo_owner and repo_name from the team
     repo_owner = "githubtraining" #team.repo_owner
@@ -172,40 +173,74 @@ def get_team_repo(team_id):
     return commits
 
 # Route to upload file
-@team_api_bp.route('/upload/team_id/user_id/milestone', methods=['POST'])
+@team_api_bp.route('/upload/<int:team_id>/<int:user_id>/<int:milestone>', methods=['POST'])
 def upload_file(team_id,user_id,milestone):
     if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
+        return jsonify({"error": "No file part in the request"})
 
     file = request.files['file']
 
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No selected file"})
 
-    # Secure filename to prevent directory traversal
+    # Secure the filename to prevent directory traversal
     filename = secure_filename(file.filename)
 
     # Read file data as binary
     file_data = file.read()
+    print(f"Received file: {filename}, Size: {len(file_data)} bytes")
+
+    # Placeholder for file_url (e.g., set a default or generate one)
+    file_url = f"/uploaded_files/{filename}"
 
     # Save file data in database
     new_file = FileStorage(
-            filename=filename,
-            # file_url=file_url,
-            file_data=file_data,
-            uploaded_at=datetime.now(),
-            uploaded_by=user_id,
-            related_milestone=milestone,
-            team_id=team_id
-        )
+        filename=filename,
+        file_url=file_url,  # Use the placeholder or generate an actual URL
+        file_data=file_data,
+        uploaded_at=datetime.now(),
+        uploaded_by=user_id,
+        related_milestone=milestone,
+        team_id=team_id
+    )
 
     try:
         db.session.add(new_file)
         db.session.commit()
-        return jsonify({"message": "File uploaded successfully", "file_id": new_file.id}), 201
+        return jsonify({"message": "File uploaded successfully", "file_id": new_file.id})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)})
+        
+@team_api_bp.route('/get_user_details/<int:user_id>', methods=['GET'])
+def get_user_details(user_id):
+    try:
+        # Query all teams the user belongs to
+        team_memberships = TeamMembers.query.filter_by(user_id=user_id).all()
 
-# @team_api_bp.route()
+        # If no teams found
+        if not team_memberships:
+            return jsonify({"error": "No teams found for the given user ID"})
 
+        # Retrieve team IDs and corresponding project IDs
+        teams_and_projects = []
+        for membership in team_memberships:
+            team = Team.query.get(membership.team_id)
+            if team:
+                project = Projects.query.get(team.project_id)
+                teams_and_projects.append({
+                    "team_id": team.id,
+                    "team_name": team.name,
+                    "project_id": project.id if project else None,
+                    "project_title": project.title if project else None
+                })
+
+        return jsonify({
+            "user_id": user_id,
+            "teams_and_projects": teams_and_projects,
+            "team_id":team.id
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"})

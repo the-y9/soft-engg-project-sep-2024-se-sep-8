@@ -44,7 +44,8 @@ export default {
     </div>
   </div>
   `,
-  
+  // repo_owner = "githubtraining" 
+  // repo_name = "github-slideshow-demo" 
   data() {
       return {
           selectedProjectId: '',

@@ -92,7 +92,7 @@ export default {
                 if (!response.ok) {
                     throw new Error(data.message || "Failed to fetch team details.");
                 }
-                this.team = data;
+                this.team = data.team;
             } catch (error) {
                 console.error("Error fetching team details:", error);
                 alert("Failed to load team details.");
