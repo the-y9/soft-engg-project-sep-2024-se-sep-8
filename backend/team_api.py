@@ -72,7 +72,7 @@ def get_team_with_commits(project_id, team_id):
     team = Team.query.options(joinedload(Team.members)).filter_by(id=team_id, project_id=project_id).first()
     
     if not team:
-        return jsonify({"error": "Team not found"}), 404
+        return jsonify({"error": "Team not found"})
 
     print(101, [i.id for i in team.members])
     response = {
@@ -130,7 +130,7 @@ def get_team_info(team_id):
 
     if not team:
         # If the team is not found, return a 404 error
-        return jsonify({"error": "Team not found"}), 404
+        return jsonify({"error": "Team not found"})
 
     # Prepare the response data for the team
     team_info = {
@@ -155,7 +155,7 @@ def get_team_repo(team_id):
     
     # If team is not found, return an error
     if not team:
-        return jsonify({"message": f"Team with id {team_id} not found."}), 404
+        return jsonify({"message": f"Team with id {team_id} not found."})
     
     # Extract repo_owner and repo_name from the team
     repo_owner = "githubtraining" #team.repo_owner
@@ -221,7 +221,7 @@ def get_user_details(user_id):
 
         # If no teams found
         if not team_memberships:
-            return jsonify({"error": "No teams found for the given user ID"}), 404
+            return jsonify({"error": "No teams found for the given user ID"})
 
         # Retrieve team IDs and corresponding project IDs
         teams_and_projects = []
@@ -243,4 +243,4 @@ def get_user_details(user_id):
         }), 200
 
     except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+        return jsonify({"error": f"An error occurred: {str(e)}"})
