@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash,generate_password_hash
 from backend.security import datastore 
 from flask_restful import marshal, fields
 import flask_excel as excel
-from .models import User, db
+from .models import User, db , TeamMembers
 # from .chatbot import chatbot_bp
 from sqlalchemy import or_ 
 import smtplib
@@ -65,7 +65,11 @@ def user_login():
     
     if check_password_hash(user.password, data.get("password")):
         if user.active:
-            return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name}),200
+            # return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name}),200
+            team_member = TeamMembers.query.filter_by(user_id=user.id).first()
+            team_id = team_member.team_id if team_member else None
+            
+            return jsonify({"token":user.get_auth_token(),"id":user.id,"email":user.email,"role":user.roles[0].name,  "team_id": team_id}),200
         else:
             return jsonify({"message":"User not activated"}),403
     

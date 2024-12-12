@@ -8,28 +8,41 @@ export default {
         </div>
       </section>
 
-      <section class="milestone-content">
+      <!-- Project Selection -->
+      <center>
+      <div class="form-group">
+      
+        <section class="project-selection">
+          <label for="project-select" class="form-label" style="color: white;">Select a Project:</label>
+          <select id="project-select" class="form-select" v-model="selectedProjectId">
+            <option value="" disabled>Select a project</option>
+            <option v-for="project in projects" :key="project.project_id" :value="project.project_id">{{ project.project_title }}</option>
+          </select>
+          <button class="btn btn-primary mt-3" @click="submitProject">Submit</button>
+        </section>
+        
+      </div>
+      </center>
+
+      <!-- Milestone Display -->
+      <section v-if="milestones.length && selectedProjectId" class="milestone-content">
+        <h2>Milestones for Selected Project</h2>
         <div v-for="milestone in milestones" :key="milestone.id" class="milestone-card">
           <div class="milestone-header">
             <h3 class="milestone-title">{{ milestone.name }}</h3>
             <p class="milestone-deadline">Deadline: {{ milestone.deadline }}</p>
           </div>
-          <div class="progress-container">
-            <div class="progress-bar" :style="{ width: milestone.progress + '%' }"></div>
-          </div>
-          <p class="progress-text">Progress: {{ milestone.progress }}%</p>
+          <p><b>Task Name: </b>{{milestone.taskName}}</p>
+          <p><b>Description:</b> {{milestone.description}}</p>
 
           <div class="form-group">
             <label :for="'upload-' + milestone.id" class="form-label">Upload Document</label>
             <input type="file" :id="'upload-' + milestone.id" @change="uploadDocument($event, milestone.id)" class="form-control" />
           </div>
-
-        <div class="button-group">
-          <button class="feedback-button btn btn-info" @click="viewFeedback(milestone.id)">View Feedback</button>
         </div>
-      </div>
-    </section>
+      </section>
 
+      <!-- Chatbot Section -->
       <div class="chatbot-icon" @click="toggleChatbot">
         <img src="static/images/chatbot.png" alt="Chatbot" />
       </div>
@@ -59,123 +72,138 @@ export default {
     </div>`,
 
   data() {
-      return {
-          milestones: [
-              { id: 1, name: 'Milestone 1', deadline: '2024-11-15', progress: 50 },
-              { id: 2, name: 'Milestone 2', deadline: '2024-11-30', progress: 30 },
-              { id: 3, name: 'Milestone 3', deadline: '2024-12-10', progress: 0 }
-          ],
-          chatbotOpen: false,
-          chatHistory: {
-              Chat_History: [],
-              current_message: ''
-          }
-      }
+    return {
+      projects: [], // List of projects
+      selectedProjectId: '', // Selected project ID
+      milestones: [], // Milestones for selected project
+      chatbotOpen: false,
+      chatHistory: {
+        Chat_History: [],
+        current_message: ''
+      },
+      team_id : '',
+      milestoneId: '',
+      user_id : localStorage.getItem('user_id')
+    };
   },
+
   mounted() {
-    // this.fetchMilestones();
+    this.fetchProjects(); // Fetch projects when the page loads
   },
 
   methods: {
+    // Fetch all projects
+    async fetchProjects() {
+      try {
+        
+        const response = await fetch(`/get_user_details/${this.user_id}`, { method: 'GET' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+        const data = await response.json();
+        this.projects = data['teams_and_projects']; // Set the projects data
+        this.team_id = data['team_id'];
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        alert('Failed to load projects');
+      }
+    },
+
+    // Submit selected project to fetch milestones
+    async submitProject() {
+      if (!this.selectedProjectId) {
+        alert('Please select a project.');
+        return;
+      }
+      localStorage.setItem('project_id', this.selectedProjectId);
+
+      try {
+        const response = await fetch(`/projects/${this.selectedProjectId}`, { method: 'GET' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch milestones');
+        }
+        const data = await response.json();
+        this.milestones = data.milestones; // Set the milestones data
+      } catch (error) {
+        console.error('Error fetching milestones:', error);
+        alert('Failed to load milestones');
+      }
+    },
+
     async uploadDocument(event, milestoneId) {
       const file = event.target.files[0];
       if (file) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('filename', file.name);
-          formData.append('related_milestone', milestoneId);
-          formData.append('uploaded_by', this.getUserId()); // Replace this with your logic to fetch user ID
-          formData.append('team_id', this.getTeamId()); // Replace this with your logic to fetch team ID
-
-          try {
-              const response = await fetch('/upload', {
-                  method: 'POST',
-                  body: formData,
-              });
-
-              if (!response.ok) {
-                  throw new Error('Failed to upload file');
-              }
-
-              alert(`Document uploaded successfully for milestone ID: ${milestoneId}`);
-          } catch (error) {
-              console.error('Error uploading document:', error);
-              alert('Failed to upload document');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('filename', file.name);
+        try {
+          const response = await fetch(`/upload/${this.team_id}/${this.user_id}/${milestoneId}`, { method: 'POST', body: formData });
+          if (!response.ok) {
+            throw new Error('Failed to upload file');
           }
+          alert(`Document uploaded successfully for milestone ID: ${milestoneId}`);
+        } catch (error) {
+          console.error('Error uploading document:', error);
+          alert('Failed to upload document');
+        }
       }
-  },
+    },
 
-  async fetchMilestones() {
-    try {
-      const response = await fetch('/milestone',{
-        method: 'GET'
-      }); // Adjust endpoint as per your API
-      if (!response.ok) {
-        throw new Error('Failed to fetch milestones');
-      }
-      const data = await response.json();
-      this.milestones = data.milestones; // Update milestones with backend data
-    } catch (error) {
-      console.error('Error fetching milestones:', error);
-      alert('Failed to load milestones');
-    }
-  },
+    viewFeedback(milestoneId) {
+      alert(`Viewing feedback for milestone ID: ${milestoneId}`);
+    },
 
-      viewFeedback(milestoneId) {
-          alert(`Viewing feedback for milestone ID: ${milestoneId}`);
-      },
+    toggleChatbot() {
+      const chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
+      chatbotModal.toggle();
+    },
 
-      toggleChatbot() {
-          const chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
-          chatbotModal.toggle();
-      },
+    async sendMessage() {
+      if (this.chatHistory.current_message.trim() !== '') {
+        const userMessage = this.chatHistory.current_message;
 
-      async sendMessage() {
-          if (this.chatHistory.current_message.trim() !== '') {
-              const userMessage = this.chatHistory.current_message;
-
-              try {
-                  const response = await fetch('/chatbot', {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(this.chatHistory)
-                  });
-
-                  const data = await response.json();
-                  if (!response.ok) {
-                      throw new Error(data.message || 'Failed to get bot response.');
-                  }
-
-                  this.chatHistory.Chat_History.push({
-                      User: userMessage,
-                      bot: this.renderMarkdown(data.bot_response)
-                  });
-
-                  this.chatHistory.current_message = '';
-                  this.updateChatDisplay();
-              } catch (error) {
-                  console.error('Error getting bot response:', error);
-              }
-          }
-      },
-
-      renderMarkdown(markdownText) {
-          try {
-              const md = window.markdownit(); // Initialize markdown-it
-              return md.render(markdownText); // Render Markdown to HTML
-          } catch (error) {
-              console.error('Markdown rendering failed:', error);
-              return markdownText; // Fallback to plain text
-          }
-      },
-
-      updateChatDisplay() {
-          this.$nextTick(() => {
-              const messagesContainer = document.getElementById('messages');
-              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        try {
+          const response = await fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.chatHistory)
           });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to get bot response.');
+          }
+
+          this.chatHistory.Chat_History.push({
+            User: userMessage,
+            bot: this.renderMarkdown(data.bot_response)
+          });
+
+          this.chatHistory.current_message = '';
+          this.updateChatDisplay();
+        } catch (error) {
+          console.error('Error getting bot response:', error);
+        }
       }
+    },
+
+    renderMarkdown(markdownText) {
+      try {
+        const md = window.markdownit();
+        return md.render(markdownText);
+      } catch (error) {
+        console.error('Markdown rendering failed:', error);
+        return markdownText;
+      }
+    },
+
+    updateChatDisplay() {
+      this.$nextTick(() => {
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+    }
   }
 };

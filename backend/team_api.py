@@ -166,7 +166,7 @@ def get_team_repo(team_id):
     return commits
 
 # Route to upload file
-@team_api_bp.route('/upload/team_id/user_id/milestone', methods=['POST'])
+@team_api_bp.route('/upload/<int:team_id>/<int:user_id>/<int:milestone>', methods=['POST'])
 def upload_file(team_id,user_id,milestone):
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
@@ -181,6 +181,7 @@ def upload_file(team_id,user_id,milestone):
 
     # Read file data as binary
     file_data = file.read()
+    print(file_data)
 
     # Save file data in database
     new_file = FileStorage(
@@ -226,7 +227,8 @@ def get_user_details(user_id):
 
         return jsonify({
             "user_id": user_id,
-            "teams_and_projects": teams_and_projects
+            "teams_and_projects": teams_and_projects,
+            "team_id":team.id
         }), 200
 
     except Exception as e:
