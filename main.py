@@ -70,5 +70,7 @@ def before_request():
 
 app.register_blueprint(team_api_bp)
 app.register_blueprint(other_api_bp)
+
+import os
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
